@@ -56,10 +56,15 @@ export default function Register(): ReactElement {
         if (registerAllowed) {
             setRegisterAllowed(false);
             if (validateForm()) {
+                const formdata = new FormData();
+                formdata.append("username", form.username);
+                formdata.append("email", form.email);
+                formdata.append("password", form.password);
+                formdata.append("confirm_password", form.confirm_password);
                 axios
                     .post(
-                        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/users/create`,
-                        form,
+                        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/v1/users/create`,
+                        formdata,
                         { withCredentials: true }
                     )
                     .then(() => {

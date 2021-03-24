@@ -5,9 +5,9 @@
   "description": "Another Social Media website",
   "main": "/server/app.js",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "next dev",
     "build": "next build",
-    "start": "cross-env NODE_ENV=production node server/app.js",
+    "start": "next start",
     "export": "next export"
   },
   "dependencies": {
