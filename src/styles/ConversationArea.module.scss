@@ -1,0 +1,5 @@
+.messagesList {
+    & > div {
+        padding-inline: var(--chakra-space-3);
+    }
+}

@@ -1,0 +1,9 @@
+.conversations {
+    width: 100%;
+
+    & > div > div {
+        display: flex;
+        flex-direction: column;
+        gap: var(--chakra-space-1);
+    }
+}

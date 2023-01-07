@@ -1,0 +1,9 @@
+.results {
+    width: 100%;
+
+    & > div > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+}

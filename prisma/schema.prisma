@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                       String    @id @default(cuid())
+  displayName              String
+  username                 String    @unique
+  email                    String    @unique
+  password                 String
+  avatarURL                String?
+  restricted               Boolean   @default(false)
+  isAdmin                  Boolean   @default(false)
+  resetPasswordToken       String?
+  resetPasswordTokenExpiry DateTime?
+  totpSecret               String?   @db.VarChar(64)
+  twoFactorAuth            Boolean   @default(false)
+  createdAt                DateTime  @default(now())
+
+  posts          Post[]
+  messages       Message[]
+  settings       UserSettings?
+  eventInterests EventInterest[]
+  likes          PostLike[]
+}
+
+model UserSettings {
+  userId       String  @id
+  allowAllDMs  Boolean @default(true)
+  readReceipts Boolean @default(true)
+  User         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id          String           @id
+  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+  content     String?
+  createdAt   DateTime         @default(now())
+  parentId    String?
+  parent      Post?            @relation(name: "comment", fields: [parentId], references: [id])
+  deleted     Boolean          @default(false)
+  children    Post[]           @relation(name: "comment")
+  attachments PostAttachment[]
+  likes       PostLike[]
+}
+
+model PostLike {
+  userId String
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+}
+
+model PostAttachment {
+  postId String
+  Post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  url    String
+
+  @@id([postId, url])
+}
+
+model Event {
+  id          String          @id
+  title       String
+  time        DateTime
+  location    String
+  imageURL    String?
+  description String
+  createdAt   DateTime        @default(now())
+  interest    EventInterest[]
+}
+
+model EventInterest {
+  eventId String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+model Conversation {
+  id           String   @id @default(cuid())
+  members      String[] @unique
+  participants String[]
+  lastMessage  String   @default("")
+  updatedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  messages Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  content        String
+  userId         String
+  attachmentURL  String?
+  conversationId String
+  wasRead        Boolean      @default(false)
+  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+}

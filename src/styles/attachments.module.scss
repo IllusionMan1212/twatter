@@ -1,0 +1,60 @@
+.imagesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-template-rows: repeat(auto-fit, minmax(50px, 1fr));
+    row-gap: 3px;
+    column-gap: 3px;
+    border: 1px solid var(--chakra-colors-stroke);
+    border-radius: 10px;
+}
+
+.halfImageGrid {
+    display: grid;
+    row-gap: 3px;
+    div {
+        height: auto;
+    }
+}
+
+.halfImageGrid2Images {
+    padding: 55% 30% !important;
+}
+
+.imageAttachment {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    padding: 30%;
+    border-radius: 10px;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    @media (max-width: 800px) {
+        height: 200px;
+    }
+
+    @media (min-width: 801px) {
+        height: 45vh;
+    }
+}
+
+.imageNavigation {
+    top: 50%;
+    bottom: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
+}
+
+.imageNavigationPrev {
+    left: 1em;
+}
+
+.imageNavigationNext {
+    right: 1em;
+}
+

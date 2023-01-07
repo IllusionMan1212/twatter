@@ -1,0 +1,13 @@
+.sidebar {
+    overflow-y: auto;
+    z-index: 3;
+    flex: 4;
+    display: none;
+
+    @media (min-width: 64em) {
+        max-height: calc(100vh - var(--chakra-headerHeight-desktop) - 2.5rem);
+        position: sticky;
+        top: calc(var(--chakra-headerHeight-desktop) + var(--chakra-space-5));
+        display: initial;
+    }
+}

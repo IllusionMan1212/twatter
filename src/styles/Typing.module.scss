@@ -1,0 +1,33 @@
+.dot {
+    transform: none;
+    animation: move 1s linear infinite forwards;
+    width: 10px;
+    height: 10px;
+    background: var(--chakra-colors-accent-300);
+    border-radius: 50%;
+    z-index: 1;
+
+    @for $i from 0 through 2 {
+        &[data-delay="#{$i}"] {
+            animation-delay: calc(#{$i} * .2s);
+        }
+    }
+
+    @keyframes move {
+        0% {
+            transform: translateY(0%);
+        }
+        25% {
+            transform: translateY(-40%)
+        }
+        50% {
+            transform: translateY(-80%)
+        }
+        75% {
+            transform: translateY(10%);
+        }
+        100% {
+            transform: translateY(0%);
+        }
+    }
+}

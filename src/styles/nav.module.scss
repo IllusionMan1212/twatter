@@ -1,0 +1,23 @@
+.nav {
+    overflow-y: auto;
+    max-height: initial;
+    position: fixed;
+    top: unset;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    background-color: var(--chakra-colors-bgPrimary);
+    border-top: 1px solid var(--chakra-colors-textMain);
+    z-index: 3;
+
+    @media (min-width: 52em) {
+        max-height: calc(100vh - var(--chakra-headerHeight-desktop));
+        position: sticky;
+        top: var(--chakra-headerHeight-desktop);
+        bottom: initial;
+        left: initial;
+        width: initial;
+        background-color: initial;
+        border-top: initial;
+    }
+}

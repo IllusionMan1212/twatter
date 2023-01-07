@@ -1,0 +1,27 @@
+- MVP
+   - change the password reset mailing stuff to use our domain
+   - add landing page graphic
+   - integrate tRPC
+   - enter sends message by default in messaging, shift + enter starts a newline
+   - find a better way to optimize the post options button and menu
+   - find a better way to optimize iconbuttons (and maybe buttons in general)
+   - delete messages
+   - attachment modal for messages
+   - rate limiting
+   - strip exif metadata
+
+- POST MVP
+  - Account deletion
+  - Background color for attachments
+  - Show parent post when opening a child post
+  - Searching using post content
+  - A notification system
+  - Show recent searches when focusing searchbar
+  - Post reporting
+  - Event sharing
+  - Device sessions
+  - Profile picture cropping modal
+  - tag-based searching/filtering for convos (`date:2022-03-02` or `name:illusion` or something like that) and maybe for general search too ?
+  - emojis/emotes using twitter's bullshit thingy
+  - notify people that are interested in an event when the event starts.
+  - actual messaging recommendation algo instead of just getting whatever rows
