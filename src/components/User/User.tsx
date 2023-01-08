@@ -22,7 +22,7 @@ interface UserProps {
     id: string;
     displayName: string;
     username: string;
-    avatarURL: string | null;
+    avatarURL: string | undefined;
     allowAllDMs: boolean;
     startConvoCB?: () => Promise<void>;
 }
@@ -61,7 +61,7 @@ export default function User(props: UserProps): ReactElement {
                     <LinkOverlay>
                         <HStack>
                             <Avatar
-                                src={props.avatarURL ?? ""}
+                                src={props.avatarURL}
                                 alt={`${props.username}'s avatar`}
                                 width="50px"
                                 height="50px"

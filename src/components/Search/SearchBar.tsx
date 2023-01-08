@@ -44,7 +44,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                         color="text"
                         rounded="var(--chakra-radii-lg) 0 0 var(--chakra-radii-lg)"
                         bgColor="bgSecondary"
-                        borderColor="bgPrimary"
+                        borderColor="bgSecondary"
                         borderRight="1px solid var(--chakra-colors-bgMain)"
                         placeholder={props.placeholder}
                         _placeholder={{ color: "textMain", opacity: 0.8 }}

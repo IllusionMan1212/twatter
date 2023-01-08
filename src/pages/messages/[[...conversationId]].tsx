@@ -119,7 +119,7 @@ function Recommended({ onClose, mutateConvos }: RecommendedProps): ReactElement 
                             id={user.id}
                             displayName={user.displayName}
                             username={user.username}
-                            avatarURL={user.avatarURL ?? ""}
+                            avatarURL={user.avatarURL}
                             allowAllDMs={user.allowAllDMs}
                             startConvoCB={startConvoCB}
                         />

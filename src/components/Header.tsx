@@ -168,7 +168,7 @@ function LoggedOutHeader(): ReactElement {
             top="0"
             zIndex={3}
         >
-            <Container maxWidth="8xl" py={1}>
+            <Container maxWidth="8xl" py={2}>
                 <HStack justify="space-between">
                     <LinkBox>
                         <NextLink href="/" passHref>

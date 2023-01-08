@@ -21,7 +21,7 @@ export interface ISearchUser {
     id: string;
     displayName: string;
     username: string;
-    avatarURL: string | null;
+    avatarURL: string | undefined;
     allowAllDMs: boolean;
 }
 

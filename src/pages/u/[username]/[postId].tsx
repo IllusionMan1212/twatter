@@ -145,41 +145,39 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
             >
                 <VStack width="full" align="start" px={4} pt={4} pb={2}>
                     <VStack spacing={2} width="full" align="start">
-                        <HStack width="full" spacing={3}>
-                            <Avatar
-                                src={post.authorAvatarURL}
-                                alt={`${post.authorUsername}'s avatar`}
-                                width="50px"
-                                height="50px"
-                            />
-                            <VStack spacing={0} width="full" align="start">
-                                <HStack width="full" position="relative">
-                                    <HStack width="full" spacing={0}>
-                                        <NextLink
-                                            href={`/@${post.authorUsername}`}
-                                            passHref
-                                        >
-                                            <ChakraLink>
-                                                <Text fontSize="md" fontWeight="semibold">
-                                                    {post.authorName}
-                                                </Text>
-                                                <Text fontSize="sm" color="textMain">
-                                                    @{post.authorUsername}
-                                                </Text>
-                                            </ChakraLink>
-                                        </NextLink>
-                                    </HStack>
-                                    <div>
-                                        <Options
-                                            openDeleteDialog={onOpen}
-                                            userId={user?.id}
-                                            authorId={post.authorId}
-                                            authorUsername={post.authorUsername}
-                                            postId={post.id}
+                        <HStack width="full" justify="space-between" spacing={3}>
+                            <NextLink
+                                href={`/@${post.authorUsername}`}
+                                passHref
+                            >
+                                <ChakraLink>
+                                    <HStack>
+                                        <Avatar
+                                            src={post.authorAvatarURL}
+                                            alt={`${post.authorUsername}'s avatar`}
+                                            width="50px"
+                                            height="50px"
                                         />
-                                    </div>
-                                </HStack>
-                            </VStack>
+                                        <VStack spacing={0}>
+                                            <Text fontSize="md" fontWeight="semibold">
+                                                {post.authorName}
+                                            </Text>
+                                            <Text fontSize="sm" color="textMain">
+                                                @{post.authorUsername}
+                                            </Text>
+                                        </VStack>
+                                    </HStack>
+                                </ChakraLink>
+                            </NextLink>
+                            <div>
+                                <Options
+                                    openDeleteDialog={onOpen}
+                                    userId={user?.id}
+                                    authorId={post.authorId}
+                                    authorUsername={post.authorUsername}
+                                    postId={post.id}
+                                />
+                            </div>
                         </HStack>
                         {post.parentAuthorUsername ? (
                             <Text

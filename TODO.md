@@ -11,6 +11,7 @@
    - strip exif metadata
 
 - POST MVP
+  - HTML template with styling for password reset Email
   - Account deletion
   - Background color for attachments
   - Show parent post when opening a child post

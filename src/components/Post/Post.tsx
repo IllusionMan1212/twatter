@@ -199,7 +199,7 @@ export default function Post(props: PostProps): ReactElement {
                                         passHref
                                     >
                                         <a
-                                            className="font-semibold text-[color:var(--chakra-colors-accent-500)]"
+                                            className="font-semibold hover:underline text-[color:var(--chakra-colors-accent-500)]"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             @{props.parentAuthorUsername}
