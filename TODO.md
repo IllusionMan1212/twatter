@@ -1,5 +1,4 @@
 - MVP
-   - change the password reset mailing stuff to use our domain
    - add landing page graphic
    - integrate tRPC
    - enter sends message by default in messaging, shift + enter starts a newline

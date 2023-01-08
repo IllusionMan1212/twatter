@@ -185,7 +185,7 @@ export default function LoginForm(): ReactElement {
                     alignSelf="stretch"
                     isLoading={isSubmitting}
                     loadingText="Logging in"
-                    disabled={isDisabled}
+                    isDisabled={isSubmitting || isDisabled}
                     colorScheme="button"
                     onClick={handleSubmit}
                 >

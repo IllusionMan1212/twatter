@@ -143,7 +143,7 @@ export default function RegisterForm(): ReactElement {
             <Button
                 isLoading={isSubmitting}
                 loadingText="Submitting"
-                disabled={isDisabled}
+                isDisabled={isSubmitting || isDisabled}
                 colorScheme="button"
                 onClick={handleSignup}
             >

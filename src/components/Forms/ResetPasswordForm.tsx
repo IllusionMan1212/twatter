@@ -75,6 +75,10 @@ export default function ResetPasswordForm({
                 if (e.response?.status === 403) {
                     toast.error(e.response?.data?.message ?? "Token invalid or expired");
                     router.replace("/forgot-password");
+                
+                } else if (e.response?.status === 400) {
+                    toast.error(e.response.data.message ?? "Bad request");
+                    setSubmitting(false);
                 } else if (e.response?.status === 500) {
                     toast.error(
                         e.response?.data?.message ??
@@ -158,7 +162,7 @@ export default function ResetPasswordForm({
                         alignSelf="stretch"
                         isLoading={isSubmitting}
                         loadingText="Resetting password"
-                        disabled={isDisabled}
+                        isDisabled={isSubmitting || isDisabled}
                         colorScheme="button"
                         onClick={handleSubmit}
                     >

@@ -62,6 +62,7 @@ export default function ResetPasswordForm(): ReactElement {
                 alignSelf="stretch"
                 isLoading={isSubmitting}
                 loadingText="Sending email"
+                isDisabled={isSubmitting}
                 colorScheme="button"
                 onClick={handleSubmit}
             >

@@ -94,24 +94,20 @@ export async function forgotPassword(req: Request, res: Response) {
 
     const transporter = nodemailer.createTransport({
         auth: {
-            clientId: process.env.GMAIL_CLIENT_ID,
-            clientSecret: process.env.GMAIL_CLIENT_SECRET,
-            refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-            type: "OAuth2",
-            user: process.env.GMAIL_EMAIL,
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD,
         },
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
+        host: "mail.twatter.social", // TODO: set up an email server in the future
+        port: 587,
+        requireTLS: true,
     });
 
     const mailOptions = {
-        from: "Twatter",
+        from: `Twatter <${process.env.EMAIL}>`,
         html: `<p>The password reset link you requested is ready. Please click on the link below to reset your password</p>\
             <a href="https://${req.headers.host}/reset-password?token=${token}">https://${req.headers.host}/reset-password?token=${token}</a>\
             <p><b>Note: This link expires in 1 hour</b></p>\
             <p>If you did not request this link, ignore this email and your password will remain unchanged</p>`,
-        sender: "Twatter",
         subject: "Password Reset - Twatter",
         to: user.email,
     };
