@@ -1,7 +1,8 @@
 - MVP
+   - upcoming events should only show events that are happening in the next 30 days
    - smaller nav bar but it breaks the opened post page's scrolling
-   - when settings/messages item screen is open for mobile we can still scroll the actual document
    - add landing page graphic
+   - when settings/messages item screen is open for mobile we can still scroll the actual document
    - enter sends message by default in messaging, shift + enter starts a newline
    - attachment modal for messages
    - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast

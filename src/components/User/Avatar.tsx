@@ -14,7 +14,7 @@ const Avatar = memo(function Avatar(props: AvatarProps): ReactElement {
         <Image
             src={props.src ?? "/default_profile.svg"}
             alt={props.alt}
-            className="rounded overflow-hidden"
+            className="rounded overflow-hidden object-cover"
             width={props.width}
             height={props.height}
             minWidth={props.width}
