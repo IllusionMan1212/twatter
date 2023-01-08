@@ -1,13 +1,17 @@
 - MVP
+   - smaller nav bar but it breaks the opened post page's scrolling
+   - when settings/messages item screen is open for mobile we can still scroll the actual document
    - add landing page graphic
-   - integrate tRPC
    - enter sends message by default in messaging, shift + enter starts a newline
-   - find a better way to optimize the post options button and menu
-   - find a better way to optimize iconbuttons (and maybe buttons in general)
-   - delete messages
    - attachment modal for messages
+   - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast
+   - integrate tRPC
+   - delete messages
    - rate limiting
    - strip exif metadata
+   - allow guests to view profiles and posts
+   - find a better way to optimize the post options button and menu
+   - find a better way to optimize iconbuttons (and maybe buttons in general)
 
 - POST MVP
   - HTML template with styling for password reset Email
@@ -16,6 +20,7 @@
   - Show parent post when opening a child post
   - Searching using post content
   - A notification system
+  - Trending
   - Show recent searches when focusing searchbar
   - Post reporting
   - Event sharing

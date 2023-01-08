@@ -38,7 +38,7 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
-    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments."parentId" = p.id) as comments,
+    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
     LEFT JOIN "Post" parent
@@ -66,7 +66,7 @@ export const queryPost = async (userId: string, postId: string): Promise<Post[]>
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
-    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments."parentId" = p.id) as comments,
+    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
     LEFT JOIN "Post" parent
@@ -92,7 +92,7 @@ export const queryComments = async (userId: string, postId: string, page: number
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
-    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments."parentId" = p.id) as comments,
+    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
     LEFT JOIN "Post" parent
