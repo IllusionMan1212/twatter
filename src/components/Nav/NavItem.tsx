@@ -39,7 +39,7 @@ export default function NavItem({
                     py={6}
                     rounded="full"
                     leftIcon={<Icon as={icon} w="26px" h="26px" />}
-                    colorScheme={isActive ? "accent" : "navItem"}
+                    colorScheme={isActive ? "accent" : "conversationItem"}
                     color={isActive ? "textOpposite" : "text"}
                     fontWeight={isActive ? "bold" : "semibold"}
                     width="full"
@@ -79,7 +79,7 @@ export function DrawerNavItem({
                         justifyContent="flex-start"
                         py={6}
                         leftIcon={<Icon as={icon} w="26px" h="26px" />}
-                        colorScheme="drawerNavItem"
+                        colorScheme="navItem"
                         color="text"
                         fontWeight="semibold"
                         width="full"
@@ -95,7 +95,7 @@ export function DrawerNavItem({
                     justifyContent="flex-start"
                     py={6}
                     leftIcon={<Icon as={icon} w="26px" h="26px" />}
-                    colorScheme="drawerNavItem"
+                    colorScheme="navItem"
                     color="text"
                     fontWeight="semibold"
                     width="full"

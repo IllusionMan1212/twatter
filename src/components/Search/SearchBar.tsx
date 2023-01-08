@@ -43,8 +43,8 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                         ref={inputRef}
                         color="text"
                         rounded="var(--chakra-radii-lg) 0 0 var(--chakra-radii-lg)"
-                        bgColor="bgSecondary"
-                        borderColor="bgSecondary"
+                        bgColor="bgPrimary"
+                        borderColor="bgPrimary"
                         borderRight="1px solid var(--chakra-colors-bgMain)"
                         placeholder={props.placeholder}
                         _placeholder={{ color: "textMain", opacity: 0.8 }}
@@ -63,7 +63,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                         aria-label="Search button"
                         rounded="0 var(--chakra-radii-lg) var(--chakra-radii-lg) 0"
                         size={props.size}
-                        colorScheme="navItem"
+                        colorScheme="conversationItem"
                         icon={<Box size="28" as={MagnifyingGlass} color="textMain" />}
                         onClick={() => props.onSubmit?.(inputRef.current)}
                         disabled={buttonDisabled}
@@ -75,7 +75,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                         ref={inputRef}
                         color="text"
                         rounded={props.rounded}
-                        bgColor="bgSecondary"
+                        bgColor="bgPrimary"
                         borderColor="bgPrimary"
                         placeholder={props.placeholder}
                         _placeholder={{ color: "textMain", opacity: 0.8 }}

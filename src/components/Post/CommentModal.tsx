@@ -59,7 +59,7 @@ const CommentModal = memo(function CommentModal({
             size="xl"
         >
             <ModalOverlay />
-            <ModalContent bgColor="bgMain">
+            <ModalContent bgColor="bgPrimary">
                 <ModalBody py={6} px={0}>
                     <div className="flex flex-col px-5 space-y-2">
                         <Grid

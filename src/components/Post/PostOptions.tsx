@@ -8,7 +8,6 @@ import {
     ModalContent,
     ModalBody,
     ModalHeader,
-    ModalFooter,
 } from "@chakra-ui/react";
 import { LinkIcon, ShareIcon, TrashIcon } from "@heroicons/react/solid";
 import { FacebookLogo, RedditLogo, TwitterLogo } from "phosphor-react";
@@ -22,17 +21,17 @@ const twitterSharerPrefix = "https://twitter.com/share?text=";
 
 function FacebookIcon() {
     return (
-        <FacebookLogo weight="fill" size="50" color="var(--chakra-colors-facebook-400)" />
+        <FacebookLogo weight="fill" size="40" color="var(--chakra-colors-facebook-400)" />
     );
 }
 
 function RedditIcon() {
-    return <RedditLogo weight="fill" size="50" color="var(--chakra-colors-orange-400)" />;
+    return <RedditLogo weight="fill" size="40" color="var(--chakra-colors-orange-400)" />;
 }
 
 function TwitterIcon() {
     return (
-        <TwitterLogo weight="fill" size="50" color="var(--chakra-colors-twitter-400)" />
+        <TwitterLogo weight="fill" size="40" color="var(--chakra-colors-twitter-400)" />
     );
 }
 
@@ -45,9 +44,9 @@ interface ShareLinkProps {
 function ShareLink({ title, href, Icon }: ShareLinkProps): ReactElement {
     return (
         <ChakraLink href={href} isExternal>
-            <div className="flex flex-col w-full space-y-1 items-center">
+            <div className="flex flex-col w-20 space-y-1 items-center">
                 <Icon />
-                <p>{title}</p>
+                <p className="text-sm">{title}</p>
             </div>
         </ChakraLink>
     );
@@ -67,7 +66,7 @@ const ShareModal = memo(function ShareModal({
     url,
 }: ShareModalProps): ReactElement {
     return (
-        <Modal isOpen={isOpen} isCentered onClose={onClose}>
+        <Modal isOpen={isOpen} size="xs" isCentered onClose={onClose}>
             <ModalOverlay />
             <ModalContent bgColor="bgMain">
                 <ModalHeader>
@@ -92,7 +91,7 @@ const ShareModal = memo(function ShareModal({
                         />
                     </div>
                 </ModalBody>
-                <ModalFooter />
+                <div className="py-2" />
             </ModalContent>
         </Modal>
     );

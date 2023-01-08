@@ -41,7 +41,7 @@ const ComposePostItem = () => {
                 py={6}
                 rounded="full"
                 leftIcon={<Icon as={NotePencilIcon} w="26px" h="26px" />}
-                colorScheme="navItem"
+                colorScheme="conversationItem"
                 color="text"
                 fontWeight="semibold"
                 width="full"

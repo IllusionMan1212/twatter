@@ -243,7 +243,7 @@ function NewConversationModal({
         <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
             <ModalOverlay />
             <ModalContent bgColor="bgMain">
-                <ModalHeader>
+                <ModalHeader fontWeight="normal">
                     <SearchBar rounded="lg" size="md" onChange={handleChange} />
                 </ModalHeader>
                 <ModalBody>

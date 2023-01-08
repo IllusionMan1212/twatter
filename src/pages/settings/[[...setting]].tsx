@@ -72,7 +72,7 @@ export default function Settings(): ReactElement {
             <Flex
                 gap={4}
                 direction="column"
-                height="calc(100vh - var(--chakra-headerHeight-desktop) - 2.5rem)"
+                height={{ base: "initial", lg: "calc(100vh - var(--chakra-headerHeight-desktop) - 2.5rem)" }}
                 align="center"
                 flex="4"
             >

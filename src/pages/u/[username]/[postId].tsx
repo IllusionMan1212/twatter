@@ -35,15 +35,21 @@ import { NextSeo } from "next-seo";
 import CommentBox from "src/components/Post/CommentBox";
 
 function ChatIcon() {
-    return <Chat weight="bold" size="20" />;
+    return <Chat weight="bold" size="20" color="grey" />;
 }
 
 interface LikeIconProps {
     liked: boolean;
 }
 
-function LikeIcon({ liked }: LikeIconProps) {
-    return <Heart weight={liked ? "fill" : "bold"} size="22" />;
+export function LikeIcon({ liked }: LikeIconProps) {
+    return (
+        <Heart
+            weight={liked ? "fill" : "bold"}
+            size="22"
+            color={liked ? "var(--chakra-colors-red-600)" : "grey"}
+        />
+    );
 }
 
 interface DeleteDialogProps {

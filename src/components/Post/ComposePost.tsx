@@ -133,14 +133,14 @@ export default function ComposePost({
     return (
         <div className="flex flex-col space-y-4 items-start w-full">
             <VStack
-                bgColor="bgSecondary"
+                bgColor="bgPrimary"
                 borderRadius="compose"
                 p={4}
                 spacing={6}
                 align="start"
                 width="full"
                 border="1px solid"
-                borderColor="stroke"
+                borderColor="bgSecondary"
                 _hover={{ borderColor: "gray.400" }}
                 _focusWithin={{
                     borderColor: "button.400",

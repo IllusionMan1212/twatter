@@ -156,7 +156,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
                         // some weird hack to have the input expand vertically how we want it to
                         sx={{
                             "&::after": {
-                                content: 'attr(data-value) " "',
+                                content: "attr(data-value) \" \"",
                                 visibility: "hidden",
                                 whiteSpace: "pre-wrap",
                                 gridArea: "1/1",

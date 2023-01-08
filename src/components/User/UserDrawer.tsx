@@ -118,8 +118,8 @@ const UserDrawer = ((props: BoxProps) => {
             <Avatar
                 src={user?.avatarURL}
                 alt={`${user?.username}'s avatar`}
-                width="35px"
-                height="35px"
+                width="30px"
+                height="30px"
                 onClick={onOpen}
             />
             <Drawer isOpen={isOpen} placement="right" onClose={onClose}>

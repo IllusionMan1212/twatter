@@ -120,7 +120,7 @@ const theme = extendTheme({
             },
             bgMain: {
                 default: "#E6EDF4",
-                _dark: "#16181B",
+                _dark: "#121314",
             },
             bgPrimary: {
                 default: "#D9E1EA",
@@ -128,7 +128,7 @@ const theme = extendTheme({
             },
             bgSecondary: {
                 default: "#CBD2DA",
-                _dark: "#121314",
+                _dark: "#16181B",
             },
             bgThird: {
                 default: "#565960",
@@ -167,11 +167,11 @@ const theme = extendTheme({
             200: "#121314",
             300: "#2b2e30",
             400: "#3c3e44",
-            500: "#CBD2DA",
-            600: "#abb4c0",
-            700: "#8a96a6",
-            800: "#728193",
-            900: "#5a6c81",
+            500: "#E6EDF4",
+            600: "#c5d3dc",
+            700: "#a3b4c1",
+            800: "#8096a7",
+            900: "#678193"
         },
         conversationItem: {
             100: "#09090a",
@@ -183,17 +183,6 @@ const theme = extendTheme({
             700: "#ced6dd",
             800: "#c9d0d7",
             900: "#c4cad1"
-        },
-        drawerNavItem: {
-            100: "#09090a",
-            200: "#16181B",
-            300: "#2b2c30",
-            400: "#3c3e44",
-            500: "#E6EDF4",
-            600: "#c5d3dc",
-            700: "#a3b4c1",
-            800: "#8096a7",
-            900: "#678193"
         },
         accent: {
             50: "#e6eefd",
@@ -223,6 +212,7 @@ const theme = extendTheme({
         header: "0 4px 4px rgba(0, 0, 0, 0.15)",
         conversationHeader: "0 2px 2px rgba(0, 0, 0, 0.07)",
         conversationFooter: "0 -2px 2px rgba(0, 0, 0, 0.07)",
+        nav: "0 -2px 4px rgba(0, 0, 0, 0.15)",
     },
     radii: {
         compose: "8px",

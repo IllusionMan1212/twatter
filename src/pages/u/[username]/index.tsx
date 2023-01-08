@@ -47,7 +47,7 @@ function Tags({ user }: Props): ReactElement {
             {user.isAdmin ? (
                 <Tag
                     variant="solid"
-                    bgColor="bgSecondary"
+                    bgColor="bgPrimary"
                     color="textMain"
                     fontWeight="bold"
                     py={1}

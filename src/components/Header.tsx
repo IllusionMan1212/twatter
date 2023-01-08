@@ -162,8 +162,7 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
 function LoggedOutHeader(): ReactElement {
     return (
         <Stack
-            bgColor="bgPrimary"
-            boxShadow="header"
+            bgColor="bgMain"
             position="sticky"
             top="0"
             zIndex={3}
@@ -240,8 +239,7 @@ function LoggedInHeader(): ReactElement {
 
     return (
         <Stack
-            bgColor="bgPrimary"
-            boxShadow="header"
+            bgColor="bgMain"
             position="sticky"
             top="0"
             zIndex={3}
