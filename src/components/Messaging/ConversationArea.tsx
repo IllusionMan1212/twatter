@@ -14,6 +14,7 @@ import {
     useDisclosure,
     Spinner,
     SlideFade,
+    useMediaQuery,
 } from "@chakra-ui/react";
 import {
     Dispatch,
@@ -94,11 +95,14 @@ function MessageCompose({
 }: MessageComposeProps): ReactElement {
     const { socket } = useUserContext();
 
+    const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
+
     const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && e.ctrlKey) {
+        if (e.key === "Enter" && isLargerThanMd) {
             e.preventDefault();
-            sendMessage();
-            return;
+
+            e.shiftKey && document.execCommand("insertLineBreak");
+            !e.shiftKey && sendMessage();
         }
     };
 
