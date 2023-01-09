@@ -24,13 +24,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import { MAX_ATTACHMENT_SIZE, SUPPORTED_PROFILE_IMAGE_TYPES } from "src/utils/constants";
 import toast from "react-hot-toast";
 import { axiosAuth } from "src/utils/axios";
-import { GenericBackendRes } from "src/types/server";
+import { GenericBackendRes, GetEventsRes } from "src/types/server";
 import { AxiosError } from "axios";
 import { XIcon } from "@heroicons/react/outline";
+import { KeyedMutator } from "swr";
 
 interface AddEventModalProps {
     isOpen: boolean;
     onClose: () => void;
+    mutate: KeyedMutator<GetEventsRes[]>;
 }
 
 const DatePickerInput = (props: InputProps, ref: Ref<HTMLInputElement>) => {
@@ -40,6 +42,7 @@ const DatePickerInput = (props: InputProps, ref: Ref<HTMLInputElement>) => {
 export default function AddEventModal({
     isOpen,
     onClose,
+    mutate,
 }: AddEventModalProps): ReactElement {
     const [attachment, setAttachment] = useState<File | null>(null);
     const [eventDate, setEventDate] = useState<Date | null>(
@@ -98,10 +101,11 @@ export default function AddEventModal({
 
         axiosAuth
             .post<GenericBackendRes>("events/add-event", payload)
-            .then((res) => {
+            .then(async (res) => {
                 toast.success(res.data.message);
                 setSubmitting(false);
                 onClose();
+                await mutate();
             })
             .catch((e: AxiosError<GenericBackendRes>) => {
                 toast.error(

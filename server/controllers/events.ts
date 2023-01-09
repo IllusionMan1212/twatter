@@ -60,7 +60,7 @@ export async function addEvent(req: Request, res: Response) {
         return res.status(500).json({ message: "An internal error has occurred" });
     }
 
-    return res.status(201).json({ message: "Your event has been submitted for approval" });
+    return res.status(201).json({ message: "Event added" });
 }
 
 export async function toggleInterest(req: Request, res: Response) {

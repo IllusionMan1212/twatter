@@ -24,7 +24,7 @@ export const querySidebarEvents = async (userId: string): Promise<Event[]> => {
     FROM "Event"
     LEFT JOIN "EventInterest" i
     ON i."eventId" = id
-    WHERE time > now()
+    WHERE time > now() AND time < now() + INTERVAL '1 MONTH'
     GROUP BY id
     ORDER BY time < now(), time ASC
     LIMIT 3

@@ -164,7 +164,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                             width="50px"
                                             height="50px"
                                         />
-                                        <VStack spacing={0}>
+                                        <VStack spacing={0} align="start">
                                             <Text fontSize="md" fontWeight="semibold">
                                                 {post.authorName}
                                             </Text>

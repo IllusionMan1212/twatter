@@ -1,5 +1,4 @@
 - MVP
-   - upcoming events should only show events that are happening in the next 30 days
    - smaller nav bar but it breaks the opened post page's scrolling
    - add landing page graphic
    - when settings/messages item screen is open for mobile we can still scroll the actual document

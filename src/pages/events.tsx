@@ -13,7 +13,7 @@ import Event from "src/components/Event/Event";
 import { useUserContext } from "src/contexts/userContext";
 import AddEventModal from "src/components/Event/AddEventModal";
 import { fetcher } from "src/utils/helpers";
-import useSWRInfinite from "swr/infinite";
+import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
 import { IEvent } from "src/types/interfaces";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
@@ -27,7 +27,11 @@ const getKey = (pageIndex: number) => {
     return `events/get-events?page=${pageIndex}`;
 };
 
-function EventsBody(): ReactElement {
+interface EventsBodyProps {
+    swr: SWRInfiniteResponse<GetEventsRes, AxiosError<GenericBackendRes>>;
+}
+
+function EventsBody({ swr }: EventsBodyProps): ReactElement {
     const {
         data,
         error,
@@ -35,9 +39,7 @@ function EventsBody(): ReactElement {
         mutate,
         size: page,
         setSize: setPage,
-    } = useSWRInfinite(getKey, fetcher<GetEventsRes>, {
-        revalidateOnFocus: false,
-    });
+    } = swr;
 
     const [reachedEnd, setReachedEnd] = useState(false);
     const [events, setEvents] = useState<IEvent[]>([]);
@@ -126,6 +128,10 @@ function EventsBody(): ReactElement {
 export default function Events(): ReactElement {
     const { user } = useUserContext();
 
+    const swr = useSWRInfinite<GetEventsRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
+        revalidateOnFocus: false,
+    });
+
     const addEventModal = useDisclosure();
 
     return (
@@ -156,10 +162,11 @@ export default function Events(): ReactElement {
                         <AddEventModal
                             isOpen={addEventModal.isOpen}
                             onClose={addEventModal.onClose}
+                            mutate={swr.mutate}
                         />
                     </>
                 ) : null}
-                <EventsBody />
+                <EventsBody swr={swr} />
             </VStack>
         </Flex>
     );
