@@ -80,6 +80,7 @@ function User({ user }: Props): ReactElement {
         <Flex
             direction={{ base: "column", "600px": "row" }}
             gap={8}
+            py={4}
             width="full"
             justify={{ base: "center", "600px": "space-between" }}
             align="center"
@@ -246,7 +247,7 @@ export default function Profile({ user }: Props): ReactElement {
                     ],
                 }}
             />
-            <VStack spacing={10} align="start" flex="7">
+            <VStack spacing={6} align="start" flex="7">
                 <User user={user} />
                 <Posts user={user} />
             </VStack>

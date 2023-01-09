@@ -41,6 +41,7 @@ const ComposePostItem = () => {
                 py={6}
                 rounded="full"
                 leftIcon={<Icon as={NotePencilIcon} w="26px" h="26px" />}
+                minWidth="200px"
                 colorScheme="conversationItem"
                 color="text"
                 fontWeight="semibold"
@@ -86,7 +87,7 @@ export default function Nav(): ReactElement {
                     </>
                 )}
             </VStack>
-            <HStack justify="space-around" p={2} display={{ base: "flex", md: "none" }}>
+            <HStack justify="space-around" p={1} display={{ base: "flex", md: "none" }}>
                 <NavItem href="/home" ariaLabel="Home" icon={HomeIcon} />
                 <NavItem href="/search" ariaLabel="Search" icon={SearchIcon} />
                 <NavItem href="/trends" ariaLabel="Trending" icon={TrendingUpIcon} />

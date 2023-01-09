@@ -37,6 +37,7 @@ export default function NavItem({
                     as={ChakraLink}
                     justifyContent="flex-start"
                     py={6}
+                    minWidth="200px"
                     rounded="full"
                     leftIcon={<Icon as={icon} w="26px" h="26px" />}
                     colorScheme={isActive ? "accent" : "conversationItem"}

@@ -146,7 +146,7 @@ const theme = extendTheme({
             desktop: "61px",
             mobile: "56px",
         },
-        navBarHeight: "56px",
+        navBarHeight: "49px",
         tableHeaderHeight: "40px",
     },
     colors: {

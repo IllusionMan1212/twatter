@@ -7,6 +7,12 @@ import Sidebar from "src/components/Sidebar";
 
 const adminRoutes = ["/dashboard/[[...item]]"];
 
+const fullScreenRoutes = [
+    "/settings/[[...setting]]",
+    "/messages/[[...conversationId]]",
+    "/u/[username]/[postId]",
+];
+
 const nonSidebarRoutes = [
     "/messages/[[...conversationId]]",
     "/dashboard/[[...item]]",
@@ -19,12 +25,7 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
     const router = useRouter();
 
     const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
-    const onSettingsPage = router.pathname === "/settings/[[...setting]]";
-    const onMessagesPage = router.pathname === "/messages/[[...conversationId]]";
-    const onPostPage = router.pathname === "/u/[username]/[postId]";
-    const onHomePage = router.pathname === "/home";
-    const fullScreenRoute = onSettingsPage || onMessagesPage || onPostPage || onHomePage;
-    const fullScreen = fullScreenRoute && !isLargerThanMd;
+    const fullScreenRoute = fullScreenRoutes.includes(router.pathname);
 
     const hasSidebar = !nonSidebarRoutes.includes(router.pathname);
     const withEvents = router.pathname !== "/events";
@@ -56,14 +57,10 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
                     flexBasis="70%"
                     position="relative"
                     mt={{
-                        base:
-                            fullScreen && !onMessagesPage
-                                ? "var(--chakra-headerHeight-mobile)"
-                                : "calc(var(--chakra-headerHeight-mobile) + var(--chakra-space-5))",
+                        base: "initial",
                         md: 5,
                     }}
-                    mb={fullScreenRoute ? "" : { base: 1, md: 5 }}
-                    bottom={{ base: "var(--chakra-navBarHeight)", md: "initial" }}
+                    mb={{ base: "var(--chakra-navBarHeight)", md: fullScreenRoute ? 0 : 5 }}
                     maxWidth="full"
                     minWidth="0"
                 >

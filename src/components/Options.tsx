@@ -57,7 +57,15 @@ const OptionsButton = ((props: MenuButtonProps & OptionsButtonProps) => {
 const OptionsMenu = ((props: BoxProps & OptionsMenuProps) => {
     return (
         <div>
-            <Menu boundary="scrollParent" placement="bottom-end">
+            <Menu
+                modifiers={[
+                    {
+                        name: "preventOverflow",
+                        options: { padding: { bottom: 49 }, altAxis: true, rootBoundary: "document" }
+                    }
+                ]}
+                placement="bottom-end"
+            >
                 <OptionsButton size={props.buttonSize} direction={props.direction} />
                 {props.children}
             </Menu>
