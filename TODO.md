@@ -1,6 +1,4 @@
 - MVP
-   - add landing page graphic
-   - when settings/messages item screen is open for mobile we can still scroll the actual document
    - enter sends message by default in messaging, shift + enter starts a newline
    - attachment modal for messages
    - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast

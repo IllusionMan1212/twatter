@@ -460,7 +460,7 @@ export default function Messages(): ReactElement {
                 gap={4}
                 direction="column"
                 height={{
-                    base: "calc(100vh - (var(--chakra-headerHeight-mobile) + var(--chakra-space-5)) - var(--chakra-navBarHeight))",
+                    base: "calc(100vh - var(--chakra-headerHeight-mobile) - var(--chakra-navBarHeight))",
                     md: "calc(100vh - var(--chakra-headerHeight-desktop) - 2.5rem)",
                 }}
                 align="center"
