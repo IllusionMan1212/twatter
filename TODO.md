@@ -1,5 +1,4 @@
 - MVP
-   - limit message and post length
    - attachment modal for messages
    - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast
    - integrate tRPC

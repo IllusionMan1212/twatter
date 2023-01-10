@@ -4,6 +4,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { ClientToServerEvents, ServerToClientEvents } from "./types";
 import fs from "fs/promises";
 import crypto from "crypto";
+import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
 
 export const handleMessage = (
     socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
@@ -27,6 +28,15 @@ export const handleMessage = (
         }
 
         const message = data.message.replaceAll(/\n{2,}|\r{2,}|(\r\n){2,}/g, "\n\n").trim();
+
+        if (message.length > MESSAGE_MAX_CHARS) {
+            connectedSockets.get(socket.userId)?.forEach((_socket) => {
+                _socket.emit("error", {
+                    message: `Message cannot exceed ${MESSAGE_MAX_CHARS} characters`,
+                });
+            });
+            return;
+        }
 
         const newMessage = await createMessage(message, attachmentURL, data.conversationId, socket.userId, data.recipientId);
 

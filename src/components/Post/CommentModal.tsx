@@ -109,7 +109,7 @@ const CommentModal = memo(function CommentModal({
                                 </GridItem>
                             ) : null}
                             <GridItem colStart={1} colEnd={4}>
-                                <p className="text-xl break-words whitespace-pre-line">
+                                <p className="text-xl [overflow-wrap:anywhere] whitespace-pre-line">
                                     {post.content}
                                 </p>
                             </GridItem>

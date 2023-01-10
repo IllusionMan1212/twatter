@@ -207,7 +207,7 @@ export default function Post(props: PostProps): ReactElement {
                                     </NextLink>
                                 </p>
                             ) : null}
-                            <p className="break-words whitespace-pre-line">
+                            <p className="[overflow-wrap:anywhere] whitespace-pre-line">
                                 {props.content}
                             </p>
                             {props.attachments ? (

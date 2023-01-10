@@ -6,12 +6,13 @@ import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
-import { MAX_ATTACHMENT_SIZE, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
+import { MAX_ATTACHMENT_SIZE, SUPPORTED_ATTACHMENTS, POST_MAX_CHARS } from "src/utils/constants";
 const AttachmentPreview = dynamic(
     () => import("src/components/Attachments/AttachmentPreview"),
 );
 import Avatar from "src/components/User/Avatar";
 import { FileUpload } from "src/components/Controls/FileUpload";
+import CharsRemaining from "src/components/CharsRemaining";
 
 interface ComposePostProps {
     cb: () => Promise<void>;
@@ -30,6 +31,7 @@ export default function ComposePost({
     const [attachments, setAttachments] = useState<File[]>([]);
     const [isSubmitting, setSubmitting] = useState(false);
     const [hasText, setHasText] = useState(false);
+    const [charsLeft, setCharsLeft] = useState(POST_MAX_CHARS);
 
     const composePostRef = useRef<HTMLTextAreaElement>(null);
 
@@ -85,6 +87,7 @@ export default function ComposePost({
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         e.target.parentElement!.dataset.value = e.target.value;
         setHasText(!!e.target.value.trim());
+        setCharsLeft(POST_MAX_CHARS - e.target.value.length);
     };
 
     const removeAttachment = (idx: number) => {
@@ -100,7 +103,8 @@ export default function ComposePost({
     const submitPost = () => {
         if (
             composePostRef.current &&
-            (composePostRef.current?.value.trim().length || attachments.length)
+            (composePostRef.current?.value.trim().length || attachments.length) &&
+            charsLeft >= 0
         ) {
             setSubmitting(true);
             setAttachments([]);
@@ -113,6 +117,7 @@ export default function ComposePost({
 
             composePostRef.current.value = "";
             setHasText(false);
+            setCharsLeft(POST_MAX_CHARS);
 
             axiosAuth
                 .post<GenericBackendRes>(apiRoute, payload)
@@ -148,12 +153,15 @@ export default function ComposePost({
                 }}
             >
                 <div className="flex items-start gap-4 w-full">
-                    <Avatar
-                        src={user?.avatarURL}
-                        alt={`${user?.username}'s avatar`}
-                        width="40px"
-                        height="40px"
-                    />
+                    <div className="flex flex-col items-center gap-2">
+                        <Avatar
+                            src={user?.avatarURL}
+                            alt={`${user?.username}'s avatar`}
+                            width="40px"
+                            height="40px"
+                        />
+                        <CharsRemaining charsLeft={charsLeft} type="Post" />
+                    </div>
                     <Textarea
                         ref={composePostRef}
                         placeholder={placeholder}
@@ -182,7 +190,7 @@ export default function ComposePost({
                     width={32}
                     rounded="lg"
                     rightIcon={<NotePencil weight="bold" size="22" />}
-                    disabled={(!hasText && !attachments.length) || isSubmitting}
+                    isDisabled={(!hasText && !attachments.length) || isSubmitting || charsLeft < 0}
                     isLoading={isSubmitting}
                     loadingText="Creating"
                     onClick={submitPost}
@@ -193,7 +201,7 @@ export default function ComposePost({
                     variant="outline"
                     rounded="lg"
                     rightIcon={<Camera weight="bold" size="22" />}
-                    disabled={isSubmitting}
+                    isDisabled={isSubmitting}
                     acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp"
                     multiple
                     onInputChange={(e) => handleAttachmentChange(e)}

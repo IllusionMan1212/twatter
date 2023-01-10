@@ -35,7 +35,7 @@ import NextLink from "next/link";
 import Router from "next/router";
 import { IconFileUpload } from "src/components/Controls/FileUpload";
 import AttachmentPreview from "src/components/Attachments/AttachmentPreview";
-import { MAX_ATTACHMENT_SIZE, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
+import { MAX_ATTACHMENT_SIZE, MESSAGE_MAX_CHARS, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
 import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import Avatar from "src/components/User/Avatar";
@@ -60,6 +60,7 @@ import styles from "src/styles/ConversationArea.module.scss";
 import Typing from "src/components/Messaging/Typing";
 import useTyping from "src/hooks/useTyping";
 import { KeyedMutator } from "swr";
+import CharsRemaining from "../CharsRemaining";
 
 const nonTypingInputs = [
     "deleteWordBackward",
@@ -84,6 +85,7 @@ interface MessageComposeProps {
     endTimeoutId: NodeJS.Timeout | undefined;
     setEndTimeoutId: Dispatch<SetStateAction<NodeJS.Timeout | undefined>>;
     setStartTimeoutId: Dispatch<SetStateAction<NodeJS.Timeout | undefined>>;
+    setCharsLeft: Dispatch<SetStateAction<number>>;
     activeConversationId: string;
     recipientId: string;
 }
@@ -131,6 +133,11 @@ function MessageCompose({
         }
     };
 
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        e.target.parentElement!.dataset.value = e.target.value;
+        props.setCharsLeft(MESSAGE_MAX_CHARS - e.target.value.length);
+    };
+
     return (
         <Box
             // some weird hack to have the input expand vertically how we want it to
@@ -169,7 +176,7 @@ function MessageCompose({
                 gridArea="1/1"
                 focusBorderColor="none"
                 _placeholder={{ color: "textMain", opacity: 0.8 }}
-                onChange={(e) => (e.target.parentElement!.dataset.value = e.target.value)}
+                onChange={handleChange}
                 onInput={handleInput}
                 onKeyPress={handleKeyPress}
             />
@@ -286,6 +293,7 @@ function ConversationFooter({
     const [endTimeoutId, setEndTimeoutId] = useState<NodeJS.Timeout | undefined>(
         undefined,
     );
+    const [charsLeft, setCharsLeft] = useState(MESSAGE_MAX_CHARS);
 
     const messageBoxRef = useRef<HTMLTextAreaElement>(null);
 
@@ -312,7 +320,7 @@ function ConversationFooter({
     };
 
     const sendMessage = async () => {
-        if (messageBoxRef.current?.value.trim().length || attachment) {
+        if ((messageBoxRef.current?.value.trim().length || attachment) && charsLeft >= 0) {
             const payload: ClientMessageEventData = {
                 message: messageBoxRef.current?.value.trim() ?? "",
                 attachment: null,
@@ -332,6 +340,7 @@ function ConversationFooter({
             if (messageBoxRef.current) {
                 messageBoxRef.current.parentElement!.dataset.value = "";
                 messageBoxRef.current.value = "";
+                setCharsLeft(MESSAGE_MAX_CHARS);
             }
 
             clearTimeout(startTimeoutId);
@@ -375,17 +384,22 @@ function ConversationFooter({
                     endTimeoutId={endTimeoutId}
                     setEndTimeoutId={setEndTimeoutId}
                     setStartTimeoutId={setStartTimeoutId}
+                    setCharsLeft={setCharsLeft}
                 />
-                <IconButton
-                    variant="ghost"
-                    aria-label="Send message"
-                    transform="rotateZ(90deg)"
-                    colorScheme="accent"
-                    icon={
-                        <Icon as={PaperAirplaneIcon} color="accent" w="24px" h="24px" />
-                    }
-                    onClick={sendMessage}
-                />
+                <div className="flex flex-col items-center justify-between">
+                    <IconButton
+                        variant="ghost"
+                        aria-label="Send message"
+                        transform="rotateZ(90deg)"
+                        colorScheme="accent"
+                        isDisabled={charsLeft < 0}
+                        icon={
+                            <Icon as={PaperAirplaneIcon} color="accent" w="24px" h="24px" />
+                        }
+                        onClick={sendMessage}
+                    />
+                    <CharsRemaining charsLeft={charsLeft} type="Message" />
+                </div>
             </Flex>
         </VStack>
     );
