@@ -27,7 +27,7 @@ export const handleMessage = (
             attachmentPath = `${dir}/${fileName}.${ext}`;
         }
 
-        const message = data.message.replaceAll(/\n{2,}|\r{2,}|(\r\n){2,}/g, "\n\n").trim();
+        const message = data.message.replaceAll("\r", "").replaceAll(/\n{2,}/g, "\n\n").trim();
 
         if (message.length > MESSAGE_MAX_CHARS) {
             connectedSockets.get(socket.userId)?.forEach((_socket) => {

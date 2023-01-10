@@ -1,6 +1,5 @@
 - MVP
-   - attachment modal for messages
-   - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast
+   - handle pasting images
    - integrate tRPC
    - delete messages
    - rate limiting
@@ -10,6 +9,7 @@
    - find a better way to optimize iconbuttons (and maybe buttons in general)
 
 - POST MVP
+  - save an attachment's height to db when sending a message so we can use that to make sure the container has the proper height so no jumping happens with virtuoso (if an attachment's height exceeds 400px then we'll set the height to 400px since that's the max)
   - HTML template with styling for password reset Email
   - Account deletion
   - Background color for attachments

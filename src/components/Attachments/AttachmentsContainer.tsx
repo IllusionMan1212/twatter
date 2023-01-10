@@ -41,7 +41,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[0] = r)}
-                                    className={`${styles.imageAttachment} ${styles.halfImageGrid2Images} w-full`}
+                                    className={`${styles.imageAttachment} ${styles.halfImageGrid2Images}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -51,7 +51,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[1] = r)}
-                                    className={`${styles.imageAttachment} ${styles.halfImageGrid2Images} w-full`}
+                                    className={`${styles.imageAttachment} ${styles.halfImageGrid2Images}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -64,7 +64,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[0] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -74,7 +74,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[1] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -82,7 +82,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                                 />
                                 <div
                                     ref={(r) => (imagesRef.current[2] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -95,7 +95,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[0] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -103,7 +103,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                                 />
                                 <div
                                     ref={(r) => (imagesRef.current[2] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -113,7 +113,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                             <div className={styles.halfImageGrid}>
                                 <div
                                     ref={(r) => (imagesRef.current[1] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -121,7 +121,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                                 />
                                 <div
                                     ref={(r) => (imagesRef.current[3] = r)}
-                                    className={`${styles.imageAttachment} w-full`}
+                                    className={`${styles.imageAttachment}`}
                                     style={{
                                         backgroundColor: "#777",
                                     }}
@@ -133,7 +133,7 @@ export default function Attachments({ urls }: AttachmentsProps) {
                         <div className={styles.halfImageGrid}>
                             <div
                                 ref={(r) => (imagesRef.current[0] = r)}
-                                className={`${styles.imageAttachment} w-full`}
+                                className={`${styles.imageAttachment}`}
                                 style={{
                                     backgroundColor: "#777",
                                 }}
