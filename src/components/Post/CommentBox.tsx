@@ -112,6 +112,35 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
         setHasText(!!e.target.value.trim());
     };
 
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        if (e.clipboardData.files.item(0)) {
+            const file = e.clipboardData.files.item(0);
+
+            if (attachments.length === 4) {
+                toast.error("Cannot upload more than 4 attachments");
+                return;
+            }
+
+            if (!file || !SUPPORTED_ATTACHMENTS.includes(file.type)) {
+                toast.error("Unsupported file format");
+                return;
+            }
+
+            if (file.size > MAX_ATTACHMENT_SIZE) {
+                toast.error("File size cannot exceed 8MB");
+                return;
+            }
+
+            setPreviewImages((images) => {
+                return [...images, URL.createObjectURL(file)];
+            });
+
+            setAttachments((attachments) => {
+                return [...attachments, file];
+            });
+        }
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter" && e.ctrlKey) {
             e.preventDefault();
@@ -191,6 +220,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
                             _placeholder={{ color: "textMain", opacity: 0.8 }}
                             onChange={handleChange}
                             onKeyPress={handleKeyPress}
+                            onPaste={handlePaste}
                         />
                     </Box>
                 </div>

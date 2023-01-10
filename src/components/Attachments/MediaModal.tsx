@@ -112,10 +112,10 @@ const MediaModal = memo(function MediaModal({
                 >
                     <CloseModalButton onClose={onClose} />
                     {props.media.length > 1 ? (
-                        <>
+                        <LightMode>
                             <NavPrevBtn />
                             <NavNextBtn />
-                        </>
+                        </LightMode>
                     ) : null}
                     {props.media.map((m, i) => (
                         <SwiperSlide key={i} zoom={true}>

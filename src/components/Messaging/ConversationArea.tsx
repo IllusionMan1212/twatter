@@ -87,6 +87,7 @@ interface MessageComposeProps {
     setStartTimeoutId: Dispatch<SetStateAction<NodeJS.Timeout | undefined>>;
     setCharsLeft: Dispatch<SetStateAction<number>>;
     activeConversationId: string;
+    handlePaste: React.ClipboardEventHandler<HTMLTextAreaElement>;
     recipientId: string;
 }
 
@@ -179,6 +180,7 @@ function MessageCompose({
                 onChange={handleChange}
                 onInput={handleInput}
                 onKeyPress={handleKeyPress}
+                onPaste={props.handlePaste}
             />
         </Box>
     );
@@ -314,6 +316,25 @@ function ConversationFooter({
         setAttachment(files[0]);
     };
 
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        if (e.clipboardData.files.item(0)) {
+            const file = e.clipboardData.files.item(0);
+
+            if (!file || !SUPPORTED_ATTACHMENTS.includes(file.type)) {
+                toast.error("Unsupported file format");
+                return;
+            }
+
+            if (file.size > MAX_ATTACHMENT_SIZE) {
+                toast.error("File size cannot exceed 8MB");
+                return;
+            }
+
+            setPreviewImage(URL.createObjectURL(file));
+            setAttachment(file);
+        }
+    };
+
     const removeAttachment = () => {
         setPreviewImage("");
         setAttachment(null);
@@ -385,6 +406,7 @@ function ConversationFooter({
                     setEndTimeoutId={setEndTimeoutId}
                     setStartTimeoutId={setStartTimeoutId}
                     setCharsLeft={setCharsLeft}
+                    handlePaste={handlePaste}
                 />
                 <div className="flex flex-col items-center justify-between">
                     <IconButton

@@ -90,6 +90,35 @@ export default function ComposePost({
         setCharsLeft(POST_MAX_CHARS - e.target.value.length);
     };
 
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        if (e.clipboardData.files.item(0)) {
+            const file = e.clipboardData.files.item(0);
+
+            if (attachments.length === 4) {
+                toast.error("Cannot upload more than 4 attachments");
+                return;
+            }
+
+            if (!file || !SUPPORTED_ATTACHMENTS.includes(file.type)) {
+                toast.error("Unsupported file format");
+                return;
+            }
+
+            if (file.size > MAX_ATTACHMENT_SIZE) {
+                toast.error("File size cannot exceed 8MB");
+                return;
+            }
+
+            setPreviewImages((images) => {
+                return [...images, URL.createObjectURL(file)];
+            });
+
+            setAttachments((attachments) => {
+                return [...attachments, file];
+            });
+        }
+    };
+
     const removeAttachment = (idx: number) => {
         const temp = [...previewImages];
         temp.splice(idx, 1);
@@ -172,6 +201,7 @@ export default function ComposePost({
                         _placeholder={{ color: "textMain", opacity: 0.8 }}
                         onChange={handleChange}
                         onKeyPress={handleKeyPress}
+                        onPaste={handlePaste}
                     />
                 </div>
                 <div className="flex flex-wrap gap-4 w-full">
