@@ -48,7 +48,7 @@ export default function useTyping(activeConversationId: string): boolean {
                 socket.off("message", handleMessage);
             }
         };
-    }, [socket, handleTyping, handleMessage]);
+    }, [socket, socket?.connected, handleTyping, handleMessage]);
 
     return typing;
 }

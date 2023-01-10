@@ -629,7 +629,7 @@ export default function ConversationArea({
                 socket.off("error", handleError);
             }
         };
-    }, [socket, handleMessage, handleMarkedMessagesAsRead]);
+    }, [socket, socket?.connected, handleMessage, handleMarkedMessagesAsRead]);
 
     return (
         <VStack

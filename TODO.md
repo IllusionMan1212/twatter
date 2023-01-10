@@ -1,5 +1,4 @@
 - MVP
-   - dont allow lots of multiple line breaks in messaging and posts
    - limit message and post length
    - attachment modal for messages
    - optimize message component (remove chakra stuff and add tailwindcss stuff) so it looks better when scrolling very fast

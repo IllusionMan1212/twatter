@@ -26,7 +26,9 @@ export const handleMessage = (
             attachmentPath = `${dir}/${fileName}.${ext}`;
         }
 
-        const newMessage = await createMessage(data.message.trim(), attachmentURL, data.conversationId, socket.userId, data.recipientId);
+        const message = data.message.replaceAll(/\n{2,}|\r{2,}|(\r\n){2,}/g, "\n\n").trim();
+
+        const newMessage = await createMessage(message, attachmentURL, data.conversationId, socket.userId, data.recipientId);
 
         if (!newMessage) {
             if (attachmentPath) {

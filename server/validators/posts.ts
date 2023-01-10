@@ -12,7 +12,9 @@ export const GetPostData = z.object({
 
 export const CreatePostData = z.object({
     parentId: z.string().optional(),
-    content: z.string().optional(),
+    content: z.preprocess((a) => {
+        return (a as string).replaceAll(/\n{2,}|\r{2,}|(\r\n){2,}/g, "\n\n");
+    }, z.string().trim().optional()),
 });
 
 export const DeletePostData = z.object({
