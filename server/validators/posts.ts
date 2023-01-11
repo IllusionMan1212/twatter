@@ -26,7 +26,7 @@ function linkUrls(val: string): string {
     const urls = extractUrls(val);
 
     for (let i = 0; i < urls.length; i++) {
-        val = val.replace(urls[i], `<a href="${urls[i]}" class="link" target="_blank">${urls[i]}</a>`);
+        val = val.replace(urls[i], `<a href="${urls[i].startsWith("http") ? urls[i] : `https://${urls[i]}`}" class="link" target="_blank">${urls[i]}</a>`);
     }
 
     return val;
