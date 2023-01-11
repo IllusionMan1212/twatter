@@ -10,7 +10,7 @@ export const queryUserPosts = async (sessionUserId: string, userId: string, page
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${sessionUserId}) as liked,
-    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments."parentId" = p.id) as comments,
+    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
     LEFT JOIN "Post" parent

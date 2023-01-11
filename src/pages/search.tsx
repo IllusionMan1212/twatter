@@ -125,7 +125,7 @@ export default function Search(): ReactElement {
     if (!router.query) return <></>;
 
     return (
-        <Flex direction="column" gap={4} mx={3} align="start">
+        <Flex direction="column" gap={4} m={3} align="start">
             <NextSeo {...searchSEO} />
             <SearchBar
                 size="md"
