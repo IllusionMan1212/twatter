@@ -2,6 +2,7 @@ import { Box, Button, Flex, HStack, Text } from "@chakra-ui/react";
 import { MouseEventHandler, ReactElement } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
+import parse, { domToReact, Element } from "html-react-parser";
 
 interface ConversationProps {
     recipientName: string;
@@ -12,6 +13,16 @@ interface ConversationProps {
     isActive: boolean;
     onClick: MouseEventHandler<HTMLElement>;
 }
+
+const parsingOptions = {
+    replace: (domNode: unknown) => {
+        if (domNode instanceof Element && domNode.name === "a") {
+            return (
+                <p>{domToReact(domNode.children)}</p>
+            );
+        }
+    },
+};
 
 export default function Conversation(props: ConversationProps): ReactElement {
     return (
@@ -70,7 +81,7 @@ export default function Conversation(props: ConversationProps): ReactElement {
                     fontSize="xs"
                     noOfLines={1}
                 >
-                    {props.lastMessage}
+                    {parse(props.lastMessage, parsingOptions)}
                 </Text>
             </Flex>
             <Text

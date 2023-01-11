@@ -5,6 +5,7 @@ import { ClientToServerEvents, ServerToClientEvents } from "./types";
 import fs from "fs/promises";
 import crypto from "crypto";
 import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
+import { linkUrls } from "../validators/posts";
 
 export const handleMessage = (
     socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
@@ -27,7 +28,7 @@ export const handleMessage = (
             attachmentPath = `${dir}/${fileName}.${ext}`;
         }
 
-        const message = data.message.replaceAll("\r", "").replaceAll(/\n{2,}/g, "\n\n").trim();
+        let message = data.message.replaceAll("\r", "").replaceAll(/\n{2,}/g, "\n\n").trim();
 
         if (message.length > MESSAGE_MAX_CHARS) {
             connectedSockets.get(socket.userId)?.forEach((_socket) => {
@@ -37,6 +38,8 @@ export const handleMessage = (
             });
             return;
         }
+
+        message = linkUrls(message);
 
         const newMessage = await createMessage(message, attachmentURL, data.conversationId, socket.userId, data.recipientId);
 

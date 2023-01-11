@@ -22,7 +22,7 @@ function linkUsernames(val: string): string {
     return val;
 }
 
-function linkUrls(val: string): string {
+export function linkUrls(val: string): string {
     const urls = extractUrls(val);
 
     for (let i = 0; i < urls.length; i++) {

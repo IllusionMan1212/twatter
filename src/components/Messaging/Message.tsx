@@ -4,6 +4,8 @@ import Avatar from "src/components/User/Avatar";
 import { useUserContext } from "src/contexts/userContext";
 import { Check, Checks } from "phosphor-react";
 import MediaModal from "src/components/Attachments/MediaModal";
+import parse from "html-react-parser";
+import { parsingOptions } from "src/components/Post/Post";
 
 interface AttachmentProps {
     url: string | null;
@@ -149,7 +151,7 @@ export default function Message(props: MessageProps): ReactElement {
                             <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
                                 <Attachment url={props.attachmentURL} />
                                 <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
-                                    {props.content}
+                                    {parse(props.content, parsingOptions)}
                                 </p>
                             </div>
                         </div>
@@ -177,7 +179,7 @@ export default function Message(props: MessageProps): ReactElement {
                         <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tl-[0]">
                             <Attachment url={props.attachmentURL} />
                             <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
-                                {props.content}
+                                {parse(props.content, parsingOptions)}
                             </p>
                         </div>
                     </div>
