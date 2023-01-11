@@ -69,6 +69,11 @@ export async function createPost(req: Request, res: Response) {
     let counter = 1;
 
     const attachments = req.files?.attachments ? Array.isArray(req.files.attachments) ? [...req.files.attachments] : [req.files.attachments] : [];
+
+    if (!data.data.content && !attachments.length) {
+        return res.status(400).json({ message: "Cannot submit an empty post" });
+    }
+
     for (const attachment of attachments) {
         const fileName = counter;
         const dir = `${__dirname}/../cdn/posts/${id}`;

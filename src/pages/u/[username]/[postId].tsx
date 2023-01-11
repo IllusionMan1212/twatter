@@ -27,12 +27,13 @@ import { Dialog } from "src/components/Dialog";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
 import { fetcher } from "src/utils/helpers";
 import { Virtuoso } from "react-virtuoso";
-import Post from "src/components/Post/Post";
+import Post, { parsingOptions } from "src/components/Post/Post";
 import styles from "src/styles/userProfile.module.scss";
 import Router from "next/router";
 import Options from "src/components/Post/PostOptions";
 import { NextSeo } from "next-seo";
 import CommentBox from "src/components/Post/CommentBox";
+import parse from "html-react-parser";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -211,7 +212,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                             fontSize="xl"
                             whiteSpace="break-spaces"
                         >
-                            {post.content}
+                            {parse(post.content, parsingOptions)}
                         </Text>
                         {post.attachments ? (
                             <Box width="full">

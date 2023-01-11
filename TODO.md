@@ -2,7 +2,6 @@
    - integrate tRPC
    - delete messages
    - rate limiting
-   - parse links (maybe)
    - strip exif metadata
    - allow guests to view profiles and posts
    - find a better way to optimize the post options button and menu

@@ -15,6 +15,8 @@ import Attachments from "src/components/Attachments/AttachmentsContainer";
 import NextLink from "next/link";
 import CommentBox from "src/components/Post/CommentBox";
 import toast from "react-hot-toast";
+import parse from "html-react-parser";
+import { parsingOptions } from "src/components/Post/Post";
 
 interface DateProps {
     postDate: string;
@@ -110,7 +112,7 @@ const CommentModal = memo(function CommentModal({
                             ) : null}
                             <GridItem colStart={1} colEnd={4}>
                                 <p className="text-xl [overflow-wrap:anywhere] whitespace-pre-line">
-                                    {post.content}
+                                    {parse(post.content, parsingOptions)}
                                 </p>
                             </GridItem>
                             {post.attachments ? (

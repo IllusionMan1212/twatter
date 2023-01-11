@@ -21,6 +21,8 @@ import { KeyedMutator } from "swr";
 import Options from "src/components/Post/PostOptions";
 import Router from "next/router";
 import CommentModal from "src/components/Post/CommentModal";
+import parse, { domToReact, Element } from "html-react-parser";
+import Link from "next/link";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -101,6 +103,18 @@ const DeleteDialog = memo(function DeleteDialog({
     );
 });
 
+export const parsingOptions = {
+    replace: (domNode: unknown) => {
+        if (domNode instanceof Element && domNode.name === "a") {
+            return (
+                <Link href={domNode.attribs.href} passHref>
+                    <a {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
+                </Link>
+            );
+        }
+    },
+};
+
 export default function Post(props: PostProps): ReactElement {
     const { user } = useUserContext();
     const {
@@ -145,7 +159,8 @@ export default function Post(props: PostProps): ReactElement {
                         ? "border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]"
                         : ""
                 }`}
-                onClick={async () => {
+                onClick={async (e) => {
+                    console.log(e);
                     await Router.push(`/@${props.author.username}/${props.id}`);
                 }}
             >
@@ -208,7 +223,7 @@ export default function Post(props: PostProps): ReactElement {
                                 </p>
                             ) : null}
                             <p className="[overflow-wrap:anywhere] whitespace-pre-line">
-                                {props.content}
+                                {parse(props.content, parsingOptions)}
                             </p>
                             {props.attachments ? (
                                 <div className="w-full">
