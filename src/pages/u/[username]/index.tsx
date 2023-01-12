@@ -9,6 +9,7 @@ import {
     VStack,
     Box,
     Spinner,
+    ButtonGroup,
 } from "@chakra-ui/react";
 import { ChatCenteredDots } from "phosphor-react";
 import { ReactElement, useEffect, useState } from "react";
@@ -32,6 +33,7 @@ import Router from "next/router";
 import { Virtuoso } from "react-virtuoso";
 import styles from "src/styles/userProfile.module.scss";
 import { NextSeo } from "next-seo";
+import BigNumber from "src/components/BigNumber";
 
 interface Props {
     user: IUser;
@@ -77,45 +79,71 @@ function User({ user }: Props): ReactElement {
     };
 
     return (
-        <Flex
-            direction={{ base: "column", "600px": "row" }}
-            gap={8}
-            py={4}
-            width="full"
-            justify={{ base: "center", "600px": "space-between" }}
-            align="center"
-        >
-            <HStack spacing={6}>
-                <Avatar
-                    src={user.avatarURL}
-                    alt={`${user.username}'s avatar`}
-                    width="100px"
-                    height="100px"
-                />
-                <Flex height="full" gap={2} direction="column" align="start">
-                    <Box>
-                        <Text fontSize="2xl" fontWeight="semibold">
-                            {user.displayName}
-                        </Text>
-                        <Text fontSize="md" color="textMain" fontWeight="semibold">
-                            @{user.username}
-                        </Text>
-                    </Box>
-                    <Tags user={user} />
-                </Flex>
-            </HStack>
-            {!user.settings?.allowAllDMs ||
-            user.id === currentUser?.id ||
-            user.restricted ? null : (
-                    <Button
-                        colorScheme="accent"
-                        leftIcon={<Icon as={Chat} />}
-                        onClick={handleStartConversation}
-                    >
-                        Message
-                    </Button>
-                )}
-        </Flex>
+        <div className="flex flex-col gap-2 pt-6 md:pt-0 w-full items-center md:items-start">
+            <Flex
+                direction={{ base: "column", "600px": "row" }}
+                gap={4}
+                py={2}
+                width="full"
+                justify={{ base: "center", "600px": "space-between" }}
+                align="center"
+            >
+                <HStack spacing={6}>
+                    <Avatar
+                        src={user.avatarURL}
+                        alt={`${user.username}'s avatar`}
+                        width="100px"
+                        height="100px"
+                    />
+                    <Flex height="full" gap={2} direction="column" align="start">
+                        <Box>
+                            <Text fontSize="2xl" fontWeight="semibold">
+                                {user.displayName}
+                            </Text>
+                            <Text fontSize="md" color="textMain" fontWeight="semibold">
+                                @{user.username}
+                            </Text>
+                        </Box>
+                        <Tags user={user} />
+                    </Flex>
+                </HStack>
+                <ButtonGroup
+                    colorScheme="accent"
+                    size="sm"
+                >
+                    {/*TODO: follow button user.id !== currentUser?.id ? (
+                        <Button variant="solid">
+                            Follow
+                        </Button>
+                    ) : null */}
+                    {!user.settings?.allowAllDMs ||
+                    user.id === currentUser?.id ||
+                    user.restricted ? null : (
+                            <Button
+                                variant="outline"
+                                leftIcon={<Icon as={Chat} />}
+                                onClick={handleStartConversation}
+                            >
+                                Message
+                            </Button>
+                        )}
+                </ButtonGroup>
+            </Flex>
+            <div className="flex gap-2">
+                <p className="">
+                    <BigNumber className="font-semibold" num={0} />{" "}
+                    Followers
+                </p>
+                <p className="">
+                    <BigNumber className="font-semibold" num={0} />{" "}
+                    Following
+                </p>
+                <p className="">
+                    <BigNumber className="font-semibold" num={0} />{" "}
+                    Posts
+                </p>
+            </div>
+        </div>
     );
 }
 

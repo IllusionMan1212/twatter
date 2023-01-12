@@ -1,15 +1,14 @@
 - MVP
-   - integrate tRPC
    - delete messages
    - rate limiting
    - strip exif metadata
    - allow guests to view profiles and posts
    - find a better way to optimize the post options button and menu
    - find a better way to optimize iconbuttons (and maybe buttons in general)
-   - check other missing features from twatter 1.0
-   - check old trello tickets
 
 - POST MVP
+  - integrate tRPC
+  - Following ability.
   - Video attachments
   - Make back button close media modal when modal is open instead of going back thru the history
   - Image background color from the image itself

@@ -34,6 +34,7 @@ import Options from "src/components/Post/PostOptions";
 import { NextSeo } from "next-seo";
 import CommentBox from "src/components/Post/CommentBox";
 import parse from "html-react-parser";
+import BigNumber from "src/components/BigNumber";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -230,9 +231,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                         icon={<Icon as={ChatIcon} w={6} h={6} />}
                                         onClick={handleComment}
                                     />
-                                    <Text fontSize="xs">
-                                        {post.comments > 0 ? post.comments : null}
-                                    </Text>
+                                    {post.comments > 0 ? <BigNumber className="text-xs" num={post.comments} /> : null}
                                 </HStack>
                                 <HStack spacing={0}>
                                     <IconButton
@@ -249,7 +248,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                         }
                                         onClick={handleLike}
                                     />
-                                    <Text fontSize="xs">{likes > 0 ? likes : null}</Text>
+                                    {likes > 0 ? <BigNumber className="text-xs" num={likes} /> : null}
                                 </HStack>
                             </ButtonGroup>
                         </HStack>

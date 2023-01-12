@@ -23,6 +23,7 @@ import Router from "next/router";
 import CommentModal from "src/components/Post/CommentModal";
 import parse, { domToReact, Element } from "html-react-parser";
 import Link from "next/link";
+import BigNumber from "src/components/BigNumber";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -256,9 +257,7 @@ export default function Post(props: PostProps): ReactElement {
                                     icon={<Icon as={ChatIcon} w={6} h={6} />}
                                     onClick={onOpenCommentModal}
                                 />
-                                <p className="text-xs">
-                                    {props.comments > 0 ? props.comments : null}
-                                </p>
+                                {props.comments > 0 ? <BigNumber className="text-xs" num={props.comments} /> : null}
                             </div>
                             <div className="flex items-center">
                                 <IconButton
@@ -275,9 +274,7 @@ export default function Post(props: PostProps): ReactElement {
                                     }
                                     onClick={handleLike}
                                 />
-                                <p className="text-xs">
-                                    {props.likes > 0 ? props.likes : null}
-                                </p>
+                                {props.likes > 0 ? <BigNumber className="text-xs" num={props.likes} /> : null}
                             </div>
                         </ButtonGroup>
                     </div>
