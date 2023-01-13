@@ -12,3 +12,7 @@ export const GetMessagesData = GetPagedData.extend({
 export const StartConversationData = z.object({
     userId: z.string().min(1, "Invalid user id")
 });
+
+export const DeleteMessageData = z.object({
+    id: z.string().min(1, "Id cannot be empty")
+});

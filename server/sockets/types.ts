@@ -14,10 +14,11 @@ export interface ServerMessageEventData {
     id: string;
     content: string;
     createdAt: string;
-    userId: string;
+    memberId: string;
     conversationId: string;
     wasRead: boolean;
     attachmentURL: string | null;
+    deleted: boolean;
 }
 
 export interface ErrorEventData {
@@ -43,10 +44,22 @@ export interface MarkedMessagesAsReadData {
     conversationId: string;
 }
 
+export interface DeleteMessageData {
+    conversationId: string;
+    recipientId: string;
+    messageId: string;
+}
+
+export interface DeletedMessageData {
+    conversationId: string;
+    messageId: string;
+}
+
 export interface ClientToServerEvents {
     message: (data: ClientMessageEventData) => void;
     typing: (data: ClientTypingEventData) => void;
     markMessagesAsRead: (data: MarkMessagesAsReadData) => void;
+    deleteMessage: (data: DeleteMessageData) => void;
 }
 
 export interface ServerToClientEvents {
@@ -55,5 +68,6 @@ export interface ServerToClientEvents {
     error: (data: ErrorEventData) => void;
     typing: (data: ServerTypingEventData) => void;
     markedMessagesAsRead: (data: MarkedMessagesAsReadData) => void;
+    deletedMessage: (data: DeletedMessageData) => void;
 }
 

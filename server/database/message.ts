@@ -1,30 +1,66 @@
-import { Conversation, Message, User, UserSettings } from "@prisma/client";
+import { Conversation, ConversationMember, Message, Prisma, User, UserSettings } from "@prisma/client";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
 export const getConversationsDB = async (userId: string, page: number): Promise<Conversation[]> => {
-    return await prisma.$queryRaw`
-    SELECT convo.id, convo."updatedAt", convo."lastMessage",
-    recipient.username as "recipientUsername", recipient."avatarURL" as "recipientAvatarURL", recipient.id as "recipientId",
-    recipient."displayName" as "recipientName"
-    FROM "Conversation" convo
-    INNER JOIN "User" recipient
-    ON recipient.id <> ${userId} AND recipient.id = ANY(convo.members)
-    LEFT JOIN "UserSettings" s
-    ON s."userId" = recipient.id
-    WHERE ${userId} = ANY(convo.participants)
-    ORDER BY convo."updatedAt" DESC
-    LIMIT 20 OFFSET ${page * 20};
-    `;
+    return await prisma.conversation.findMany({
+        where: {
+            members: {
+                some: {
+                    userId,
+                    isParticipating: true,
+                }
+            }
+        },
+        orderBy: {
+            updatedAt: "desc",
+        },
+        take: 20,
+        skip: 20 * page,
+        include: {
+            messages: {
+                orderBy: {
+                    createdAt: "desc",
+                },
+                take: 1,
+                select: {
+                    content: true,
+                }
+            },
+            members: {
+                where: {
+                    userId: {
+                        not: userId,
+                    }
+                },
+                select: {
+                    User: {
+                        select: {
+                            id: true,
+                            displayName: true,
+                            username: true,
+                            avatarURL: true,
+                        }
+                    }
+                },
+            },
+        }
+    });
 };
 
 export const leaveConversationDB = async (conversationId: string, userId: string): Promise<DatabaseError> => {
     try {
-        await prisma.$queryRaw`
-        UPDATE "Conversation"
-        SET participants = array_remove(participants, ${userId})
-        WHERE id = ${conversationId};
-        `;
+        await prisma.conversationMember.update({
+            where: {
+                userId_conversationId: {
+                    userId,
+                    conversationId
+                }
+            },
+            data: {
+                isParticipating: false,
+            }
+        });
     } catch (e) {
         console.error(e);
         return DatabaseError.UNKNOWN;
@@ -33,12 +69,12 @@ export const leaveConversationDB = async (conversationId: string, userId: string
     return DatabaseError.SUCCESS;
 };
 
-export const getConversation = async (conversationId: string, userId: string): Promise<Conversation[]> => {
-    return await prisma.conversation.findMany({
+export const isMemberOfConvo = async (conversationId: string, userId: string): Promise<ConversationMember | null> => {
+    return await prisma.conversationMember.findUnique({
         where: {
-            id: conversationId,
-            participants: {
-                has: userId,
+            userId_conversationId: {
+                userId,
+                conversationId,
             },
         },
     });
@@ -57,34 +93,45 @@ export const getMessagesDB = async (conversationId: string, page: number): Promi
     });
 };
 
-export const createOrUpdateConversation = async (currentUserId: string, userId: string): Promise<string | null> => {
-    const convo = await prisma.$queryRaw`
-    SELECT id, participants
-    FROM "Conversation"
-    WHERE members @> array[${currentUserId}, ${userId}];
-    ` as Conversation[];
+export const createOrUpdateConversation = async (userId: string, recipientId: string): Promise<string | null> => {
+    const convos = await prisma.conversation.findMany({
+        where: {
+            members: {
+                every: {
+                    userId: {
+                        in: [userId, recipientId]
+                    }
+                }
+            }
+        },
+        select: {
+            id: true,
+            members: true,
+        }
+    });
 
-    if (convo?.[0]) {
-        if (!convo[0].participants.includes(currentUserId)) {
-            await prisma.conversation.update({
+    if (convos.length) {
+        if (!convos[0].members.find(m => m.userId === userId)?.isParticipating) {
+            await prisma.conversationMember.update({
                 where: {
-                    id: convo[0].id,
+                    userId_conversationId: {
+                        userId,
+                        conversationId: convos[0].id,
+                    }
                 },
                 data: {
-                    participants: {
-                        push: currentUserId,
-                    },
+                    isParticipating: true,
                 },
             });
         }
 
-        return convo[0].id;
+        return convos[0].id;
     }
 
     return await prisma.$transaction(async (tx) => {
         const recipientUser = await tx.user.findUnique({
             where: {
-                id: userId,
+                id: recipientId,
             },
             select: {
                 restricted: true,
@@ -97,8 +144,14 @@ export const createOrUpdateConversation = async (currentUserId: string, userId: 
 
         return (await tx.conversation.create({
             data: {
-                members: [currentUserId, userId],
-                participants: [currentUserId],
+                members: {
+                    createMany: {
+                        data: [
+                            { userId, isParticipating: true },
+                            { userId: recipientId },
+                        ]
+                    }
+                }
             },
             select: {
                 id: true,
@@ -126,17 +179,17 @@ export const isValidUser = async (userId: string): Promise<Partial<User & { sett
 export const createMessage = async (message: string, attachmentURL: string | null, conversationId: string, userId: string, recipientId: string): Promise<Message | null> => {
     try {
         const newMessage = await prisma.$transaction(async (tx) => {
-            const convo = await tx.conversation.findUnique({
+            const members = await tx.conversationMember.findMany({
                 where: {
-                    id: conversationId,
+                    conversationId,
+                    OR: [
+                        { userId: userId },
+                        { userId: recipientId }
+                    ]
                 },
-                select: {
-                    participants: true,
-                    members: true,
-                }
             });
 
-            if (!convo || !convo.members.includes(userId) || !convo.members.includes(recipientId)) {
+            if (members.length < 2) {
                 throw new Error("Unauthorized action");
             }
 
@@ -145,7 +198,7 @@ export const createMessage = async (message: string, attachmentURL: string | nul
                     content: message,
                     attachmentURL,
                     conversationId,
-                    userId,
+                    memberId: userId,
                 },
             });
 
@@ -154,33 +207,34 @@ export const createMessage = async (message: string, attachmentURL: string | nul
                     id: conversationId,
                 },
                 data: {
-                    lastMessage: message,
                     updatedAt: new Date(),
                 }
             });
 
-            if (!convo.participants.includes(recipientId)) {
-                await tx.conversation.update({
+            if (!members.find(m => m.userId === recipientId)?.isParticipating) {
+                await tx.conversationMember.update({
                     where: {
-                        id: conversationId,
+                        userId_conversationId: {
+                            userId: recipientId,
+                            conversationId
+                        },
                     },
                     data: {
-                        participants: {
-                            push: recipientId,
-                        }
+                        isParticipating: true,
                     }
                 });
             }
 
-            if (!convo.participants.includes(userId)) {
-                await tx.conversation.update({
+            if (!members.find(m => m.userId === userId)?.isParticipating) {
+                await tx.conversationMember.update({
                     where: {
-                        id: conversationId,
+                        userId_conversationId: {
+                            userId,
+                            conversationId
+                        },
                     },
                     data: {
-                        participants: {
-                            push: userId,
-                        }
+                        isParticipating: true,
                     }
                 });
             }
@@ -196,11 +250,18 @@ export const createMessage = async (message: string, attachmentURL: string | nul
 };
 
 export const checkConversationMembers = async (ids: string[], convoId: string): Promise<Conversation[]> => {
-    return await prisma.$queryRaw`
-    SELECT id
-    FROM "Conversation"
-    WHERE id = ${convoId} AND members @> array[${ids[0]}, ${ids[1]}];
-    ;` as Conversation[];
+    return await prisma.conversation.findMany({
+        where: {
+            id: convoId,
+            members: {
+                every: {
+                    userId: {
+                        in: ids
+                    }
+                }
+            }
+        },
+    });
 };
 
 export const markMessagesAsRead = async (conversationId: string, recipientId: string, userId: string): Promise<number> => {
@@ -209,7 +270,7 @@ export const markMessagesAsRead = async (conversationId: string, recipientId: st
     SET "wasRead" = true
     FROM "UserSettings" us
     WHERE m."conversationId" = ${conversationId}
-    AND m."userId" = ${recipientId}
+    AND m."memberId" = ${recipientId}
     AND us."userId" = ${userId}
     AND m."wasRead" = false
     AND us."readReceipts" = true
@@ -228,4 +289,30 @@ export const queryRecommendedPeople = async (userId: string): Promise<User[]> =>
     WHERE u.restricted = false AND u.id <> ${userId}
     LIMIT 10
     ;`;
+};
+
+export const deleteMessageDB = async (userId: string, messageId: string): Promise<DatabaseError> => {
+    try {
+        await prisma.message.update({
+            where: {
+                id: messageId,
+                memberId: userId,
+            },
+            data: {
+                deleted: true,
+                content: "",
+            }
+        });
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2025") {
+                // Operation depends on required record that was not found
+                return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+            }
+        }
+
+        return DatabaseError.UNKNOWN;
+    }
+
+    return DatabaseError.SUCCESS;
 };

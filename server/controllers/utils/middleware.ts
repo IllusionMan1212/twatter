@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getConversation } from "../../database/message";
+import { isMemberOfConvo } from "../../database/message";
 import { ConversationData } from "../../validators/message";
 import { getUserById } from "../../database/users";
 import * as Cookies from "./cookies";
@@ -58,9 +58,9 @@ export const messagingGuard = async (req: Request, res: Response, next: NextFunc
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const isInConversation = (await getConversation(data.data.conversationId, req.session.user.id)).length;
+    const isMember = await isMemberOfConvo(data.data.conversationId, req.session.user.id);
 
-    if (!isInConversation) {
+    if (!isMember) {
         return res.status(401).json({ message: "Unauthorized to perform this action" });
     }
 

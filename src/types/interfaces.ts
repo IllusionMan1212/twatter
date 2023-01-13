@@ -39,11 +39,8 @@ export interface IEvent {
 
 export interface IConversation {
     id: string;
-    recipientId: string;
-    recipientUsername: string;
-    recipientName: string;
-    recipientAvatarURL: string;
-    lastMessage: string;
+    members: { User: IUser }[];
+    messages: { content: string }[];
     updatedAt: string;
 }
 
@@ -51,10 +48,11 @@ export interface IMessage {
     id: string;
     content: string;
     createdAt: string;
-    userId: string;
+    memberId: string;
     conversationId: string;
     wasRead: boolean;
     attachmentURL: string | null;
+    deleted: boolean;
 }
 
 export interface IPost {

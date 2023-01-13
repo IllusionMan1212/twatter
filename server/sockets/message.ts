@@ -116,3 +116,24 @@ export const handleMarkMessagesAsRead = (
         });
     });
 };
+
+export const handleDeleteMessage = (
+    socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
+    connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
+) => {
+    socket.on("deleteMessage", async (data) => {
+        connectedSockets.get(socket.userId)?.forEach((_socket) => {
+            _socket.emit("deletedMessage", {
+                messageId: data.messageId,
+                conversationId: data.conversationId,
+            });
+        });
+
+        connectedSockets.get(data.recipientId)?.forEach((_socket) => {
+            _socket.emit("deletedMessage", {
+                messageId: data.messageId,
+                conversationId: data.conversationId,
+            });
+        });
+    });
+};

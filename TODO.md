@@ -1,5 +1,4 @@
 - MVP
-   - delete messages
    - rate limiting
    - strip exif metadata
    - allow guests to view profiles and posts

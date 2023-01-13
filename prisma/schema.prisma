@@ -27,7 +27,7 @@ model User {
   createdAt                DateTime  @default(now())
 
   posts          Post[]
-  messages       Message[]
+  conversations  ConversationMember[]
   settings       UserSettings?
   eventInterests EventInterest[]
   likes          PostLike[]
@@ -41,14 +41,15 @@ model UserSettings {
 }
 
 model Post {
-  id          String           @id
+  id        String   @id
+  authorId  String
+  content   String?
+  createdAt DateTime @default(now())
+  parentId  String?
+  deleted   Boolean  @default(false)
+
   author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId    String
-  content     String?
-  createdAt   DateTime         @default(now())
-  parentId    String?
   parent      Post?            @relation(name: "comment", fields: [parentId], references: [id])
-  deleted     Boolean          @default(false)
   children    Post[]           @relation(name: "comment")
   attachments PostAttachment[]
   likes       PostLike[]
@@ -57,59 +58,75 @@ model Post {
 model PostLike {
   userId String
   postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([postId, userId])
 }
 
 model PostAttachment {
   postId String
-  Post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   url    String
+
+  Post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([postId, url])
 }
 
 model Event {
-  id          String          @id
+  id          String   @id
   title       String
   time        DateTime
   location    String
   imageURL    String?
   description String
-  createdAt   DateTime        @default(now())
-  interest    EventInterest[]
+  createdAt   DateTime @default(now())
+
+  interest EventInterest[]
 }
 
 model EventInterest {
   eventId String
   userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@id([eventId, userId])
 }
 
 model Conversation {
-  id           String   @id @default(cuid())
-  members      String[] @unique
-  participants String[]
-  lastMessage  String   @default("")
-  updatedAt    DateTime @default(now())
-  createdAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  updatedAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   messages Message[]
+  members  ConversationMember[]
+}
+
+model ConversationMember {
+  userId          String
+  conversationId  String
+  isParticipating Boolean @default(false)
+
+  Conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@id([userId, conversationId])
 }
 
 model Message {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   content        String
-  userId         String
+  memberId       String
   attachmentURL  String?
   conversationId String
-  wasRead        Boolean      @default(false)
-  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
+  wasRead        Boolean  @default(false)
+  deleted        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  Conversation       Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  ConversationMember ConversationMember? @relation(fields: [memberId, conversationId], references: [userId, conversationId])
 }

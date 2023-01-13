@@ -13,7 +13,7 @@ export default function Typing({ recipientAvatarURL }: TypingProps): ReactElemen
     return (
         <HStack align="start" maxWidth={{ base: "80%", md: "65%" }} py={4}>
             <Avatar
-                src={recipientAvatarURL ?? ""}
+                src={recipientAvatarURL}
                 alt="User avatar"
                 width="35px"
                 height="35px"

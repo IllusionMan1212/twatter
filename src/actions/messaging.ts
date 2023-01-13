@@ -6,6 +6,7 @@ export enum MessagingActions {
     FETCH_MESSAGES = "FETCH_MESSAGES",
     RECEIVE_MESSAGE = "RECEIVE_MESSAGE",
     MARK_MESSAGES_AS_READ = "MARK_MESSAGES_AS_READ",
+    DELETE_MESSAGE = "DELETE_MESSAGE",
 }
 
 interface ChangeConversationAction {
@@ -40,9 +41,17 @@ interface MarkMessagesAsReadAction {
     type: MessagingActions.MARK_MESSAGES_AS_READ;
 }
 
+interface DeleteMessageAction {
+    type: MessagingActions.DELETE_MESSAGE;
+    payload: {
+        messageId: string;
+    }
+}
+
 export type MessagingAction =
     | ChangeConversationAction
     | FetchConversationsAction
     | FetchMessagesAction
     | ReceiveMessageAction
-    | MarkMessagesAsReadAction;
+    | MarkMessagesAsReadAction
+    | DeleteMessageAction;

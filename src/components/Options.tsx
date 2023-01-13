@@ -8,11 +8,13 @@ import {
     ChakraComponent,
     IconButton,
     BoxProps,
+    PlacementWithLogical,
 } from "@chakra-ui/react";
 
 interface OptionsMenuProps {
     buttonSize?: string;
     direction?: "horizontal" | "vertical";
+    placement?: PlacementWithLogical;
 }
 
 interface OptionsButtonProps {
@@ -64,7 +66,7 @@ const OptionsMenu = ((props: BoxProps & OptionsMenuProps) => {
                         options: { padding: { bottom: 49 }, altAxis: true, rootBoundary: "document" }
                     }
                 ]}
-                placement="bottom-end"
+                placement={props.placement ?? "bottom-end"}
             >
                 <OptionsButton size={props.buttonSize} direction={props.direction} />
                 {props.children}

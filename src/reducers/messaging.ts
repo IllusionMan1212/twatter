@@ -34,7 +34,7 @@ export function messagingReducer(
             messages: state.messages.concat([action.payload.message]),
             conversations: state.conversations.map((convo) => {
                 if (convo.id === action.payload.message.conversationId) {
-                    convo.lastMessage = action.payload.message.content;
+                    convo.messages[0].content = action.payload.message.content;
                     convo.updatedAt = new Date().toISOString();
                 }
 
@@ -49,6 +49,30 @@ export function messagingReducer(
                 return message;
             }),
         };
+    case MessagingActions.DELETE_MESSAGE: {
+        let newConversations = [] as IConversation[];
+        const newMessages = state.messages.map((message, i) => {
+            if (message.id === action.payload.messageId) {
+                message.deleted = true;
+                if (i === (state.messages.length - 1)) {
+                    newConversations = state.conversations.map((convo) => {
+                        if (convo.id === message.conversationId) {
+                            convo.messages[0].content = "";
+                        }
+                        return convo;
+                    });
+                }
+            }
+
+            return message;
+        });
+
+        return {
+            ...state,
+            messages: newMessages,
+            conversations: newConversations
+        };
+    }
     default:
         return state;
     }

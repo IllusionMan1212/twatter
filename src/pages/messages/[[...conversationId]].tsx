@@ -194,7 +194,7 @@ function SearchResults({
                         id={user.id}
                         displayName={user.displayName}
                         username={user.username}
-                        avatarURL={user.avatarURL ?? ""}
+                        avatarURL={user.avatarURL}
                         allowAllDMs={user.allowAllDMs}
                         startConvoCB={startConvoCB}
                     />
@@ -411,7 +411,7 @@ export default function Messages(): ReactElement {
             const payload: MarkMessagesAsReadData = {
                 conversationId: conversation?.id ?? "",
                 userId: user?.id ?? "",
-                recipientId: conversation?.recipientId ?? "",
+                recipientId: conversation?.members[0].User.id ?? "",
             };
             socket?.emit("markMessagesAsRead", payload);
         }
@@ -426,6 +426,7 @@ export default function Messages(): ReactElement {
 
     useEffect(() => {
         if (data) {
+            console.log(data);
             dispatch({
                 type: MessagingActions.FETCH_CONVERSATIONS,
                 payload: {
@@ -531,10 +532,10 @@ export default function Messages(): ReactElement {
                             itemContent={(_, convo) => (
                                 <Conversation
                                     key={convo.id}
-                                    recipientName={convo.recipientName}
-                                    recipientUsername={convo.recipientUsername}
-                                    recipientAvatarURL={convo.recipientAvatarURL}
-                                    lastMessage={convo.lastMessage}
+                                    recipientName={convo.members[0].User.displayName}
+                                    recipientUsername={convo.members[0].User.username}
+                                    recipientAvatarURL={convo.members[0].User.avatarURL}
+                                    lastMessage={convo.messages[0].content}
                                     updatedAt={convo.updatedAt}
                                     isActive={convo.id === state.activeConversation?.id}
                                     onClick={() => {

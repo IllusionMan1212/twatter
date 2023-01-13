@@ -1,11 +1,18 @@
-import { useDisclosure } from "@chakra-ui/react";
+import { MenuItem, MenuList, useDisclosure } from "@chakra-ui/react";
 import { memo, ReactElement, useEffect, useRef } from "react";
 import Avatar from "src/components/User/Avatar";
 import { useUserContext } from "src/contexts/userContext";
 import { Check, Checks } from "phosphor-react";
 import MediaModal from "src/components/Attachments/MediaModal";
-import parse from "html-react-parser";
+import HTMLToJSX from "html-react-parser";
 import { parsingOptions } from "src/components/Post/Post";
+import OptionsMenu from "../Options";
+import { TrashIcon } from "@heroicons/react/solid";
+import { KeyedMutator } from "swr";
+import { GenericBackendRes, GetMessagesRes } from "src/types/server";
+import { axiosAuth } from "src/utils/axios";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 interface AttachmentProps {
     url: string | null;
@@ -128,14 +135,107 @@ const MessageTime = memo(function MessageTime({ date }: MessageTimeProps): React
     }
 });
 
+interface DeletedMessageProps extends Omit<MessageProps, "mutate" | "wasRead" | "content" | "attachmentURL" | "recipientAvatarURL" | "recipientId" | "conversationId"> {
+    ownerAvatarURL: string;
+}
+
+export function DeletedMessage(props: DeletedMessageProps): ReactElement {
+    if (props.userOwned) return (
+        <div className="flex w-full justify-end py-4">
+            <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
+                <div className="flex flex-col gap-0.5 items-end">
+                    <MessageTime date={props.createdAt} />
+                    <div className="flex gap-2 items-end">
+                        <div className="flex flex-col gap-4 items-start px-4 py-2 border-2 border-gray-500 rounded-lg rounded-tr-[0]">
+                            <p className="text-sm italic text-gray-500 leading-normal">
+                                Message Deleted
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-col gap-0.5 items-start">
+                    <Avatar
+                        src={props.ownerAvatarURL}
+                        alt={`${props.ownerUsername}'s avatar`}
+                        width="35px"
+                        height="35px"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]">
+            <Avatar
+                src={props.ownerAvatarURL}
+                alt={`${props.ownerUsername}'s avatar`}
+                width="35px"
+                height="35px"
+            />
+            <div className="flex flex-col gap-0.5 items-start">
+                <MessageTime date={props.createdAt} />
+                <div className="flex flex-col gap-4 items-start px-4 py-2 border-2 border-gray-500 rounded-lg rounded-tl-[0]">
+                    <p className="text-sm italic text-gray-500 leading-normal">
+                        Message Deleted
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+interface MessageOptionsProps {
+    messageId: string;
+    mutate: KeyedMutator<GetMessagesRes[]>;
+    className: string;
+    conversationId: string;
+    recipientId: string;
+}
+
+function MessageOptions({ messageId, conversationId, recipientId, mutate, className }: MessageOptionsProps): ReactElement {
+    const { socket } = useUserContext();
+
+    const handleDelete = () => {
+        axiosAuth.delete(`message/delete-message/${messageId}`)
+            .then(async () => {
+                // await mutate();
+                socket?.emit("deleteMessage", {
+                    messageId,
+                    conversationId,
+                    recipientId,
+                });
+            }).catch((e: AxiosError<GenericBackendRes>) => {
+                toast.error(e.response?.data.message ?? "Failed to deleted message");
+            });
+    };
+
+    return (
+        <div className={`text-sm ${className}`}>
+            <OptionsMenu buttonSize="6" direction="vertical" placement="left-end">
+                <MenuList minWidth="w-full">
+                    <MenuItem width="26" color="red.500" onClick={handleDelete}>
+                        <TrashIcon className="mr-3" height="20px" width="20px" />
+                        <span>Delete</span>
+                    </MenuItem>
+                </MenuList>
+            </OptionsMenu>
+        </div>
+    );
+}
+
 interface MessageProps {
+    id: string;
     userOwned: boolean;
     content: string;
     attachmentURL: string | null;
+    recipientId: string;
     recipientAvatarURL: string | undefined;
     ownerUsername: string;
     wasRead: boolean;
     createdAt: string;
+    conversationId: string;
+    mutate: KeyedMutator<GetMessagesRes[]>;
 }
 
 export default function Message(props: MessageProps): ReactElement {
@@ -144,15 +244,24 @@ export default function Message(props: MessageProps): ReactElement {
     return (
         <>
             {props.userOwned ? (
-                <div className="flex w-full justify-end py-4">
+                <div className="group flex w-full justify-end py-4">
                     <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
                         <div className="flex flex-col gap-0.5 items-end">
                             <MessageTime date={props.createdAt} />
-                            <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
-                                <Attachment url={props.attachmentURL} />
-                                <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
-                                    {parse(props.content, parsingOptions)}
-                                </p>
+                            <div className="flex gap-2 items-end">
+                                <MessageOptions
+                                    messageId={props.id}
+                                    conversationId={props.conversationId}
+                                    recipientId={props.recipientId}
+                                    className="opacity-0 group-hover:opacity-100"
+                                    mutate={props.mutate}
+                                />
+                                <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
+                                    <Attachment url={props.attachmentURL} />
+                                    <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
+                                        {HTMLToJSX(props.content, parsingOptions)}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-0.5 items-start">
@@ -179,7 +288,7 @@ export default function Message(props: MessageProps): ReactElement {
                         <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tl-[0]">
                             <Attachment url={props.attachmentURL} />
                             <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
-                                {parse(props.content, parsingOptions)}
+                                {HTMLToJSX(props.content, parsingOptions)}
                             </p>
                         </div>
                     </div>

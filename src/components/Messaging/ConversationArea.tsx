@@ -26,7 +26,7 @@ import {
     useRef,
     useState,
 } from "react";
-import Message from "src/components/Messaging/Message";
+import Message, { DeletedMessage } from "src/components/Messaging/Message";
 import OptionsMenu from "src/components/Options";
 import { PaperClipIcon } from "@heroicons/react/outline";
 import { ArrowNarrowLeftIcon, PaperAirplaneIcon } from "@heroicons/react/solid";
@@ -51,6 +51,7 @@ import { Virtuoso } from "react-virtuoso";
 import {
     ClientMessageEventData,
     ClientTypingEventData,
+    DeletedMessageData,
     ErrorEventData,
     MarkedMessagesAsReadData,
     MarkMessagesAsReadData,
@@ -247,16 +248,16 @@ function ConversationHeader({ convo, onOpen }: ConversationHeaderProps): ReactEl
                         icon={<Icon as={ArrowNarrowLeftIcon} w="28px" h="28px" />}
                         onClick={() => Router.back()}
                     />
-                    <NextLink href={`/@${convo.recipientUsername}`} passHref>
+                    <NextLink href={`/@${convo.members[0].User.username}`} passHref>
                         <HStack as={ChakraLink}>
                             <Avatar
-                                src={convo.recipientAvatarURL}
-                                alt={`${convo.recipientUsername}'s avatar`}
+                                src={convo.members[0].User.avatarURL}
+                                alt={`${convo.members[0].User.username}'s avatar`}
                                 width="40px"
                                 height="40px"
                             />
                             <VStack width="full" spacing={0} align="start">
-                                <Text fontWeight="semibold">{convo.recipientName}</Text>
+                                <Text fontWeight="semibold">{convo.members[0].User.displayName}</Text>
                                 {isRecipientTyping ? (
                                     <Text fontSize="xs" color="textMain">
                                         typing...
@@ -455,6 +456,7 @@ function ConversationBody({
         data,
         error,
         isValidating,
+        mutate,
         size: page,
         setSize: setPage,
     } = useSWRInfinite<GetMessagesRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
@@ -562,7 +564,7 @@ function ConversationBody({
                                     offsetY="20px"
                                 >
                                     <Typing
-                                        recipientAvatarURL={convo.recipientAvatarURL}
+                                        recipientAvatarURL={convo.members[0].User.avatarURL}
                                     />
                                 </SlideFade>
                             );
@@ -572,20 +574,43 @@ function ConversationBody({
                         )
                             return <Box width="1px" height="1px" />;
                         if (!message) return;
+
+                        if (message.deleted) return (
+                            <DeletedMessage
+                                key={message.id}
+                                id={message.id}
+                                userOwned={user?.id === message.memberId}
+                                ownerAvatarURL={
+                                    user?.id === message.memberId
+                                        ? user?.avatarURL
+                                        : convo.members[0].User.avatarURL
+                                }
+                                ownerUsername={
+                                    user?.id === message.memberId
+                                        ? user?.username
+                                        : convo.members[0].User.username
+                                }
+                                createdAt={message.createdAt}
+                            />
+                        );
                         return (
                             <Message
                                 key={message.id}
+                                id={message.id}
                                 content={message.content}
-                                userOwned={user?.id === message.userId}
+                                conversationId={convo.id}
+                                userOwned={user?.id === message.memberId}
                                 ownerUsername={
-                                    user?.id === message.userId
+                                    user?.id === message.memberId
                                         ? user?.username
-                                        : convo.recipientUsername
+                                        : convo.members[0].User.username
                                 }
                                 attachmentURL={message.attachmentURL}
                                 createdAt={message.createdAt}
                                 wasRead={message.wasRead}
-                                recipientAvatarURL={convo.recipientAvatarURL}
+                                recipientId={convo.members[0].User.id}
+                                recipientAvatarURL={convo.members[0].User.avatarURL}
+                                mutate={mutate}
                             />
                         );
                     }}
@@ -618,7 +643,7 @@ export default function ConversationArea({
                     const payload: MarkMessagesAsReadData = {
                         conversationId: convo.id,
                         userId: user?.id,
-                        recipientId: convo.recipientId,
+                        recipientId: convo.members[0].User.id,
                     };
                     socket?.emit("markMessagesAsRead", payload);
                 }
@@ -647,6 +672,20 @@ export default function ConversationArea({
         [convo.id, dispatch],
     );
 
+    const handleDeletedMessage = useCallback(
+        (payload: DeletedMessageData) => {
+            if (payload.conversationId === convo.id) {
+                dispatch({
+                    type: MessagingActions.DELETE_MESSAGE,
+                    payload: {
+                        messageId: payload.messageId
+                    }
+                });
+            }
+        },
+        [convo.id, dispatch]
+    );
+
     const handleError = (data: ErrorEventData) => {
         toast.error(data.message);
     };
@@ -655,6 +694,7 @@ export default function ConversationArea({
         if (socket) {
             socket.on("message", handleMessage);
             socket.on("markedMessagesAsRead", handleMarkedMessagesAsRead);
+            socket.on("deletedMessage", handleDeletedMessage);
             socket.on("error", handleError);
         }
 
@@ -662,6 +702,7 @@ export default function ConversationArea({
             if (socket) {
                 socket.off("message", handleMessage);
                 socket.off("markedMessagesAsRead", handleMarkedMessagesAsRead);
+                socket.off("deletedMessage", handleDeletedMessage);
                 socket.off("error", handleError);
             }
         };
@@ -692,7 +733,7 @@ export default function ConversationArea({
             <ConversationFooter
                 key={`${convo.id}-footer`}
                 conversationId={convo.id}
-                recipientId={convo.recipientId}
+                recipientId={convo.members[0].User.id}
             />
             <LeaveConversationDialog
                 isOpen={isOpen}

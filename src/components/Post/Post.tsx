@@ -21,7 +21,7 @@ import { KeyedMutator } from "swr";
 import Options from "src/components/Post/PostOptions";
 import Router from "next/router";
 import CommentModal from "src/components/Post/CommentModal";
-import parse, { domToReact, Element } from "html-react-parser";
+import HTMLToJSX, { domToReact, Element } from "html-react-parser";
 import Link from "next/link";
 import BigNumber from "src/components/BigNumber";
 
@@ -230,7 +230,7 @@ export default function Post(props: PostProps): ReactElement {
                                 </p>
                             ) : null}
                             <p className="[overflow-wrap:anywhere] whitespace-pre-line">
-                                {parse(props.content, parsingOptions)}
+                                {HTMLToJSX(props.content, parsingOptions)}
                             </p>
                             {props.attachments ? (
                                 <div className="w-full">

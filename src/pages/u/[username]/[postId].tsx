@@ -33,7 +33,7 @@ import Router from "next/router";
 import Options from "src/components/Post/PostOptions";
 import { NextSeo } from "next-seo";
 import CommentBox from "src/components/Post/CommentBox";
-import parse from "html-react-parser";
+import HTMLToJSX from "html-react-parser";
 import BigNumber from "src/components/BigNumber";
 
 function ChatIcon() {
@@ -213,7 +213,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                             fontSize="xl"
                             whiteSpace="break-spaces"
                         >
-                            {parse(post.content, parsingOptions)}
+                            {HTMLToJSX(post.content, parsingOptions)}
                         </Text>
                         {post.attachments ? (
                             <Box width="full">

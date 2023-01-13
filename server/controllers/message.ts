@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ConversationData, GetMessagesData, StartConversationData } from "../validators/message";
-import { createOrUpdateConversation, getConversationsDB, getMessagesDB, isValidUser, leaveConversationDB, queryRecommendedPeople } from "../database/message";
+import { ConversationData, DeleteMessageData, GetMessagesData, StartConversationData } from "../validators/message";
+import { createOrUpdateConversation, deleteMessageDB, getConversationsDB, getMessagesDB, isValidUser, leaveConversationDB, queryRecommendedPeople } from "../database/message";
 import { DatabaseError } from "../database/utils";
 import { GetPagedData } from "../validators/general";
 
@@ -73,4 +73,22 @@ export async function getRecommendedPeople(req: Request, res: Response) {
     const people = await queryRecommendedPeople(req.session.user.id);
 
     return res.status(200).json({ message: "Successfully fetched recommended people", people });
+}
+
+export async function deleteMessage(req: Request, res: Response) {
+    const data = DeleteMessageData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const error = await deleteMessageDB(req.session.user.id, data.data.id);
+
+    if (error === DatabaseError.UNKNOWN) {
+        return res.status(500).json({ message: "Internal error occurred while deleting message" });
+    } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND) {
+        return res.status(404).json({ message: "Message not found" });
+    }
+
+    return res.status(200).json({ message: "Successfully deleted message" });
 }
