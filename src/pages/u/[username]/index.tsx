@@ -36,7 +36,7 @@ import { NextSeo } from "next-seo";
 import BigNumber from "src/components/BigNumber";
 
 interface Props {
-    user: IUser;
+    user: IUser & { _count: { posts: number } };
 }
 
 function Chat(): ReactElement {
@@ -139,7 +139,7 @@ function User({ user }: Props): ReactElement {
                     Following
                 </p>
                 <p className="">
-                    <BigNumber className="font-semibold" num={0} />{" "}
+                    <BigNumber className="font-semibold" num={user._count.posts} />{" "}
                     Posts
                 </p>
             </div>
@@ -286,7 +286,7 @@ export default function Profile({ user }: Props): ReactElement {
 export async function getServerSideProps(
     context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Props>> {
-    let user: IUser | null = null;
+    let user: (IUser & { _count: { posts: number } }) | null = null;
 
     try {
         const res = await axiosNoAuth.get<GetUserRes>(

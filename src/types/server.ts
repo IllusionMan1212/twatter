@@ -33,7 +33,7 @@ export interface AdminEventsRes {
 }
 
 export interface GetUserRes extends GenericBackendRes {
-    user: IUser | undefined;
+    user: (IUser & { _count: { posts: number } }) | undefined;
 }
 
 export interface GetPostRes extends GenericBackendRes {

@@ -1,18 +1,40 @@
 import express from "express";
-import { sessionGuard } from "../controllers/utils/middleware";
+import { limiter, sessionGuard } from "./utils/middleware";
 import { createPost, deletePost, getPost, getPosts, getComments, getUserPosts, likePost, unlikePost } from "../controllers/posts";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+
 const router = express.Router();
 
-router.get("/get-user-posts/:id/:page", sessionGuard, getUserPosts);
-router.get("/get-all-posts/:page", sessionGuard, getPosts);
-router.get("/get-post/:id", sessionGuard, getPost);
-router.get("/get-comments/:id/:page", sessionGuard, getComments);
+const getLimit = new RateLimiterMemory({
+    points: 30,
+    duration: 60,
+});
 
-router.post("/create-post", sessionGuard, createPost);
+const postLimit = new RateLimiterMemory({
+    points: 10,
+    duration: 60,
+});
 
-router.patch("/like/:postId", sessionGuard, likePost);
-router.patch("/unlike/:postId", sessionGuard, unlikePost);
+const patchLimit = new RateLimiterMemory({
+    points: 1,
+    duration: 1,
+});
 
-router.delete("/delete-post", sessionGuard, deletePost);
+const deleteLimit = new RateLimiterMemory({
+    points: 10,
+    duration: 20,
+});
+
+router.get("/get-user-posts/:id/:page", limiter(getLimit), sessionGuard, getUserPosts);
+router.get("/get-all-posts/:page", limiter(getLimit), sessionGuard, getPosts);
+router.get("/get-post/:id", limiter(getLimit), sessionGuard, getPost);
+router.get("/get-comments/:id/:page", limiter(getLimit), sessionGuard, getComments);
+
+router.post("/create-post", limiter(postLimit), sessionGuard, createPost);
+
+router.patch("/like/:postId", limiter(patchLimit), sessionGuard, likePost);
+router.patch("/unlike/:postId", limiter(patchLimit), sessionGuard, unlikePost);
+
+router.delete("/delete-post", limiter(deleteLimit), sessionGuard, deletePost);
 
 export default router;

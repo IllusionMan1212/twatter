@@ -145,6 +145,15 @@ export const getUserByUsername = async (username: string): Promise<Partial<User>
             avatarURL: true,
             isAdmin: true,
             settings: true,
+            _count: {
+                select: {
+                    posts: {
+                        where: {
+                            deleted: false,
+                        }
+                    },
+                }
+            },
         },
     });
 

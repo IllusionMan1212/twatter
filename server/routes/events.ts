@@ -1,13 +1,24 @@
 import express from "express";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 import { addEvent, getEvents, getSidebarEvents, toggleInterest } from "../controllers/events";
-import { sessionGuard, adminGuard } from "../controllers/utils/middleware";
+import { sessionGuard, adminGuard, limiter } from "./utils/middleware";
 const router = express.Router();
 
-router.get("/get-events", sessionGuard, getEvents);
-router.get("/get-sidebar-events", sessionGuard, getSidebarEvents);
+const getLimit = new RateLimiterMemory({
+    points: 60,
+    duration: 60,
+});
 
-router.post("/add-event", adminGuard, addEvent);
+const postLimit = new RateLimiterMemory({
+    points: 1,
+    duration: 1
+});
 
-router.patch("/toggle-interest/:id", sessionGuard, toggleInterest);
+router.get("/get-events", limiter(getLimit), sessionGuard, getEvents);
+router.get("/get-sidebar-events", limiter(getLimit), sessionGuard, getSidebarEvents);
+
+router.post("/add-event", limiter(postLimit), adminGuard, addEvent);
+
+router.patch("/toggle-interest/:id", limiter(postLimit), sessionGuard, toggleInterest);
 
 export default router;

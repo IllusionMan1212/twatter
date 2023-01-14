@@ -24,7 +24,9 @@ export const initWebsocketServer = (server: http.Server) => {
         const session = await validateSession(cookies["session"]);
 
         if (!session) {
-            socket.emit("_message", "Unauthorized");
+            socket.emit("blocked", {
+                reason: "Unauthorized",
+            });
             socket.disconnect();
             return;
         }

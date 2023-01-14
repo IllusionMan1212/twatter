@@ -426,7 +426,6 @@ export default function Messages(): ReactElement {
 
     useEffect(() => {
         if (data) {
-            console.log(data);
             dispatch({
                 type: MessagingActions.FETCH_CONVERSATIONS,
                 payload: {

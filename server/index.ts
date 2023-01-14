@@ -62,6 +62,7 @@ app.prepare().then(() => {
     expressApp.use("/cdn", cdnRouter);
 
     expressApp.all("*", (req, res) => {
+        console.log(req.ip);
         return handle(req, res);
     });
 

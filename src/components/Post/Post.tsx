@@ -109,13 +109,16 @@ export const parsingOptions = {
         if (domNode instanceof Element && domNode.name === "a") {
             if (domNode.attribs.target === "_blank") {
                 return (
-                    <a {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
+                    <a className={domNode.attribs.class} {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
                 );
             }
 
+            const className = domNode.attribs.class;
+            delete domNode.attribs.class;
+
             return (
                 <Link href={domNode.attribs.href} passHref>
-                    <a {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
+                    <a className={className} {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
                 </Link>
             );
         }
@@ -166,8 +169,7 @@ export default function Post(props: PostProps): ReactElement {
                         ? "border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]"
                         : ""
                 }`}
-                onClick={async (e) => {
-                    console.log(e);
+                onClick={async () => {
                     await Router.push(`/@${props.author.username}/${props.id}`);
                 }}
             >

@@ -1,17 +1,34 @@
 import express from "express";
-import { sessionGuard } from "../controllers/utils/middleware";
+import { limiter, sessionGuard } from "./utils/middleware";
 import { forgotPassword, getUser, login, logout, register, resetPassword, validateResetPasswordToken, validateToken } from "../controllers/users";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+
 const router = express.Router();
 
-router.get("/validate-reset-password-token", validateResetPasswordToken);
-router.get("/validate-token", sessionGuard, validateToken);
-router.get("/get-user/:username", sessionGuard, getUser);
+const postLimit = new RateLimiterMemory({
+    points: 3,
+    duration: 60,
+});
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
+const registerLimit = new RateLimiterMemory({
+    points: 5,
+    duration: 60 * 60,
+});
 
-router.delete("/logout", logout);
+const getLimit = new RateLimiterMemory({
+    points: 60,
+    duration: 60,
+});
+
+router.get("/validate-reset-password-token", limiter(postLimit), validateResetPasswordToken);
+router.get("/validate-token", limiter(getLimit), sessionGuard, validateToken);
+router.get("/get-user/:username", limiter(getLimit), sessionGuard, getUser);
+
+router.post("/register", limiter(registerLimit), register);
+router.post("/login", limiter(postLimit), login);
+router.post("/forgot-password", limiter(postLimit), forgotPassword);
+router.post("/reset-password", limiter(postLimit), resetPassword);
+
+router.delete("/logout", limiter(postLimit), logout);
 
 export default router;

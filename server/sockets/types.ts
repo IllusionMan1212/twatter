@@ -3,6 +3,11 @@ interface Attachment {
     mimetype: string;
 }
 
+export interface BlockedEventData {
+    reason: string;
+    additionalData?: Record<string, any>;
+}
+
 export interface ClientMessageEventData {
     message: string;
     attachment: Attachment | null;
@@ -63,7 +68,7 @@ export interface ClientToServerEvents {
 }
 
 export interface ServerToClientEvents {
-    _message: (msg: string) => void;
+    blocked: (data: BlockedEventData) => void;
     message: (data: ServerMessageEventData) => void;
     error: (data: ErrorEventData) => void;
     typing: (data: ServerTypingEventData) => void;

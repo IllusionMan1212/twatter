@@ -49,6 +49,7 @@ import useSWRInfinite from "swr/infinite";
 import { MessagingAction, MessagingActions } from "src/actions/messaging";
 import { Virtuoso } from "react-virtuoso";
 import {
+    BlockedEventData,
     ClientMessageEventData,
     ClientTypingEventData,
     DeletedMessageData,
@@ -690,11 +691,16 @@ export default function ConversationArea({
         toast.error(data.message);
     };
 
+    const handleBlocked = (data: BlockedEventData) => {
+        toast.error(`Too fast, try again in ${data.additionalData?.["retry-ms"] / 1000} seconds`);
+    };
+
     useEffect(() => {
         if (socket) {
             socket.on("message", handleMessage);
             socket.on("markedMessagesAsRead", handleMarkedMessagesAsRead);
             socket.on("deletedMessage", handleDeletedMessage);
+            socket.on("blocked", handleBlocked);
             socket.on("error", handleError);
         }
 
@@ -703,6 +709,7 @@ export default function ConversationArea({
                 socket.off("message", handleMessage);
                 socket.off("markedMessagesAsRead", handleMarkedMessagesAsRead);
                 socket.off("deletedMessage", handleDeletedMessage);
+                socket.off("blocked", handleBlocked);
                 socket.off("error", handleError);
             }
         };

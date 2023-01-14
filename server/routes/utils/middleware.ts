@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { isMemberOfConvo } from "../../database/message";
 import { ConversationData } from "../../validators/message";
 import { getUserById } from "../../database/users";
-import * as Cookies from "./cookies";
+import * as Cookies from "../../controllers/utils/cookies";
+import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 
 export const adminGuard = async (req: Request, res: Response, next: NextFunction) => {
     const session = await Cookies.getLoginSession(req);
@@ -65,4 +66,34 @@ export const messagingGuard = async (req: Request, res: Response, next: NextFunc
     }
 
     next();
+};
+
+export const limiter = (rateLimit: RateLimiterMemory) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // key is path + ip to have different limits on different routes for different ips
+            const r = await rateLimit.consume(`${req.path}|${req.ip}`);
+
+            res.setHeader("Retry-After", r.msBeforeNext / 1000);
+            res.setHeader("RateLimit-Limit", rateLimit.points);
+            res.setHeader("RateLimit-Remaining", r.remainingPoints);
+            res.setHeader("RateLimit-Reset", new Date(Date.now() + r.msBeforeNext).toString());
+            res.setHeader("X-RateLimit-Limit", rateLimit.points);
+            res.setHeader("X-RateLimit-Remaining", r.remainingPoints);
+            res.setHeader("X-RateLimit-Reset", new Date(Date.now() + r.msBeforeNext).toString());
+
+            next();
+        } catch (e) {
+            const r = e as RateLimiterRes;
+            res.setHeader("Retry-After", r.msBeforeNext / 1000);
+            res.setHeader("RateLimit-Limit", rateLimit.points);
+            res.setHeader("RateLimit-Remaining", r.remainingPoints);
+            res.setHeader("RateLimit-Reset", new Date(Date.now() + r.msBeforeNext).toString());
+            res.setHeader("X-RateLimit-Limit", rateLimit.points);
+            res.setHeader("X-RateLimit-Remaining", r.remainingPoints);
+            res.setHeader("X-RateLimit-Reset", new Date(Date.now() + r.msBeforeNext).toString());
+
+            return res.status(429).json({ message: "Too many requests" });
+        }
+    };
 };

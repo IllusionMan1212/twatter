@@ -7,12 +7,43 @@ import crypto from "crypto";
 import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
 import { linkUrls } from "../validators/posts";
 import sharp from "sharp";
+import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
+
+const limit = new RateLimiterMemory({
+    points: 10,
+    duration: 10,
+});
+
+const sendMessageLimit = new RateLimiterMemory({
+    keyPrefix: "sendMessage",
+    points: 15,
+    duration: 10,
+});
+
+const deleteMessageLimit = new RateLimiterMemory({
+    keyPrefix: "deleteMessage",
+    points: 15,
+    duration: 20,
+});
 
 export const handleMessage = (
     socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
     connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
 ) => {
     socket.on("message", async (data) => {
+        try {
+            await sendMessageLimit.consume(socket.userId);
+        } catch (e) {
+            socket.emit("blocked", {
+                reason: "Rate limit reached",
+                additionalData: {
+                    "retry-ms": (e as RateLimiterRes).msBeforeNext,
+                    limit: sendMessageLimit.points,
+                }
+            });
+            return;
+        }
+
         let attachmentURL: string | null = null;
         let attachmentPath: string | null = null;
 
@@ -79,6 +110,19 @@ export const handleTyping = (
     connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
 ) => {
     socket.on("typing", async (data) => {
+        try {
+            await limit.consume(`typing|${socket.userId}`);
+        } catch (e) {
+            socket.emit("blocked", {
+                reason: "Rate limit reached",
+                additionalData: {
+                    "retry-ms": (e as RateLimiterRes).msBeforeNext,
+                    limit: limit.points,
+                }
+            });
+            return;
+        }
+
         if (socket.userId === data.recipientId) return;
 
         const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
@@ -100,6 +144,19 @@ export const handleMarkMessagesAsRead = (
     connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
 ) => {
     socket.on("markMessagesAsRead", async (data) => {
+        try {
+            await limit.consume(`markMessagesAsRead|${socket.userId}`);
+        } catch (e) {
+            socket.emit("blocked", {
+                reason: "Rate limit reached",
+                additionalData: {
+                    "retry-ms": (e as RateLimiterRes).msBeforeNext,
+                    limit: limit.points,
+                }
+            });
+            return;
+        }
+
         if (socket.userId === data.recipientId) return;
 
         const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
@@ -127,6 +184,19 @@ export const handleDeleteMessage = (
     connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
 ) => {
     socket.on("deleteMessage", async (data) => {
+        try {
+            await deleteMessageLimit.consume(socket.userId);
+        } catch (e) {
+            socket.emit("blocked", {
+                reason: "Rate limit reached",
+                additionalData: {
+                    "retry-ms": (e as RateLimiterRes).msBeforeNext,
+                    limit: deleteMessageLimit.points,
+                }
+            });
+            return;
+        }
+
         connectedSockets.get(socket.userId)?.forEach((_socket) => {
             _socket.emit("deletedMessage", {
                 messageId: data.messageId,
