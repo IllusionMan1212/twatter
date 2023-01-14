@@ -6,6 +6,7 @@ import { GetPagedData } from "../validators/general";
 import fs from "fs/promises";
 import { snowflake } from "../database/snowflake";
 import { traversalSafeRm } from "../utils";
+import sharp from "sharp";
 
 export async function getUserPosts(req: Request, res: Response) {
     const data = GetPostsData.safeParse(req.params);
@@ -75,12 +76,16 @@ export async function createPost(req: Request, res: Response) {
     }
 
     for (const attachment of attachments) {
+        const sh = sharp(attachment.data);
+        const { orientation } = await sh.metadata();
+        const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+
         const fileName = counter;
         const dir = `${__dirname}/../cdn/posts/${id}`;
 
-        const ext = attachment.mimetype.split("/").at(-1);
+        const ext = "jpeg";
         await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(`${dir}/${fileName}.${ext}`, attachment.data);
+        await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
         attachmentsURLs.push(`http://${req.headers.host}/cdn/posts/${id}/${fileName}.${ext}`);
         attachmentsPaths.push(`${dir}/${fileName}.${ext}`);

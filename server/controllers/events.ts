@@ -6,6 +6,7 @@ import { GetDataById, GetPagedData } from "../validators/general";
 import { UploadedFile } from "express-fileupload";
 import fs from "fs/promises";
 import { snowflake } from "../database/snowflake";
+import sharp from "sharp";
 
 export async function getEvents(req: Request, res: Response) {
     const data = GetPagedData.safeParse(req.query);
@@ -40,12 +41,16 @@ export async function addEvent(req: Request, res: Response) {
     if (req.files?.image) {
         const file = <UploadedFile>req.files.image;
 
+        const sh = sharp(file.data);
+        const { orientation } = await sh.metadata();
+        const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+
         const fileName = "event";
         const dir = `${__dirname}/../cdn/events/${id}`;
 
-        const ext = file.mimetype.split("/").at(-1);
+        const ext = "jpeg";
         await fs.mkdir(dir, { recursive: true });
-        await file.mv(`${dir}/${fileName}.${ext}`);
+        await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
         imageURL = `http://${req.headers.host}/cdn/events/${id}/${fileName}.${ext}`;
         imagePath = `${dir}/${fileName}.${ext}`;

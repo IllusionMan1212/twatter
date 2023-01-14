@@ -13,6 +13,7 @@ import fileUpload from "express-fileupload";
 import fs from "fs/promises";
 import z from "zod";
 import { USERNAME_REGEX } from "../validators/users";
+import sharp from "sharp";
 
 export async function toggleAllowAllDMs(req: Request, res: Response) {
     const data = ToggleAllowAllDMsData.safeParse(req.body);
@@ -230,13 +231,17 @@ export async function updateProfile(req: Request, res: Response) {
     if (req.files?.profileImage) {
         const file = <fileUpload.UploadedFile>req.files.profileImage;
 
+        const sh = sharp(file.data);
+        const { orientation } = await sh.metadata();
+        const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+
         const bytes = crypto.randomBytes(8).toString("hex");
         const fileName = `profile-${bytes}`;
         const dir = `${__dirname}/../cdn/profile-images/${req.session.user.id}`;
 
-        const ext = file.mimetype.split("/").at(-1);
+        const ext = "jpeg";
         await fs.mkdir(dir, { recursive: true });
-        await file.mv(`${dir}/${fileName}.${ext}`);
+        await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
         const avatarURL = `http://${req.headers.host}/cdn/profile-images/${req.session.user.id}/${fileName}.${ext}`;
         const error = await updateUserProfileImage(req.session.user.id, avatarURL);

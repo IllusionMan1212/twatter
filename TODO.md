@@ -1,6 +1,5 @@
 - MVP
    - rate limiting
-   - strip exif metadata
    - allow guests to view profiles and posts
    - find a better way to optimize the post options button and menu
    - find a better way to optimize iconbuttons (and maybe buttons in general)

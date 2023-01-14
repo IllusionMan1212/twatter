@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import crypto from "crypto";
 import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
 import { linkUrls } from "../validators/posts";
+import sharp from "sharp";
 
 export const handleMessage = (
     socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
@@ -16,13 +17,17 @@ export const handleMessage = (
         let attachmentPath: string | null = null;
 
         if (data.attachment) {
+            const sh = sharp(data.attachment.data);
+            const { orientation } = await sh.metadata();
+            const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+
             const bytes = crypto.randomBytes(12).toString("hex");
             const fileName = `${bytes}-${Date.now()}`;
             const dir = `${__dirname}/../cdn/messages/${data.conversationId}`;
 
-            const ext = data.attachment.mimetype.split("/").at(-1);
+            const ext = "jpeg";
             await fs.mkdir(dir, { recursive: true });
-            await fs.writeFile(`${dir}/${fileName}.${ext}`, data.attachment.data);
+            await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
             attachmentURL = `http://${socket.handshake.headers.host}/cdn/messages/${data.conversationId}/${fileName}.${ext}`;
             attachmentPath = `${dir}/${fileName}.${ext}`;

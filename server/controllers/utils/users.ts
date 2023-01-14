@@ -1,4 +1,5 @@
 export const excludedUserProps = [
+    "email",
     "password",
     "resetPasswordToken",
     "resetPasswordTokenExpiry",
