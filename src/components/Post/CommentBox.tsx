@@ -14,8 +14,9 @@ import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
-import { MAX_ATTACHMENT_SIZE, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
+import { MAX_ATTACHMENT_SIZE, POST_MAX_CHARS, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
 import { Camera, NotePencil } from "phosphor-react";
+import CharsRemaining from "../CharsRemaining";
 
 interface CommentBoxProps {
     parentPostId: string;
@@ -32,11 +33,12 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
     const [attachments, setAttachments] = useState<File[]>([]);
     const [isSubmitting, setSubmitting] = useState(false);
     const [hasText, setHasText] = useState(false);
+    const [charsLeft, setCharsLeft] = useState(POST_MAX_CHARS);
 
     const submitPost = () => {
         if (typeof ref === "function") return;
 
-        if (ref?.current && (ref.current?.value.trim().length || attachments.length)) {
+        if (ref?.current && (ref.current?.value.trim().length || attachments.length) && charsLeft >= 0) {
             setSubmitting(true);
             setAttachments([]);
             setPreviewImages([]);
@@ -49,6 +51,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
 
             ref.current.value = "";
             setHasText(false);
+            setCharsLeft(POST_MAX_CHARS);
 
             axiosAuth
                 .post<GenericBackendRes>("posts/create-post", payload)
@@ -110,6 +113,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         e.target.parentElement!.dataset.value = e.target.value;
         setHasText(!!e.target.value.trim());
+        setCharsLeft(POST_MAX_CHARS - e.target.value.length);
     };
 
     const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -175,12 +179,15 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
             ) : null}
             <div className="flex flex-wrap w-full justify-end gap-2">
                 <div className="flex items-start gap-2 w-full xs:flex-1">
-                    <Avatar
-                        src={user?.avatarURL}
-                        alt={`${user?.username}'s avatar`}
-                        width="40px"
-                        height="40px"
-                    />
+                    <div className="flex flex-col justify-between h-full items-center">
+                        <Avatar
+                            src={user?.avatarURL}
+                            alt={`${user?.username}'s avatar`}
+                            width="40px"
+                            height="40px"
+                        />
+                        <CharsRemaining charsLeft={charsLeft} type="Post" />
+                    </div>
                     <Box
                         // some weird hack to have the input expand vertically how we want it to
                         sx={{
@@ -239,7 +246,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
                         size="md"
                         aria-label="Create Comment"
                         icon={<Icon as={NotePencil} w={6} h={6} />}
-                        disabled={(!hasText && !attachments.length) || isSubmitting}
+                        isDisabled={(!hasText && !attachments.length) || isSubmitting || charsLeft < 0}
                         onClick={submitPost}
                     />
                 </ButtonGroup>
