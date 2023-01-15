@@ -1,5 +1,5 @@
 import express from "express";
-import { limiter, sessionGuard } from "./utils/middleware";
+import { limiter, sessionContext, sessionGuard } from "./utils/middleware";
 import { createPost, deletePost, getPost, getPosts, getComments, getUserPosts, likePost, unlikePost } from "../controllers/posts";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
@@ -25,10 +25,10 @@ const deleteLimit = new RateLimiterMemory({
     duration: 20,
 });
 
-router.get("/get-user-posts/:id/:page", limiter(getLimit), sessionGuard, getUserPosts);
+router.get("/get-user-posts/:id/:page", limiter(getLimit), sessionContext, getUserPosts);
 router.get("/get-all-posts/:page", limiter(getLimit), sessionGuard, getPosts);
-router.get("/get-post/:id", limiter(getLimit), sessionGuard, getPost);
-router.get("/get-comments/:id/:page", limiter(getLimit), sessionGuard, getComments);
+router.get("/get-post/:id", limiter(getLimit), sessionContext, getPost);
+router.get("/get-comments/:id/:page", limiter(getLimit), sessionContext, getComments);
 
 router.post("/create-post", limiter(postLimit), sessionGuard, createPost);
 

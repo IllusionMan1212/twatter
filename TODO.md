@@ -1,5 +1,4 @@
 - MVP
-   - allow guests to view profiles and posts
    - find a better way to optimize the post options button and menu
    - find a better way to optimize iconbuttons (and maybe buttons in general)
 
@@ -18,7 +17,7 @@
   - Searching using post content
   - A notification system
   - In-webapp message notification when receiving a message
-  - Trending
+  - Trending on sidebar (allowed in guest routes which will make the right side not empty and take up space so the middle part is not stretching)
   - Show recent searches when focusing searchbar
   - Post reporting
   - Event sharing

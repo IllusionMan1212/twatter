@@ -25,7 +25,6 @@ import { Chat, Heart } from "phosphor-react";
 import toast from "react-hot-toast";
 import { Dialog } from "src/components/Dialog";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
-import { fetcher } from "src/utils/helpers";
 import { Virtuoso } from "react-virtuoso";
 import Post, { parsingOptions } from "src/components/Post/Post";
 import styles from "src/styles/userProfile.module.scss";
@@ -142,6 +141,11 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
     const handleComment = () => {
         commentBoxRef?.current?.focus();
     };
+
+    useEffect(() => {
+        setLikes(post.likes);
+        setLiked(post.liked);
+    }, [post.id]);
 
     return (
         <>
@@ -355,11 +359,18 @@ interface Props {
     post: IPost;
 }
 
+
 export default function PostPage({ post }: Props): ReactElement {
+    const { user } = useUserContext();
+
     const commentBoxRef = useRef<HTMLTextAreaElement | null>(null);
 
     const getKey = (pageIndex: number) => {
         return `posts/get-comments/${post.id}/${pageIndex}`;
+    };
+
+    const fetcher = <T,>(url: string) => {
+        return user ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
     };
 
     const swr = useSWRInfinite<GetCommentsRes, AxiosError<GenericBackendRes>>(
@@ -407,7 +418,7 @@ export default function PostPage({ post }: Props): ReactElement {
             />
             <VStack
                 minHeight={{
-                    base: "calc(100vh - var(--chakra-headerHeight-mobile) - var(--chakra-navBarHeight))",
+                    base: `calc(100vh - var(--chakra-headerHeight-mobile)${user ? " - var(--chakra-navBarHeight))" : ")"}`,
                     lg: "calc(100vh - var(--chakra-headerHeight-desktop) - var(--chakra-space-5))",
                 }}
                 spacing={0}
@@ -416,9 +427,11 @@ export default function PostPage({ post }: Props): ReactElement {
                 bgColor="bgPrimary"
             >
                 <OriginalPost post={post} commentBoxRef={commentBoxRef} />
-                <div className="w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
-                    <CommentBox cb={cb} parentPostId={post.id} ref={commentBoxRef} />
-                </div>
+                {user ? (
+                    <div className="w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
+                        <CommentBox cb={cb} parentPostId={post.id} ref={commentBoxRef} />
+                    </div>
+                ) : null}
                 <Comments swr={swr} />
             </VStack>
         </Flex>
@@ -433,12 +446,14 @@ export async function getServerSideProps(
     try {
         const res = await axiosNoAuth.get<GetPostRes>(
             `posts/get-post/${context.params?.postId}`,
-            {
-                withCredentials: true,
-                headers: {
-                    Cookie: `session=${context.req.cookies.session}`,
-                },
-            },
+            context.req.cookies.session
+                ? {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `session=${context.req.cookies.session}`,
+                    },
+                }
+                : {},
         );
         post = res.data.post ?? null;
     } catch (e) {

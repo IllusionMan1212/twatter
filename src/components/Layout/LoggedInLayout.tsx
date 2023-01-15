@@ -1,9 +1,11 @@
+import dynamic from "next/dynamic";
 import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 import { PropsWithChildren, ReactElement, useEffect } from "react";
 import Nav from "src/components/Nav/Nav";
 import { useUserContext } from "src/contexts/userContext";
 import Sidebar from "src/components/Sidebar";
+const JoinReminder = dynamic(() => import("src/components/JoinReminder"));
 
 const adminRoutes = ["/dashboard/[[...item]]"];
 
@@ -19,30 +21,34 @@ const nonSidebarRoutes = [
     "/settings/[[...setting]]",
 ];
 
+const guestRoutes = [
+    "/u/[username]",
+    "/u/[username]/[postId]",
+];
+
 export default function LoggedInLayout({ children }: PropsWithChildren): ReactElement {
     const { user } = useUserContext();
 
-    const router = useRouter();
-
     const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
-    const fullScreenRoute = fullScreenRoutes.includes(router.pathname);
+    const fullScreenRoute = fullScreenRoutes.includes(Router.pathname);
+    const isGuest = !user && guestRoutes.includes(Router.pathname);
 
-    const hasSidebar = !nonSidebarRoutes.includes(router.pathname);
-    const withEvents = router.pathname !== "/events";
+    const hasSidebar = !nonSidebarRoutes.includes(Router.pathname) && user;
+    const withEvents = Router.pathname !== "/events";
 
     useEffect(() => {
-        if (!user) {
+        if (!user && !guestRoutes.includes(Router.pathname)) {
             Router.replace("/login");
             return;
         }
 
-        if (!user.isAdmin && adminRoutes.includes(Router.pathname)) {
+        if (adminRoutes.includes(Router.pathname) && !user?.isAdmin) {
             Router.replace("/home");
             return;
         }
     }, [user]);
 
-    if (!user || (!user.isAdmin && adminRoutes.includes(Router.pathname))) return <></>;
+    if ((!user && !guestRoutes.includes(Router.pathname)) || (!user?.isAdmin && adminRoutes.includes(Router.pathname))) return <></>;
 
     return (
         <Container
@@ -60,14 +66,15 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
                         base: "initial",
                         md: 5,
                     }}
-                    mb={{ base: "var(--chakra-navBarHeight)", md: fullScreenRoute ? 0 : 5 }}
+                    mb={{ base: !isGuest ? "var(--chakra-navBarHeight)" : "", md: fullScreenRoute ? 0 : 5 }}
                     maxWidth="full"
                     minWidth="0"
                 >
                     <Box flex="7" maxWidth="full" minWidth="0">
                         {children}
                     </Box>
-                    {hasSidebar && <Sidebar withEvents={withEvents} />}
+                    {hasSidebar ? <Sidebar withEvents={withEvents} /> : null}
+                    {isGuest ? <JoinReminder /> : null}
                 </Flex>
             </Flex>
         </Container>

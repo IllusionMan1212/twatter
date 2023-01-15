@@ -2,14 +2,16 @@ import { Post, Prisma } from "@prisma/client";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
-export const queryUserPosts = async (sessionUserId: string, userId: string, page: number): Promise<Post[]> => {
+export const queryUserPosts = async (sessionUserId: string | undefined, userId: string, page: number): Promise<Post[]> => {
+    const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${sessionUserId}) as liked` : Prisma.sql`false as liked`;
+
     return await prisma.$queryRaw`
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
-    EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${sessionUserId}) as liked,
+    ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
@@ -19,8 +21,6 @@ export const queryUserPosts = async (sessionUserId: string, userId: string, page
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    LEFT JOIN "UserSettings" us
-    ON us."userId" = u.id
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
     WHERE p.deleted = false AND p."authorId" = ${userId}
@@ -47,8 +47,6 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    LEFT JOIN "UserSettings" us
-    ON us."userId" = u.id
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
     WHERE p.deleted = false
@@ -58,14 +56,16 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     ;`;
 };
 
-export const queryPost = async (userId: string, postId: string): Promise<Post[]> => {
+export const queryPost = async (userId: string | undefined, postId: string): Promise<Post[]> => {
+    const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
+
     return await prisma.$queryRaw`
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
-    EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
+    ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
@@ -75,8 +75,6 @@ export const queryPost = async (userId: string, postId: string): Promise<Post[]>
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    LEFT JOIN "UserSettings" us
-    ON us."userId" = u.id
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
     WHERE p.deleted = false AND p.id = ${postId}
@@ -84,14 +82,16 @@ export const queryPost = async (userId: string, postId: string): Promise<Post[]>
     ;`;
 };
 
-export const queryComments = async (userId: string, postId: string, page: number) => {
+export const queryComments = async (userId: string | undefined, postId: string, page: number) => {
+    const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
+
     return await prisma.$queryRaw`
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
-    EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
+    ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
     FROM "Post" p
@@ -101,8 +101,6 @@ export const queryComments = async (userId: string, postId: string, page: number
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    LEFT JOIN "UserSettings" us
-    ON us."userId" = u.id
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
     WHERE p.deleted = false AND p."parentId" = ${postId}

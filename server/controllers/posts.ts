@@ -15,7 +15,7 @@ export async function getUserPosts(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const posts = await queryUserPosts(req.session.user.id, data.data.id, data.data.page);
+    const posts = await queryUserPosts(req.session?.user.id, data.data.id, data.data.page);
 
     return res.status(200).json({ message: "Successfully fetched user posts", posts });
 }
@@ -39,7 +39,7 @@ export async function getPost(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const posts = await queryPost(req.session.user.id, data.data.id);
+    const posts = await queryPost(req.session?.user.id, data.data.id);
 
     return res.status(200).json({ message: "Successfully fetched post", post: posts[0] });
 }
@@ -51,7 +51,7 @@ export async function getComments(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const comments = await queryComments(req.session.user.id, data.data.id, data.data.page);
+    const comments = await queryComments(req.session?.user.id, data.data.id, data.data.page);
 
     return res.status(200).json({ message: "Successfully fetched comments", comments });
 }

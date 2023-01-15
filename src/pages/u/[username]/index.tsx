@@ -28,7 +28,6 @@ import { AxiosError } from "axios";
 import { useUserContext } from "src/contexts/userContext";
 import toast from "react-hot-toast";
 import useSWRInfinite from "swr/infinite";
-import { fetcher } from "src/utils/helpers";
 import Router from "next/router";
 import { Virtuoso } from "react-virtuoso";
 import styles from "src/styles/userProfile.module.scss";
@@ -107,49 +106,57 @@ function User({ user }: Props): ReactElement {
                         <Tags user={user} />
                     </Flex>
                 </HStack>
-                <ButtonGroup
-                    colorScheme="accent"
-                    size="sm"
-                >
-                    {/*TODO: follow button user.id !== currentUser?.id ? (
-                        <Button variant="solid">
-                            Follow
-                        </Button>
-                    ) : null */}
-                    {!user.settings?.allowAllDMs ||
-                    user.id === currentUser?.id ||
-                    user.restricted ? null : (
-                            <Button
-                                variant="outline"
-                                leftIcon={<Icon as={Chat} />}
-                                onClick={handleStartConversation}
-                            >
-                                Message
+                {currentUser ? (
+                    <ButtonGroup
+                        colorScheme="accent"
+                        size="sm"
+                    >
+                        {/*TODO: follow button user.id !== currentUser?.id ? (
+                            <Button variant="solid">
+                                Follow
                             </Button>
-                        )}
-                </ButtonGroup>
+                        ) : null */}
+                        {!user.settings?.allowAllDMs ||
+                        user.id === currentUser?.id ||
+                        user.restricted ? null : (
+                                <Button
+                                    variant="outline"
+                                    leftIcon={<Icon as={Chat} />}
+                                    onClick={handleStartConversation}
+                                >
+                                    Message
+                                </Button>
+                            )}
+                    </ButtonGroup>
+                ) : null}
             </Flex>
             <div className="flex gap-2">
-                <p className="">
+                <div>
                     <BigNumber className="font-semibold" num={0} />{" "}
-                    Followers
-                </p>
-                <p className="">
+                    <span className="text-[color:var(--chakra-colors-textMain)]">Followers</span>
+                </div>
+                <div>
                     <BigNumber className="font-semibold" num={0} />{" "}
-                    Following
-                </p>
-                <p className="">
+                    <span className="text-[color:var(--chakra-colors-textMain)]">Following</span>
+                </div>
+                <div>
                     <BigNumber className="font-semibold" num={user._count.posts} />{" "}
-                    Posts
-                </p>
+                    <span className="text-[color:var(--chakra-colors-textMain)]">Posts</span>
+                </div>
             </div>
         </div>
     );
 }
 
 function Posts({ user }: Props): ReactElement {
+    const { user: currentUser } = useUserContext();
+
     const getKey = (pageIndex: number) => {
         return `posts/get-user-posts/${user.id}/${pageIndex}`;
+    };
+
+    const fetcher = <T,>(url: string) => {
+        return currentUser ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
     };
 
     const [reachedEnd, setReachedEnd] = useState(false);
@@ -291,12 +298,14 @@ export async function getServerSideProps(
     try {
         const res = await axiosNoAuth.get<GetUserRes>(
             `users/get-user/${context.params?.username}`,
-            {
-                withCredentials: true,
-                headers: {
-                    Cookie: `session=${context.req.cookies.session}`,
-                },
-            },
+            context.req.cookies.session
+                ? {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `session=${context.req.cookies.session}`,
+                    },
+                }
+                : {},
         );
         user = res.data.user ?? null;
     } catch (e) {

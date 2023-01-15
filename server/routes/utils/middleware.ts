@@ -52,6 +52,31 @@ export const sessionGuard = async (req: Request, res: Response, next: NextFuncti
     next();
 };
 
+export const sessionContext = async (req: Request, res: Response, next: NextFunction) => {
+    const session = await Cookies.getLoginSession(req);
+
+    if (!session) {
+        next();
+        return;
+    }
+
+    const user = await getUserById(session.user.id);
+
+    if (!user) {
+        return res.status(401).json({ message: "Authentication token is invalid, please log in" });
+    }
+
+    if (user.restricted) {
+        Cookies.removeTokenCookie(res);
+        return res.status(403).json({ message: "Restricted account" });
+    }
+
+    session.user = user;
+    req.session = session;
+
+    next();
+};
+
 export const messagingGuard = async (req: Request, res: Response, next: NextFunction) => {
     const data = ConversationData.safeParse(req.params);
 

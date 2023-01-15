@@ -1,5 +1,6 @@
 import {
     Box,
+    Text,
     Button,
     Icon,
     Divider,
@@ -62,23 +63,31 @@ export default function Nav(): ReactElement {
     return (
         <Box className={styles.nav}>
             <VStack display={{ base: "none", md: "flex" }} spacing={4} my={5}>
-                <NavItem href="/home" icon={HomeIcon}>
-                    Home
-                </NavItem>
-                <NavItem href="/messages" icon={ChatAlt2Icon}>
-                    Messages
-                </NavItem>
-                <NavItem href="/notifications" icon={BellIcon}>
-                    Notifications
-                </NavItem>
+                {user ? (
+                    <>
+                        <NavItem href="/home" icon={HomeIcon}>
+                            Home
+                        </NavItem>
+                        <NavItem href="/messages" icon={ChatAlt2Icon}>
+                            Messages
+                        </NavItem>
+                        <NavItem href="/notifications" icon={BellIcon}>
+                            Notifications
+                        </NavItem>
+                    </>
+                ) : null}
                 <NavItem href="/trends" icon={TrendingUpIcon}>
                     Trending
                 </NavItem>
-                <NavItem href="/events" icon={CalendarIcon}>
-                    Events
-                </NavItem>
-                <Divider height="1px" bgColor="bgSecondary" />
-                <ComposePostItem />
+                {user ? (
+                    <>
+                        <NavItem href="/events" icon={CalendarIcon}>
+                            Events
+                        </NavItem>
+                        <Divider height="1px" bgColor="bgSecondary" />
+                        <ComposePostItem />
+                    </>
+                ) : null}
                 {user?.isAdmin && (
                     <>
                         <NavItem href="/dashboard" icon={DashboardIcon}>
@@ -87,12 +96,14 @@ export default function Nav(): ReactElement {
                     </>
                 )}
             </VStack>
-            <HStack justify="space-around" p={1} display={{ base: "flex", md: "none" }}>
-                <NavItem href="/home" ariaLabel="Home" icon={HomeIcon} />
-                <NavItem href="/search" ariaLabel="Search" icon={SearchIcon} />
-                <NavItem href="/trends" ariaLabel="Trending" icon={TrendingUpIcon} />
-                <UserDrawer display={{ base: "initial", md: "none" }} />
-            </HStack>
+            {user ? (
+                <HStack justify="space-around" p={1} display={{ base: "flex", md: "none" }}>
+                    <NavItem href="/home" ariaLabel="Home" icon={HomeIcon} />
+                    <NavItem href="/search" ariaLabel="Search" icon={SearchIcon} />
+                    <NavItem href="/trends" ariaLabel="Trending" icon={TrendingUpIcon} />
+                    <UserDrawer display={{ base: "initial", md: "none" }} />
+                </HStack>
+            ) : null}
         </Box>
     );
 }

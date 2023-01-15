@@ -22,7 +22,7 @@ const getLimit = new RateLimiterMemory({
 
 router.get("/validate-reset-password-token", limiter(postLimit), validateResetPasswordToken);
 router.get("/validate-token", limiter(getLimit), sessionGuard, validateToken);
-router.get("/get-user/:username", limiter(getLimit), sessionGuard, getUser);
+router.get("/get-user/:username", limiter(getLimit), getUser);
 
 router.post("/register", limiter(registerLimit), register);
 router.post("/login", limiter(postLimit), login);

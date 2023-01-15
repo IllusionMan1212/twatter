@@ -161,6 +161,10 @@ export default function Post(props: PostProps): ReactElement {
             });
     };
 
+    const handleComment = () => {
+        user && onOpenCommentModal();
+    };
+
     return (
         <>
             <div
@@ -257,7 +261,7 @@ export default function Post(props: PostProps): ReactElement {
                                     colorScheme="button"
                                     rounded="full"
                                     icon={<Icon as={ChatIcon} w={6} h={6} />}
-                                    onClick={onOpenCommentModal}
+                                    onClick={handleComment}
                                 />
                                 {props.comments > 0 ? <BigNumber className="text-xs" num={props.comments} /> : null}
                             </div>
