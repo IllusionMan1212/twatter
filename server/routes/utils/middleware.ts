@@ -4,6 +4,8 @@ import { ConversationData } from "../../validators/message";
 import { getUserById } from "../../database/users";
 import * as Cookies from "../../controllers/utils/cookies";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
+import { exclude } from "../../database/utils";
+import { excludedUserProps } from "../../controllers/utils/users";
 
 export const adminGuard = async (req: Request, res: Response, next: NextFunction) => {
     const session = await Cookies.getLoginSession(req);
@@ -41,12 +43,14 @@ export const sessionGuard = async (req: Request, res: Response, next: NextFuncti
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    if (user.restricted) {
+    const u = exclude(user, ...excludedUserProps);
+
+    if (u.restricted) {
         Cookies.removeTokenCookie(res);
         return res.status(403).json({ message: "Restricted account" });
     }
 
-    session.user = user;
+    session.user = u;
     req.session = session;
 
     next();
@@ -66,12 +70,14 @@ export const sessionContext = async (req: Request, res: Response, next: NextFunc
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    if (user.restricted) {
+    const u = exclude(user, ...excludedUserProps);
+
+    if (u.restricted) {
         Cookies.removeTokenCookie(res);
         return res.status(403).json({ message: "Restricted account" });
     }
 
-    session.user = user;
+    session.user = u;
     req.session = session;
 
     next();

@@ -8,8 +8,7 @@ import HTMLToJSX from "html-react-parser";
 import { parsingOptions } from "src/components/Post/Post";
 import OptionsMenu from "../Options";
 import { TrashIcon } from "@heroicons/react/solid";
-import { KeyedMutator } from "swr";
-import { GenericBackendRes, GetMessagesRes } from "src/types/server";
+import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
@@ -135,7 +134,7 @@ const MessageTime = memo(function MessageTime({ date }: MessageTimeProps): React
     }
 });
 
-interface DeletedMessageProps extends Omit<MessageProps, "mutate" | "wasRead" | "content" | "attachmentURL" | "recipientAvatarURL" | "recipientId" | "conversationId"> {
+interface DeletedMessageProps extends Omit<MessageProps, "wasRead" | "content" | "attachmentURL" | "recipientAvatarURL" | "recipientId" | "conversationId"> {
     ownerAvatarURL: string;
 }
 
@@ -187,19 +186,17 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
 
 interface MessageOptionsProps {
     messageId: string;
-    mutate: KeyedMutator<GetMessagesRes[]>;
     className: string;
     conversationId: string;
     recipientId: string;
 }
 
-function MessageOptions({ messageId, conversationId, recipientId, mutate, className }: MessageOptionsProps): ReactElement {
+function MessageOptions({ messageId, conversationId, recipientId, className }: MessageOptionsProps): ReactElement {
     const { socket } = useUserContext();
 
     const handleDelete = () => {
         axiosAuth.delete(`message/delete-message/${messageId}`)
             .then(async () => {
-                // await mutate();
                 socket?.emit("deleteMessage", {
                     messageId,
                     conversationId,
@@ -235,7 +232,6 @@ interface MessageProps {
     wasRead: boolean;
     createdAt: string;
     conversationId: string;
-    mutate: KeyedMutator<GetMessagesRes[]>;
 }
 
 export default function Message(props: MessageProps): ReactElement {
@@ -254,7 +250,6 @@ export default function Message(props: MessageProps): ReactElement {
                                     conversationId={props.conversationId}
                                     recipientId={props.recipientId}
                                     className="opacity-0 group-hover:opacity-100"
-                                    mutate={props.mutate}
                                 />
                                 <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
                                     <Attachment url={props.attachmentURL} />

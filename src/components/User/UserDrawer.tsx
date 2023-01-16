@@ -22,6 +22,7 @@ import {
     MoonIcon as MoonIconSolid,
     SunIcon as SunIconSolid,
     TrendingUpIcon,
+    UserCircleIcon,
 } from "@heroicons/react/solid";
 import { Gauge } from "phosphor-react";
 import { axiosAuth } from "src/utils/axios";
@@ -115,13 +116,7 @@ const UserDrawer = ((props: BoxProps) => {
 
     return (
         <Box {...props}>
-            <Avatar
-                src={user?.avatarURL}
-                alt={`${user?.username}'s avatar`}
-                width="30px"
-                height="30px"
-                onClick={onOpen}
-            />
+            <UserCircleIcon width="28px" height="28px" onClick={onOpen} />
             <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
                 <DrawerOverlay />
                 <DrawerContent bgColor="bgMain" maxWidth="275px">

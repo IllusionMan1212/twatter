@@ -1,6 +1,5 @@
 - MVP
    - find a better way to optimize the post options button and menu
-   - find a better way to optimize iconbuttons (and maybe buttons in general)
 
 - POST MVP
   - integrate tRPC

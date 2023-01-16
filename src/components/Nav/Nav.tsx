@@ -1,6 +1,5 @@
 import {
     Box,
-    Text,
     Button,
     Icon,
     Divider,

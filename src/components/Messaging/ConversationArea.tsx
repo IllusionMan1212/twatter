@@ -457,11 +457,10 @@ function ConversationBody({
         data,
         error,
         isValidating,
-        mutate,
         size: page,
         setSize: setPage,
     } = useSWRInfinite<GetMessagesRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
-        initialSize: 1,
+        initialSize: 2,
         revalidateOnFocus: false,
     });
 
@@ -541,7 +540,7 @@ function ConversationBody({
                     totalCount={state.messages.length + 1}
                     alignToBottom
                     followOutput
-                    overscan={400}
+                    overscan={200}
                     startReached={loadMoreMessages}
                     initialTopMostItemIndex={
                         state.messages.length > 0 ? state.messages.length - 1 : 0
@@ -611,7 +610,6 @@ function ConversationBody({
                                 wasRead={message.wasRead}
                                 recipientId={convo.members[0].User.id}
                                 recipientAvatarURL={convo.members[0].User.avatarURL}
-                                mutate={mutate}
                             />
                         );
                     }}
@@ -713,7 +711,7 @@ export default function ConversationArea({
                 socket.off("error", handleError);
             }
         };
-    }, [socket, socket?.connected, handleMessage, handleMarkedMessagesAsRead]);
+    }, [socket, socket?.connected, handleMessage, handleMarkedMessagesAsRead, handleDeletedMessage]);
 
     return (
         <VStack

@@ -141,7 +141,7 @@ export async function validateResetPasswordToken(req: Request, res: Response) {
         return res.status(403).json({ message: "Token is either invalid or expired" });
     }
 
-    const u = exclude<User, keyof User>(user, ...excludedUserProps);
+    const u = exclude(user, ...excludedUserProps);
 
     return res.status(200).json({ message: "Successfully found user", user: u });
 }

@@ -1,4 +1,4 @@
-import { ButtonGroup, Icon, useDisclosure, IconButton } from "@chakra-ui/react";
+import { ButtonGroup, useDisclosure } from "@chakra-ui/react";
 import { Chat, Heart } from "phosphor-react";
 import { memo, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
@@ -24,6 +24,7 @@ import CommentModal from "src/components/Post/CommentModal";
 import HTMLToJSX, { domToReact, Element } from "html-react-parser";
 import Link from "next/link";
 import BigNumber from "src/components/BigNumber";
+import IconButton from "src/components/IconButton";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -257,25 +258,24 @@ export default function Post(props: PostProps): ReactElement {
                         >
                             <div className="flex items-center">
                                 <IconButton
-                                    aria-label="Comment Button"
-                                    colorScheme="button"
-                                    rounded="full"
-                                    icon={<Icon as={ChatIcon} w={6} h={6} />}
+                                    className="rounded-full"
+                                    ariaLabel="Comment Button"
+                                    hoverColor="hover:bg-gray-300/10"
+                                    activeColor="active:bg-gray-300/20"
+                                    icon={<ChatIcon />}
                                     onClick={handleComment}
                                 />
                                 {props.comments > 0 ? <BigNumber className="text-xs" num={props.comments} /> : null}
                             </div>
                             <div className="flex items-center">
                                 <IconButton
-                                    aria-label="Like Button"
-                                    colorScheme="red"
-                                    rounded="full"
+                                    className="rounded-full"
+                                    ariaLabel="Like Button"
+                                    hoverColor="hover:bg-red-300/10"
+                                    activeColor="active:bg-red-300/20"
                                     icon={
-                                        <Icon
-                                            as={LikeIcon}
+                                        <LikeIcon
                                             liked={props.liked}
-                                            w={6}
-                                            h={6}
                                         />
                                     }
                                     onClick={handleLike}

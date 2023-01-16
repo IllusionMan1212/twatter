@@ -32,7 +32,7 @@ import { KeyedMutator } from "swr";
 interface AddEventModalProps {
     isOpen: boolean;
     onClose: () => void;
-    mutate: KeyedMutator<GetEventsRes[]>;
+    mutate?: KeyedMutator<GetEventsRes[]>;
 }
 
 const DatePickerInput = (props: InputProps, ref: Ref<HTMLInputElement>) => {
@@ -105,7 +105,7 @@ export default function AddEventModal({
                 toast.success(res.data.message);
                 setSubmitting(false);
                 onClose();
-                await mutate();
+                await mutate?.();
             })
             .catch((e: AxiosError<GenericBackendRes>) => {
                 toast.error(
