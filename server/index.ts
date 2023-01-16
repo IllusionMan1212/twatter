@@ -28,6 +28,9 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
     const expressApp = express();
+    if (process.env.NODE_ENV === "production") {
+        expressApp.set("trust proxy", 1);
+    }
     const server = http.createServer(expressApp);
     initWebsocketServer(server);
     
