@@ -292,7 +292,7 @@ function LoggedInHeader(): ReactElement {
                                 icon={ChatAlt2Icon}
                             />
                             <NavItem
-                                href="/notification"
+                                href="/notifications"
                                 ariaLabel="Notifications"
                                 icon={BellIcon}
                             />
