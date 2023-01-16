@@ -6,7 +6,6 @@ import bcrypt from "bcrypt";
 import { DatabaseError, exclude } from "../database/utils";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import { User } from "@prisma/client";
 import { excludedUserProps } from "./utils/users";
 
 export async function register(req: Request, res: Response) {

@@ -43,7 +43,7 @@ export const sessionGuard = async (req: Request, res: Response, next: NextFuncti
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    const u = exclude(user, ...excludedUserProps);
+    const u = exclude(user, ...(excludedUserProps.filter(p => p !== "email")));
 
     if (u.restricted) {
         Cookies.removeTokenCookie(res);
@@ -70,7 +70,7 @@ export const sessionContext = async (req: Request, res: Response, next: NextFunc
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    const u = exclude(user, ...excludedUserProps);
+    const u = exclude(user, ...(excludedUserProps.filter(p => p !== "email")));
 
     if (u.restricted) {
         Cookies.removeTokenCookie(res);
