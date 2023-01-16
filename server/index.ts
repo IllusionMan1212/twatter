@@ -20,6 +20,7 @@ import messageRouter from "./routes/message";
 import searchRouter from "./routes/search";
 import eventsRouter from "./routes/events";
 import { initWebsocketServer } from "./sockets/init";
+import { authGuard } from "./routes/utils/middleware";
 
 const port = parseInt(process.env.NEXT_PUBLIC_PORT ?? "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -45,7 +46,7 @@ app.prepare().then(() => {
     expressApp.use(express.urlencoded({ extended: false }));
     expressApp.use(cookieParser());
 
-    expressApp.use("*", (_, res, next) => {
+    expressApp.use("*", authGuard, (_, res, next) => {
         res.header(
             "Access-Control-Allow-Headers",
             "Origin, Content-Type, Accept",

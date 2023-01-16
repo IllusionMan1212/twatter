@@ -14,5 +14,6 @@ export const StartConversationData = z.object({
 });
 
 export const DeleteMessageData = z.object({
-    id: z.string().min(1, "Id cannot be empty")
+    id: z.string().min(1, "Id cannot be empty"),
+    conversationId: z.string().min(1, "Conversation ID cannot be empty"),
 });

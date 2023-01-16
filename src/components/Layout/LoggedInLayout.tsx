@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { PropsWithChildren, ReactElement, useEffect } from "react";
 import Nav from "src/components/Nav/Nav";
 import { useUserContext } from "src/contexts/userContext";
@@ -29,26 +29,26 @@ const guestRoutes = [
 export default function LoggedInLayout({ children }: PropsWithChildren): ReactElement {
     const { user } = useUserContext();
 
-    const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
-    const fullScreenRoute = fullScreenRoutes.includes(Router.pathname);
-    const isGuest = !user && guestRoutes.includes(Router.pathname);
+    const router = useRouter();
 
-    const hasSidebar = !nonSidebarRoutes.includes(Router.pathname) && user;
-    const withEvents = Router.pathname !== "/events";
+    const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
+    const fullScreenRoute = fullScreenRoutes.includes(router.pathname);
+    const isGuest = !user && guestRoutes.includes(router.pathname);
+
+    const hasSidebar = !nonSidebarRoutes.includes(router.pathname) && user;
+    const withEvents = router.pathname !== "/events";
 
     useEffect(() => {
-        if (!user && !guestRoutes.includes(Router.pathname)) {
-            Router.replace("/login");
+        if (user === null && !guestRoutes.includes(router.pathname)) {
+            router.replace("/login");
             return;
         }
 
-        if (adminRoutes.includes(Router.pathname) && !user?.isAdmin) {
-            Router.replace("/home");
+        if (adminRoutes.includes(router.pathname) && !user?.isAdmin) {
+            router.replace("/home");
             return;
         }
     }, [user]);
-
-    if ((!user && !guestRoutes.includes(Router.pathname)) || (!user?.isAdmin && adminRoutes.includes(Router.pathname))) return <></>;
 
     return (
         <Container

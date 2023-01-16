@@ -208,6 +208,7 @@ export const createMessage = async (message: string, attachmentURL: string | nul
                 },
                 data: {
                     updatedAt: new Date(),
+                    lastMessage: message,
                 }
             });
 
@@ -291,17 +292,27 @@ export const queryRecommendedPeople = async (userId: string): Promise<User[]> =>
     ;`;
 };
 
-export const deleteMessageDB = async (userId: string, messageId: string): Promise<DatabaseError> => {
+export const deleteMessageDB = async (userId: string, messageId: string, conversationId: string): Promise<DatabaseError> => {
     try {
-        await prisma.message.update({
-            where: {
-                id: messageId,
-                memberId: userId,
-            },
-            data: {
-                deleted: true,
-                content: "",
-            }
+        await prisma.$transaction(async (tx) => {
+            await tx.message.update({
+                where: {
+                    id: messageId,
+                    memberId: userId,
+                },
+                data: {
+                    deleted: true,
+                    content: "",
+                }
+            });
+            await tx.conversation.update({
+                where: {
+                    id: conversationId,
+                },
+                data: {
+                    lastMessage: "",
+                }
+            });
         });
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {

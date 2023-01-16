@@ -1,5 +1,6 @@
 import { DefaultSeoProps } from "next-seo";
 
+
 const defaultConfig: DefaultSeoProps = {
     title: "Twatter",
     description: "A social platform.",
@@ -21,6 +22,80 @@ const defaultConfig: DefaultSeoProps = {
         cardType: "summary_large_image"
     },
     themeColor: "#6067FE",
+    additionalMetaTags: [
+        {
+            property: "charset",
+            content: "utf-8"
+        },
+        {
+            name: "viewport",
+            content: "width=device-width, initial-scale=1",
+        },
+        {
+            name: "keywords",
+            content: "social media, social platform, community",
+        },
+        {
+            name: "copyright",
+            content: "Twatter"
+        },
+        {
+            name: "mobile-web-app-capable",
+            content: "yes"
+        },
+        {
+            name: "apple-mobile-web-app-title",
+            content: "Twatter",
+        },
+        {
+            name: "apple-mobile-web-app-status-bar-style",
+            content: "black",
+        },
+        {
+            name: "msapplication-TileColor",
+            content: "#151515",
+        }
+    ],
+    additionalLinkTags: [
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "512x512",
+            href: "/android-chrome-512x512.png",
+        },
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "192x192",
+            href: "/android-chrome-192x192.png",
+        },
+        {
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+            href: "/apple-touch-icon.png",
+        },
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "32x32",
+            href: "/favicon-32x32.png",
+        },
+        {
+            rel: "icon",
+            type: "image/png",
+            sizes: "16x16",
+            href: "/favicon-16x16.png",
+        },
+        {
+            rel: "manifest",
+            href: "/site.manifest",
+        },
+        {
+            rel: "mask-icon",
+            href: "/safari-pinned-tab.svg",
+            color: "#6067fe",
+        }
+    ],
 };
 
 export const homeSEO: DefaultSeoProps = {

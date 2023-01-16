@@ -426,13 +426,17 @@ export default function PostPage({ post }: Props): ReactElement {
                 flex="7"
                 bgColor="bgPrimary"
             >
-                <OriginalPost post={post} commentBoxRef={commentBoxRef} />
-                {user ? (
-                    <div className="w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
-                        <CommentBox cb={cb} parentPostId={post.id} ref={commentBoxRef} />
-                    </div>
+                {user !== undefined ? (
+                    <>
+                        <OriginalPost post={post} commentBoxRef={commentBoxRef} />
+                        {user ? (
+                            <div className="w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
+                                <CommentBox cb={cb} parentPostId={post.id} ref={commentBoxRef} />
+                            </div>
+                        ) : null}
+                        <Comments swr={swr} />
+                    </>
                 ) : null}
-                <Comments swr={swr} />
             </VStack>
         </Flex>
     );

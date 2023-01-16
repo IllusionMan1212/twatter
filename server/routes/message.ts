@@ -26,7 +26,7 @@ router.get("/get-recommended-people", limiter(getLimit), sessionGuard, getRecomm
 
 router.post("/start-conversation", limiter(postLimit), sessionGuard, startConversation);
 
-router.delete("/delete-message/:id", limiter(deleteLimit), sessionGuard, deleteMessage);
+router.delete("/delete-message/:conversationId/:id", limiter(deleteLimit), sessionGuard, deleteMessage);
 router.delete("/leave-conversation/:conversationId", limiter(deleteLimit), sessionGuard, messagingGuard, leaveConversation);
 
 export default router;

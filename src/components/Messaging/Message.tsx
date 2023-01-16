@@ -195,7 +195,7 @@ function MessageOptions({ messageId, conversationId, recipientId, className }: M
     const { socket } = useUserContext();
 
     const handleDelete = () => {
-        axiosAuth.delete(`message/delete-message/${messageId}`)
+        axiosAuth.delete(`message/delete-message/${conversationId}/${messageId}`)
             .then(async () => {
                 socket?.emit("deleteMessage", {
                     messageId,

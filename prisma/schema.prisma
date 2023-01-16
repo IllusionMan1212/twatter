@@ -98,6 +98,7 @@ model EventInterest {
 
 model Conversation {
   id          String   @id @default(cuid())
+  lastMessage String   @default("")
   updatedAt   DateTime @default(now())
   createdAt   DateTime @default(now())
 

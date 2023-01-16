@@ -128,3 +128,38 @@ export const limiter = (rateLimit: RateLimiterMemory) => {
         }
     };
 };
+
+const loggedInRoutes = [
+    "/home",
+    "/notifications",
+    "/messages",
+    "/settings",
+    "/dashboard",
+    "/events",
+    "/search",
+    "/dashboard",
+];
+
+const loggedOutRoutes = [
+    "/",
+    "/login",
+    "/register",
+    "/reset-password",
+    "/forgot-password",
+];
+
+export const authGuard = async (req: Request, res: Response, next: NextFunction) => {
+    const session = await Cookies.getLoginSession(req);
+
+    const user = await getUserById(session?.user.id ?? "");
+
+    if (user && loggedOutRoutes.find(r => r === "/" ? r === req.originalUrl : req.originalUrl.startsWith(r))) {
+        return res.redirect(307, "/home");
+    } else if ((!user || user?.restricted) && loggedInRoutes.find(r => req.originalUrl.startsWith(r))) {
+        return res.redirect(307, "/login");
+    } else if ((user && !user.isAdmin) && req.originalUrl.startsWith("/dashboard")) {
+        return res.redirect(307, "/404");
+    }
+
+    next();
+};

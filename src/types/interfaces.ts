@@ -41,7 +41,7 @@ export interface IConversation {
     id: string;
     members: { User: IUser }[];
     messages: { content: string }[];
-    lastMessage: string | undefined;
+    lastMessage: string;
     updatedAt: string;
 }
 

@@ -12,7 +12,7 @@ import { Spinner, VStack } from "@chakra-ui/react";
 import { io, Socket } from "socket.io-client";
 
 interface UserContextType {
-    user: IUser | null;
+    user: IUser | null | undefined;
     login: () => void;
     logout: () => void;
     mutate: KeyedMutator<{ user: any }>;
@@ -20,7 +20,7 @@ interface UserContextType {
 }
 
 const UserContextDefaultValues: UserContextType = {
-    user: null,
+    user: undefined,
     login: () => {
         void 0;
     },
@@ -41,7 +41,7 @@ const fetcher = (url: string) =>
         });
 
 export function UserWrapper({ children }: PropsWithChildren): ReactElement {
-    const [user, setUser] = useState<IUser | null>(null);
+    const [user, setUser] = useState<IUser | null | undefined>(undefined);
     const [socket, setSocket] = useState<Socket | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -59,13 +59,13 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
             return;
         }
 
-        if (data) {
+        if (data && data.user) {
             setUser(data.user);
             openSocket();
             setLoading(false);
         } else {
             setUser(null);
-            setLoading(true);
+            setLoading(false);
         }
     }, [data]);
 
@@ -80,16 +80,16 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         mutate();
     };
 
-    if (loading)
-        return (
-            <VStack width="full">
-                <Spinner size="xl" label="Loading..." />
-            </VStack>
-        );
-
     return (
         <UserContext.Provider value={{ user, socket, login, logout, mutate }}>
-            {children}
+            {loading ? (
+                <VStack width="full">
+                    <Spinner size="xl" label="Loading..." />
+                </VStack>
+            ) : null}
+            <div className={`${loading ? "invisible" : ""}`}>
+                {children}
+            </div>
         </UserContext.Provider>
     );
 }

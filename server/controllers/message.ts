@@ -82,7 +82,7 @@ export async function deleteMessage(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const error = await deleteMessageDB(req.session.user.id, data.data.id);
+    const error = await deleteMessageDB(req.session.user.id, data.data.id, data.data.conversationId);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "Internal error occurred while deleting message" });
