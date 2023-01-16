@@ -34,7 +34,7 @@ export function messagingReducer(
             messages: state.messages.concat([action.payload.message]),
             conversations: state.conversations.map((convo) => {
                 if (convo.id === action.payload.message.conversationId) {
-                    convo.messages[0].content = action.payload.message.content;
+                    convo.lastMessage = action.payload.message.content;
                     convo.updatedAt = new Date().toISOString();
                 }
 
@@ -57,7 +57,7 @@ export function messagingReducer(
                 if (i === (state.messages.length - 1)) {
                     newConversations = state.conversations.map((convo) => {
                         if (convo.id === message.conversationId) {
-                            convo.messages[0].content = "";
+                            convo.lastMessage = "";
                         }
                         return convo;
                     });
