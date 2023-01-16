@@ -534,7 +534,7 @@ export default function Messages(): ReactElement {
                                     recipientName={convo.members[0].User.displayName}
                                     recipientUsername={convo.members[0].User.username}
                                     recipientAvatarURL={convo.members[0].User.avatarURL}
-                                    lastMessage={convo.lastMessage ?? ""}
+                                    lastMessage={convo.message.length ? convo.message[0].content : convo.lastMessage ?? ""}
                                     updatedAt={convo.updatedAt}
                                     isActive={convo.id === state.activeConversation?.id}
                                     onClick={() => {
