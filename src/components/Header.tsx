@@ -43,11 +43,11 @@ import { BellIcon, ChatAlt2Icon } from "@heroicons/react/solid";
 
 interface UserDropDownCardButtonProps {
     isOpen: boolean;
-    user: IUser | null;
+    user: IUser | null | undefined;
 }
 
 interface UserDropDownProps {
-    user: IUser | null;
+    user: IUser | null | undefined;
 }
 
 type CustomMenuButton = ChakraComponent<"button", UserDropDownCardButtonProps>;
