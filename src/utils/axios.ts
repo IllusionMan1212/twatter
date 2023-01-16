@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const baseUrl = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${process.env.NEXT_PUBLIC_DOMAIN ?? "localhost"}:${
-    process.env.NEXT_PUBLIC_PORT ?? "3000"
-}/api/`;
+const baseUrl = process.env.NODE_ENV === "production"
+    ? "https://twatter.social/api/"
+    : `http://${process.env.NEXT_PUBLIC_DOMAIN ?? "localhost"}:${process.env.NEXT_PUBLIC_PORT ?? "3000"}/api/`;
 export const axiosAuth = axios.create({
     baseURL: baseUrl,
     timeout: 15000,
