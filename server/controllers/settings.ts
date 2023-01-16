@@ -243,7 +243,7 @@ export async function updateProfile(req: Request, res: Response) {
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
-        const avatarURL = `http://${req.headers.host}/cdn/profile-images/${req.session.user.id}/${fileName}.${ext}`;
+        const avatarURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/profile-images/${req.session.user.id}/${fileName}.${ext}`;
         const error = await updateUserProfileImage(req.session.user.id, avatarURL);
         if (error === DatabaseError.UNKNOWN) {
             return res.status(500).json({ message: "An internal error occurred while updating your profile image" });

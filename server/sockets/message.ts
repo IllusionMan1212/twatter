@@ -60,7 +60,7 @@ export const handleMessage = (
             await fs.mkdir(dir, { recursive: true });
             await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
-            attachmentURL = `http://${socket.handshake.headers.host}/cdn/messages/${data.conversationId}/${fileName}.${ext}`;
+            attachmentURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${socket.handshake.headers.host}/cdn/messages/${data.conversationId}/${fileName}.${ext}`;
             attachmentPath = `${dir}/${fileName}.${ext}`;
         }
 

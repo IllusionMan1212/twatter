@@ -87,7 +87,7 @@ export async function createPost(req: Request, res: Response) {
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
-        attachmentsURLs.push(`http://${req.headers.host}/cdn/posts/${id}/${fileName}.${ext}`);
+        attachmentsURLs.push(`${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/posts/${id}/${fileName}.${ext}`);
         attachmentsPaths.push(`${dir}/${fileName}.${ext}`);
         counter++;
     }

@@ -52,7 +52,7 @@ export async function addEvent(req: Request, res: Response) {
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
 
-        imageURL = `http://${req.headers.host}/cdn/events/${id}/${fileName}.${ext}`;
+        imageURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/events/${id}/${fileName}.${ext}`;
         imagePath = `${dir}/${fileName}.${ext}`;
     }
 
