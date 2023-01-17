@@ -308,11 +308,11 @@ const fuseOptions = {
     includeScore: true,
     keys: [
         {
-            name: "recipientUsername",
+            name: "members.User.username",
             weight: 0.5,
         },
         {
-            name: "recipientName",
+            name: "members.User.displayName",
         },
     ],
 };

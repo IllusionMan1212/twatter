@@ -39,7 +39,7 @@ export function messagingReducer(
                 }
 
                 return convo;
-            }),
+            }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
         };
     case MessagingActions.MARK_MESSAGES_AS_READ:
         return {
