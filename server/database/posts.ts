@@ -150,11 +150,13 @@ export const createPostDB = async (id: string, userId: string, content: string |
 };
 
 export const deletePostDB = async (postId: string, userId: string): Promise<DatabaseError> => {
-    await prisma.post.update({
+    await prisma.post.updateMany({
         where: {
-            id: postId,
-            authorId: userId,
-            deleted: false,
+            AND: [
+                { id: postId },
+                { authorId: userId },
+                { deleted: false }
+            ],
         },
         data: {
             deleted: true,

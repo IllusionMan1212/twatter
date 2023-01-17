@@ -181,11 +181,15 @@ export const createMessage = async (message: string, attachmentURL: string | nul
         const newMessage = await prisma.$transaction(async (tx) => {
             const members = await tx.conversationMember.findMany({
                 where: {
-                    conversationId,
-                    OR: [
-                        { userId: userId },
-                        { userId: recipientId }
-                    ]
+                    AND: [
+                        { conversationId },
+                        {
+                            OR: [
+                                { userId: userId },
+                                { userId: recipientId }
+                            ]
+                        }
+                    ],
                 },
             });
 
@@ -253,14 +257,18 @@ export const createMessage = async (message: string, attachmentURL: string | nul
 export const checkConversationMembers = async (ids: string[], convoId: string): Promise<Conversation[]> => {
     return await prisma.conversation.findMany({
         where: {
-            id: convoId,
-            members: {
-                every: {
-                    userId: {
-                        in: ids
+            AND: [
+                { id: convoId },
+                {
+                    members: {
+                        every: {
+                            userId: {
+                                in: ids
+                            }
+                        }
                     }
                 }
-            }
+            ],
         },
     });
 };
@@ -295,10 +303,12 @@ export const queryRecommendedPeople = async (userId: string): Promise<User[]> =>
 export const deleteMessageDB = async (userId: string, messageId: string, conversationId: string): Promise<DatabaseError> => {
     try {
         await prisma.$transaction(async (tx) => {
-            await tx.message.update({
+            await tx.message.updateMany({
                 where: {
-                    id: messageId,
-                    memberId: userId,
+                    AND: [
+                        { id: messageId },
+                        { memberId: userId },
+                    ],
                 },
                 data: {
                     deleted: true,
