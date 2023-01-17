@@ -8,6 +8,7 @@ import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
 import { linkUrls } from "../validators/posts";
 import sharp from "sharp";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
+import { htmlEscape } from "twitter-text";
 
 const limit = new RateLimiterMemory({
     points: 10,
@@ -75,7 +76,7 @@ export const handleMessage = (
             return;
         }
 
-        message = linkUrls(message);
+        message = linkUrls(htmlEscape(message));
 
         const newMessage = await createMessage(message, attachmentURL, data.conversationId, socket.userId, data.recipientId);
 
