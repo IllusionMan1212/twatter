@@ -97,7 +97,7 @@ export async function forgotPassword(req: Request, res: Response) {
             user: process.env.EMAIL,
             pass: process.env.EMAIL_PASSWORD,
         },
-        host: "mail.twatter.social", // TODO: set up an email server in the future
+        host: "mail.twatter.social",
         port: 587,
         requireTLS: true,
     });

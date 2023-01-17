@@ -1,5 +1,5 @@
 import { ButtonGroup, useDisclosure } from "@chakra-ui/react";
-import { Chat, Heart } from "phosphor-react";
+import { Chat, DotsThree, Heart } from "phosphor-react";
 import { memo, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import NextLink from "next/link";
@@ -54,6 +54,7 @@ export interface PostProps {
     liked: boolean;
     comments: number;
     parentAuthorUsername: string | null;
+    isScrolling: boolean;
     mutate:
         | KeyedMutator<GetFeedRes[]>
         | KeyedMutator<GetPostsRes[]>
@@ -210,15 +211,19 @@ export default function Post(props: PostProps): ReactElement {
                                         </div>
                                     </a>
                                 </NextLink>
-                                <div>
-                                    <Options
-                                        openDeleteDialog={onOpenDeleteDialog}
-                                        userId={user?.id}
-                                        authorId={props.author.id}
-                                        authorUsername={props.author.username}
-                                        postId={props.id}
-                                    />
-                                </div>
+                                {!props.isScrolling ? (
+                                    <div>
+                                        <Options
+                                            openDeleteDialog={onOpenDeleteDialog}
+                                            userId={user?.id}
+                                            authorId={props.author.id}
+                                            authorUsername={props.author.username}
+                                            postId={props.id}
+                                        />
+                                    </div>
+                                ) : (
+                                    <DotsThree color="var(--chakra-colors-textMain)" size={30} />
+                                )}
                             </div>
                             {props.parentAuthorUsername ? (
                                 <p className="text-sm text-[color:var(--chakra-colors-textMain)] whitespace-pre-line break-words">
@@ -286,17 +291,21 @@ export default function Post(props: PostProps): ReactElement {
                     </div>
                 </div>
             </div>
-            <DeleteDialog
-                postId={props.id}
-                isOpen={isDeleteDialogOpen}
-                onClose={onCloseDeleteDialog}
-                mutate={props.mutate}
-            />
-            <CommentModal
-                isOpen={isCommentModalOpen}
-                onClose={onCloseCommentModal}
-                post={props}
-            />
+            {!props.isScrolling ? (
+                <>
+                    <DeleteDialog
+                        postId={props.id}
+                        isOpen={isDeleteDialogOpen}
+                        onClose={onCloseDeleteDialog}
+                        mutate={props.mutate}
+                    />
+                    <CommentModal
+                        isOpen={isCommentModalOpen}
+                        onClose={onCloseCommentModal}
+                        post={props}
+                    />
+                </>
+            ) : null}
         </>
     );
 }

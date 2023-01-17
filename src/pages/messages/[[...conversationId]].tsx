@@ -23,9 +23,7 @@ import { PlusIcon } from "@heroicons/react/solid";
 import { ChangeEvent, ReactElement, useEffect, useReducer, useState } from "react";
 import { MessagingActions } from "src/actions/messaging";
 import Conversation from "src/components/Messaging/Conversation";
-const ConversationArea = dynamic(
-    () => import("src/components/Messaging/ConversationArea"),
-);
+import ConversationArea from "src/components/Messaging/ConversationArea";
 import NewMessageIcon from "src/components/Icons/NewMessageIcon";
 import SearchBar from "src/components/Search/SearchBar";
 import { IConversation, IMessage, ISearchUser } from "src/types/interfaces";

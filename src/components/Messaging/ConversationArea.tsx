@@ -445,6 +445,7 @@ function ConversationBody({
     const { user } = useUserContext();
 
     const [reachedStart, setReachedStart] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
     const [firstItemIndex, setFirstItemIndex] = useState(START_INDEX);
 
     const isRecipientTyping = useTyping(convo.id);
@@ -460,7 +461,7 @@ function ConversationBody({
         size: page,
         setSize: setPage,
     } = useSWRInfinite<GetMessagesRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
-        initialSize: 2,
+        initialSize: 1,
         revalidateOnFocus: false,
     });
 
@@ -499,7 +500,7 @@ function ConversationBody({
                     "An error occurred while fetching messages",
             );
         }
-    }, [data, error, dispatch]);
+    }, [data, error]);
 
     const Header = () => {
         return (
@@ -521,101 +522,105 @@ function ConversationBody({
     };
 
     return (
-        <Flex
-            flexGrow={1}
-            overflowY="scroll"
-            gap={5}
-            direction="column"
-            width="full"
-            py={2}
+        <div
+            className="flex flex-col gap-5 grow w-full py-2"
         >
-            {isValidating && state.messages.length === 0 ? (
+            {(isValidating && data?.length === 0) || (!data?.length && state.messages.length === 0) ? (
                 <VStack width="full">
                     <Spinner />
                 </VStack>
             ) : (
-                <Virtuoso
-                    key={state.activeConversation?.id}
-                    className={styles.messagesList}
-                    totalCount={state.messages.length + 1}
-                    alignToBottom
-                    followOutput
-                    overscan={200}
-                    startReached={loadMoreMessages}
-                    initialTopMostItemIndex={
-                        state.messages.length > 0 ? state.messages.length - 1 : 0
-                    }
-                    atBottomThreshold={35}
-                    firstItemIndex={firstItemIndex}
-                    components={{
-                        Header,
-                    }}
-                    itemContent={(i) => {
-                        const message = state.messages[Math.abs(firstItemIndex - i)];
+                <>
+                    {state.messages.length === 0 ? (
+                        <Header />
+                    ) : (
+                        <Virtuoso
+                            key={state.activeConversation?.id}
+                            className={styles.messagesList}
+                            totalCount={state.messages.length + 1}
+                            alignToBottom
+                            followOutput
+                            startReached={loadMoreMessages}
+                            defaultItemHeight={100}
+                            initialTopMostItemIndex={
+                                state.messages.length - 1
+                            }
+                            isScrolling={setIsScrolling}
+                            firstItemIndex={firstItemIndex}
+                            atBottomThreshold={35}
+                            components={{
+                                Header,
+                            }}
+                            itemContent={(i) => {
+                                const idx = Math.abs(firstItemIndex - i);
+                                const message = state.messages[idx];
 
-                        if (
-                            Math.abs(firstItemIndex - i) === state.messages.length &&
-                            isRecipientTyping
-                        )
-                            return (
-                                <SlideFade
-                                    in={isRecipientTyping}
-                                    unmountOnExit
-                                    offsetY="20px"
-                                >
-                                    <Typing
-                                        recipientAvatarURL={convo.members[0].User.avatarURL}
+                                if (
+                                    idx === state.messages.length &&
+                                    isRecipientTyping
+                                )
+                                    return (
+                                        <SlideFade
+                                            in={isRecipientTyping}
+                                            unmountOnExit
+                                            offsetY="20px"
+                                        >
+                                            <Typing
+                                                recipientAvatarURL={convo.members[0].User.avatarURL}
+                                            />
+                                        </SlideFade>
+                                    );
+                                else if (
+                                    idx === state.messages.length &&
+                                    !isRecipientTyping
+                                )
+                                    return <div className="w-[1px] h-[1px]" />;
+
+                                if (!message) return;
+
+                                if (message.deleted) return (
+                                    <DeletedMessage
+                                        key={message.id}
+                                        id={message.id}
+                                        userOwned={user?.id === message.memberId}
+                                        ownerAvatarURL={
+                                            user?.id === message.memberId
+                                                ? user?.avatarURL
+                                                : convo.members[0].User.avatarURL
+                                        }
+                                        ownerUsername={
+                                            user?.id === message.memberId
+                                                ? user?.username
+                                                : convo.members[0].User.username
+                                        }
+                                        createdAt={message.createdAt}
                                     />
-                                </SlideFade>
-                            );
-                        else if (
-                            Math.abs(firstItemIndex - i) === state.messages.length &&
-                            !isRecipientTyping
-                        )
-                            return <Box width="1px" height="1px" />;
-                        if (!message) return;
+                                );
 
-                        if (message.deleted) return (
-                            <DeletedMessage
-                                key={message.id}
-                                id={message.id}
-                                userOwned={user?.id === message.memberId}
-                                ownerAvatarURL={
-                                    user?.id === message.memberId
-                                        ? user?.avatarURL
-                                        : convo.members[0].User.avatarURL
-                                }
-                                ownerUsername={
-                                    user?.id === message.memberId
-                                        ? user?.username
-                                        : convo.members[0].User.username
-                                }
-                                createdAt={message.createdAt}
-                            />
-                        );
-                        return (
-                            <Message
-                                key={message.id}
-                                id={message.id}
-                                content={message.content}
-                                conversationId={convo.id}
-                                userOwned={user?.id === message.memberId}
-                                ownerUsername={
-                                    user?.id === message.memberId
-                                        ? user?.username
-                                        : convo.members[0].User.username
-                                }
-                                attachmentURL={message.attachmentURL}
-                                createdAt={message.createdAt}
-                                wasRead={message.wasRead}
-                                recipientId={convo.members[0].User.id}
-                                recipientAvatarURL={convo.members[0].User.avatarURL}
-                            />
-                        );
-                    }}
-                />
+                                return <Message
+                                    key={message.id}
+                                    id={message.id}
+                                    content={message.content}
+                                    conversationId={convo.id}
+                                    userOwned={user?.id === message.memberId}
+                                    isScrolling={isScrolling}
+                                    ownerUsername={
+                                        user?.id === message.memberId
+                                            ? user?.username ?? ""
+                                            : convo.members[0].User.username
+                                    }
+                                    attachmentURL={message.attachmentURL}
+                                    createdAt={message.createdAt}
+                                    wasRead={message.wasRead}
+                                    recipientId={convo.members[0].User.id}
+                                    recipientAvatarURL={convo.members[0].User.avatarURL}
+                                />;
+                            }}
+                        />
+                    )}
+                </>
             )}
-        </Flex>
+        </div>
     );
 }
 

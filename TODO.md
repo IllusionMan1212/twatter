@@ -1,7 +1,5 @@
-- MVP
-   - find a better way to optimize the post options button and menu
-
 - POST MVP
+  - Setup email code
   - integrate tRPC
   - Following ability.
   - Video attachments

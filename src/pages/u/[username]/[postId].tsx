@@ -272,6 +272,7 @@ function Comments({ swr }: CommentsProps): ReactElement {
     const { data, error, mutate, size: page, setSize: setPage } = swr;
 
     const [reachedEnd, setReachedEnd] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
     const [comments, setComments] = useState<IPost[]>([]);
 
     const loadMoreComments = async () => {
@@ -326,6 +327,7 @@ function Comments({ swr }: CommentsProps): ReactElement {
                 totalCount={comments.length}
                 endReached={loadMoreComments}
                 useWindowScroll
+                isScrolling={setIsScrolling}
                 components={{
                     Footer,
                 }}
@@ -339,6 +341,7 @@ function Comments({ swr }: CommentsProps): ReactElement {
                             displayName: comment.authorName,
                             avatarURL: comment.authorAvatarURL,
                         }}
+                        isScrolling={isScrolling}
                         attachments={comment.attachments}
                         createdAt={comment.createdAt}
                         content={comment.content}

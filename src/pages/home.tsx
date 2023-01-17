@@ -37,6 +37,7 @@ interface PostsProps {
 function Posts({ swr }: PostsProps): ReactElement {
     const [reachedEnd, setReachedEnd] = useState(false);
     const [posts, setPosts] = useState<IPost[]>([]);
+    const [isScrolling, setIsScrolling] = useState(false);
 
     const { data, error, mutate, isValidating, size: page, setSize: setPage } = swr;
 
@@ -99,6 +100,7 @@ function Posts({ swr }: PostsProps): ReactElement {
             totalCount={posts.length}
             endReached={loadMorePosts}
             useWindowScroll
+            isScrolling={setIsScrolling}
             overscan={{ main: 800, reverse: 800 }}
             components={{
                 Footer,
@@ -113,6 +115,7 @@ function Posts({ swr }: PostsProps): ReactElement {
                         displayName: post.authorName,
                         avatarURL: post.authorAvatarURL,
                     }}
+                    isScrolling={isScrolling}
                     attachments={post.attachments}
                     createdAt={post.createdAt}
                     content={post.content}

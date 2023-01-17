@@ -160,6 +160,7 @@ function Posts({ user }: Props): ReactElement {
     };
 
     const [reachedEnd, setReachedEnd] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
     const [posts, setPosts] = useState<IPost[]>([]);
 
     const {
@@ -233,6 +234,7 @@ function Posts({ user }: Props): ReactElement {
             endReached={loadMorePosts}
             overscan={{ main: 500, reverse: 500 }}
             useWindowScroll
+            isScrolling={setIsScrolling}
             components={{
                 Footer,
             }}
@@ -246,6 +248,7 @@ function Posts({ user }: Props): ReactElement {
                         username: user.username,
                         avatarURL: user.avatarURL,
                     }}
+                    isScrolling={isScrolling}
                     attachments={post.attachments}
                     createdAt={post.createdAt}
                     content={post.content}

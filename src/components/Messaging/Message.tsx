@@ -2,7 +2,7 @@ import { MenuItem, MenuList, useDisclosure } from "@chakra-ui/react";
 import { memo, ReactElement, useEffect, useRef } from "react";
 import Avatar from "src/components/User/Avatar";
 import { useUserContext } from "src/contexts/userContext";
-import { Check, Checks } from "phosphor-react";
+import { Check, Checks, DotsThreeVertical } from "phosphor-react";
 import MediaModal from "src/components/Attachments/MediaModal";
 import HTMLToJSX from "html-react-parser";
 import { parsingOptions } from "src/components/Post/Post";
@@ -134,7 +134,7 @@ const MessageTime = memo(function MessageTime({ date }: MessageTimeProps): React
     }
 });
 
-interface DeletedMessageProps extends Omit<MessageProps, "wasRead" | "content" | "attachmentURL" | "recipientAvatarURL" | "recipientId" | "conversationId"> {
+interface DeletedMessageProps extends Omit<MessageProps, "wasRead" | "content" | "attachmentURL" | "recipientAvatarURL" | "recipientId" | "conversationId" | "isScrolling"> {
     ownerAvatarURL: string;
 }
 
@@ -229,6 +229,7 @@ interface MessageProps {
     recipientId: string;
     recipientAvatarURL: string | undefined;
     ownerUsername: string;
+    isScrolling: boolean;
     wasRead: boolean;
     createdAt: string;
     conversationId: string;
@@ -245,12 +246,18 @@ export default function Message(props: MessageProps): ReactElement {
                         <div className="flex flex-col gap-0.5 items-end">
                             <MessageTime date={props.createdAt} />
                             <div className="flex gap-2 items-end">
-                                <MessageOptions
-                                    messageId={props.id}
-                                    conversationId={props.conversationId}
-                                    recipientId={props.recipientId}
-                                    className="opacity-0 group-hover:opacity-100"
-                                />
+                                {!props.isScrolling ? (
+                                    <MessageOptions
+                                        messageId={props.id}
+                                        conversationId={props.conversationId}
+                                        recipientId={props.recipientId}
+                                        className="opacity-0 group-hover:opacity-100"
+                                    />
+                                ) : (
+                                    <div className="w-[24px] h-[24px]">
+                                        <DotsThreeVertical className="opacity-0 group-hover:opacity-100" color="var(--chakra-colors-textMain)" size={24} />
+                                    </div>
+                                )}
                                 <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
                                     <Attachment url={props.attachmentURL} />
                                     <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
