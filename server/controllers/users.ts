@@ -91,7 +91,6 @@ export async function forgotPassword(req: Request, res: Response) {
         return res.status(500).json({ message: "An internal error has occurred" });
     }
 
-    // TODO: sign the email using DKIM
     const transporter = nodemailer.createTransport({
         auth: {
             user: process.env.EMAIL,
@@ -114,6 +113,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
     transporter.sendMail(mailOptions, (err) => {
         if (err) {
+            console.error(err);
             return res.status(500).json({ message: "An internal error occurred while sending the email" });
         }
 
