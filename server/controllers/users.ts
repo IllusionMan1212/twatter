@@ -7,6 +7,8 @@ import { DatabaseError, exclude } from "../database/utils";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { excludedUserProps } from "./utils/users";
+import { prepareResetPasswordEmailHTML, prepareResetPasswordEmailText } from "../email";
+import Mail from "nodemailer/lib/mailer";
 
 export async function register(req: Request, res: Response) {
     const user = RegisterUserData.safeParse(req.body);
@@ -101,13 +103,13 @@ export async function forgotPassword(req: Request, res: Response) {
         requireTLS: true,
     });
 
-    const mailOptions = {
+    const resetLink = `https://twatter.social/reset-password?token=${token}`;
+
+    const mailOptions: Mail.Options = {
         from: `Twatter <${process.env.EMAIL}>`,
-        html: `<p>The password reset link you requested is ready. Please click on the link below to reset your password</p>\
-            <a href="https://${req.headers.host}/reset-password?token=${token}">https://${req.headers.host}/reset-password?token=${token}</a>\
-            <p><b>Note: This link expires in 1 hour</b></p>\
-            <p>If you did not request this link, ignore this email and your password will remain unchanged</p>`,
-        subject: "Password Reset - Twatter",
+        text: prepareResetPasswordEmailText(resetLink),
+        html: prepareResetPasswordEmailHTML(resetLink),
+        subject: "Twatter - Reset Password",
         to: user.email,
     };
 

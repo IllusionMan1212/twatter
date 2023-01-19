@@ -1,6 +1,4 @@
 - POST MVP
-  - HTML template with styling for password reset Email
-      
   - Show parent post when opening a child post
   - Following ability.
   - Video attachments
