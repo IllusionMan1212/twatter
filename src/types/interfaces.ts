@@ -71,6 +71,10 @@ export interface IPost {
     createdAt: string;
 }
 
+export interface IThreadPost extends Omit<IPost, "content"> {
+    content?: string;
+}
+
 export interface IPostAuthor {
     id: string;
     displayName: string;

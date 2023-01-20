@@ -11,6 +11,7 @@ import {
     GetCommentsRes,
     GetFeedRes,
     GetPostsRes,
+    GetThreadRes,
 } from "src/types/server";
 import toast from "react-hot-toast";
 import { IPostAuthor } from "src/types/interfaces";
@@ -58,7 +59,8 @@ export interface PostProps {
     mutate:
         | KeyedMutator<GetFeedRes[]>
         | KeyedMutator<GetPostsRes[]>
-        | KeyedMutator<GetCommentsRes[]>;
+        | KeyedMutator<GetCommentsRes[]>
+        | KeyedMutator<GetThreadRes>;
     asComment: boolean;
 }
 
@@ -69,7 +71,8 @@ interface DeleteDialogProps {
     mutate:
         | KeyedMutator<GetFeedRes[]>
         | KeyedMutator<GetPostsRes[]>
-        | KeyedMutator<GetCommentsRes[]>;
+        | KeyedMutator<GetCommentsRes[]>
+        | KeyedMutator<GetThreadRes>;
 }
 
 const DeleteDialog = memo(function DeleteDialog({

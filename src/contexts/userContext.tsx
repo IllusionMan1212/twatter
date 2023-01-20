@@ -82,12 +82,7 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
 
     return (
         <UserContext.Provider value={{ user, socket, login, logout, mutate }}>
-            {loading ? (
-                <VStack width="full">
-                    <Spinner size="xl" label="Loading..." />
-                </VStack>
-            ) : null}
-            <div className={`${loading ? "invisible" : ""}`}>
+            <div className={loading ? "invisible" : ""}>
                 {children}
             </div>
         </UserContext.Provider>

@@ -15,7 +15,7 @@ import { AxiosError } from "axios";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { MutableRefObject, ReactElement, useEffect, useRef, useState } from "react";
 import { IPost } from "src/types/interfaces";
-import { GenericBackendRes, GetCommentsRes, GetPostRes } from "src/types/server";
+import { GenericBackendRes, GetCommentsRes, GetPostRes, GetThreadRes } from "src/types/server";
 import { axiosAuth, axiosNoAuth } from "src/utils/axios";
 import NextLink from "next/link";
 import Avatar from "src/components/User/Avatar";
@@ -34,6 +34,7 @@ import { NextSeo } from "next-seo";
 import CommentBox from "src/components/Post/CommentBox";
 import HTMLToJSX from "html-react-parser";
 import BigNumber from "src/components/BigNumber";
+import useSWR from "swr";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -104,6 +105,115 @@ function PostDate({ postDate }: DateProps): ReactElement {
         <Text fontSize="sm" color="textMain">
             {finalDate}
         </Text>
+    );
+}
+
+interface ParentsThreadErrorProps {
+    error: string;
+}
+
+function ParentsThreadError({ error }: ParentsThreadErrorProps): ReactElement {
+    return (
+        <div className="flex justify-center w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
+            <p className="text-lg font-semibold">{error}</p>
+        </div>
+    );
+}
+
+interface DeletedParentPostProps {
+    authorName: string;
+    authorUsername: string;
+    authorAvatarURL: string;
+}
+
+function DeletedParentPost({ authorName, authorUsername, authorAvatarURL }: DeletedParentPostProps): ReactElement {
+    return (
+        <div className="w-full p-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
+            <div className="w-full flex gap-6 items-center">
+                <NextLink href={`/@${authorUsername}`} passHref>
+                    <a className="hover:underline">
+                        <div className="flex gap-2 items-center">
+                            <Avatar src={authorAvatarURL} alt={`${authorUsername}'s avatar`} width="40px" height="40px" />
+                            <div className="flex flex-col justify-around">
+                                <p className="text-sm font-semibold">{authorName}</p>
+                                <p className="text-xs text-[color:var(--chakra-colors-textMain)]">@{authorUsername}</p>
+                            </div>
+                        </div>
+                    </a>
+                </NextLink>
+                <p className="italic">This post has been deleted</p>
+            </div>
+        </div>
+    );
+}
+
+interface ParentsThreadsProps {
+    originalPostId: string;
+}
+
+function ParentsThreads({ originalPostId }: ParentsThreadsProps): ReactElement {
+    const { user } = useUserContext();
+
+    const fetcher = <T,>(url: string) => {
+        return user ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
+    };
+
+    const {
+        data,
+        error,
+        mutate,
+        isValidating
+    } = useSWR<GetThreadRes, AxiosError<GenericBackendRes>>(`posts/get-thread/${originalPostId}`, fetcher, {
+        revalidateOnFocus: false,
+    });
+
+    if (isValidating && !data) return (
+        <VStack py={5} width="full">
+            <Spinner />
+        </VStack>
+    );
+
+    if (error) return (
+        <ParentsThreadError
+            error={error.response?.data.message ?? "An error has occurred while fetching thread posts"}
+        />
+    );
+
+    return (
+        <div className="w-full">
+            {data?.thread.map((parent) => {
+                if (typeof parent.content === "string") return (
+                    <Post
+                        key={parent.id}
+                        id={parent.id}
+                        author={{
+                            id: parent.authorId,
+                            username: parent.authorUsername,
+                            displayName: parent.authorName,
+                            avatarURL: parent.authorAvatarURL,
+                        }}
+                        isScrolling={false}
+                        attachments={parent.attachments}
+                        createdAt={parent.createdAt}
+                        content={parent.content}
+                        likes={parent.likes}
+                        liked={parent.liked}
+                        comments={parent.comments}
+                        parentAuthorUsername={parent.parentAuthorUsername}
+                        mutate={mutate}
+                        asComment
+                    />
+                );
+                else return (
+                    <DeletedParentPost
+                        key={parent.id}
+                        authorName={parent.authorName}
+                        authorUsername={parent.authorUsername}
+                        authorAvatarURL={parent.authorAvatarURL}
+                    />
+                );
+            })}
+        </div>
     );
 }
 
@@ -264,6 +374,23 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
     );
 }
 
+interface CommentsErrorProps {
+    error: string;
+}
+
+function CommentsError({ error }: CommentsErrorProps): ReactElement {
+    return (
+        <div className="flex flex-col gap-4 w-full p-4 items-center">
+            <img
+                src="/graphics/Connection_Lost.png"
+                alt="Error Graphic"
+                className="w-auto h-[200px]"
+            />
+            <p className="text-lg font-semibold">{error}</p>
+        </div>
+    );
+}
+
 interface CommentsProps {
     swr: SWRInfiniteResponse<GetCommentsRes, AxiosError<GenericBackendRes>>;
 }
@@ -304,14 +431,7 @@ function Comments({ swr }: CommentsProps): ReactElement {
                 setReachedEnd(true);
             }
         }
-
-        if (error) {
-            toast.error(
-                error.response?.data.message ??
-                    "An error occurred while fetching the comments",
-            );
-        }
-    }, [data, error]);
+    }, [data]);
 
     return (
         <VStack
@@ -321,39 +441,45 @@ function Comments({ swr }: CommentsProps): ReactElement {
             width="full"
             minHeight="1px" // HACK: used to get the scrollbar to play nice
         >
-            <Virtuoso
-                className={styles.posts}
-                data={comments}
-                totalCount={comments.length}
-                endReached={loadMoreComments}
-                useWindowScroll
-                isScrolling={setIsScrolling}
-                components={{
-                    Footer,
-                }}
-                itemContent={(_, comment) => (
-                    <Post
-                        key={comment.id}
-                        id={comment.id}
-                        author={{
-                            id: comment.authorId,
-                            username: comment.authorUsername,
-                            displayName: comment.authorName,
-                            avatarURL: comment.authorAvatarURL,
-                        }}
-                        isScrolling={isScrolling}
-                        attachments={comment.attachments}
-                        createdAt={comment.createdAt}
-                        content={comment.content}
-                        likes={comment.likes}
-                        liked={comment.liked}
-                        comments={comment.comments}
-                        parentAuthorUsername={comment.parentAuthorUsername}
-                        mutate={mutate}
-                        asComment
-                    />
-                )}
-            />
+            {error ? (
+                <CommentsError
+                    error={error.response?.data.message ?? "An error has occurred while fetching comments"}
+                />
+            ) : (
+                <Virtuoso
+                    className={styles.posts}
+                    data={comments}
+                    totalCount={comments.length}
+                    endReached={loadMoreComments}
+                    useWindowScroll
+                    isScrolling={setIsScrolling}
+                    components={{
+                        Footer,
+                    }}
+                    itemContent={(_, comment) => (
+                        <Post
+                            key={comment.id}
+                            id={comment.id}
+                            author={{
+                                id: comment.authorId,
+                                username: comment.authorUsername,
+                                displayName: comment.authorName,
+                                avatarURL: comment.authorAvatarURL,
+                            }}
+                            isScrolling={isScrolling}
+                            attachments={comment.attachments}
+                            createdAt={comment.createdAt}
+                            content={comment.content}
+                            likes={comment.likes}
+                            liked={comment.liked}
+                            comments={comment.comments}
+                            parentAuthorUsername={comment.parentAuthorUsername}
+                            mutate={mutate}
+                            asComment
+                        />
+                    )}
+                />
+            )}
         </VStack>
     );
 }
@@ -431,6 +557,7 @@ export default function PostPage({ post }: Props): ReactElement {
             >
                 {user !== undefined ? (
                     <>
+                        {post.parentAuthorUsername && <ParentsThreads originalPostId={post.id} />}
                         <OriginalPost post={post} commentBoxRef={commentBoxRef} />
                         {user ? (
                             <div className="w-full py-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">

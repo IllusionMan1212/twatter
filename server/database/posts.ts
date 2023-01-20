@@ -82,6 +82,46 @@ export const queryPost = async (userId: string | undefined, postId: string): Pro
     ;`;
 };
 
+export const queryThread = async (userId: string | undefined, postId: string): Promise<Post[]> => {
+    const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId})` : Prisma.sql`false`;
+
+    return await prisma.$queryRaw`
+    WITH RECURSIVE posts AS (
+      SELECT op.id, op.content, op."createdAt", op."authorId", op.deleted, op."parentId"
+      FROM "Post" op
+      WHERE op.id = ${postId}
+      UNION
+        SELECT parent.id,
+        CASE WHEN parent.deleted = FALSE THEN parent.content ELSE NULL END AS content,
+        parent."createdAt",
+        parent."authorId",
+        parent.deleted,
+        parent."parentId"
+        FROM "Post" parent
+        INNER JOIN posts p ON p."parentId" = parent.id
+    )
+    SELECT p.id, p.content, p."createdAt",
+    u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL", u."displayName" as "authorName",
+    CASE WHEN p.deleted = FALSE THEN ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) ELSE NULL END as attachments,
+    CASE WHEN p.deleted = FALSE THEN (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) ELSE 0 END as likes,
+    CASE WHEN p.deleted = FALSE THEN ${liked} ELSE false END as liked,
+    CASE WHEN p.deleted = FALSE THEN (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) ELSE 0 END as comments,
+    parent_author.username as "parentAuthorUsername"
+    FROM posts p
+    INNER JOIN "User" u
+    ON u.id = p."authorId"
+    LEFT JOIN "PostAttachment" a
+    ON a."postId" = p.id
+    LEFT JOIN "Post" parent
+    ON parent.id = p."parentId"
+    LEFT JOIN "User" parent_author
+    ON parent_author.id = parent."authorId"
+    WHERE p.id <> ${postId}
+    GROUP BY p.id, p.content, p."createdAt", p.deleted, u.id, u.username, u."avatarURL", u."displayName", parent_author.username
+    ORDER BY p."createdAt" ASC;
+    ;`;
+};
+
 export const queryComments = async (userId: string | undefined, postId: string, page: number) => {
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
 

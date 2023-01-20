@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { DatabaseError } from "../database/utils";
-import { createPostDB, deletePostDB, likePostDB, queryPosts, queryPost, queryUserPosts, unlikePostDB, queryComments } from "../database/posts";
+import { createPostDB, deletePostDB, likePostDB, queryPosts, queryPost, queryUserPosts, unlikePostDB, queryComments, queryThread } from "../database/posts";
 import { CreatePostData, DeletePostData, GetPostData, GetPostsData, LikePostData } from "../validators/posts";
 import { GetPagedData } from "../validators/general";
 import fs from "fs/promises";
@@ -42,6 +42,18 @@ export async function getPost(req: Request, res: Response) {
     const posts = await queryPost(req.session?.user.id, data.data.id);
 
     return res.status(200).json({ message: "Successfully fetched post", post: posts[0] });
+}
+
+export async function getThread(req: Request, res: Response) {
+    const data = GetPostData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const thread = await queryThread(req.session?.user.id, data.data.id);
+
+    return res.status(200).json({ message: "Successfully fetched thread", thread });
 }
 
 export async function getComments(req: Request, res: Response) {
