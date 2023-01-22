@@ -17,13 +17,14 @@ import "swiper/scss/navigation";
 import "swiper/scss/pagination";
 import "swiper/scss/zoom";
 import { DefaultSeo } from "next-seo";
+import ErrorBoundary from "src/components/ErrorFallback";
 
 export interface PageProps {
     noAuthPage: boolean;
     notFoundPage: boolean;
 }
 
-function MyApp({ Component, pageProps }: AppProps<PageProps>) {
+function Twatter({ Component, pageProps }: AppProps<PageProps>) {
     return (
         <>
             <DefaultSeo {...SEO} />
@@ -41,11 +42,15 @@ function MyApp({ Component, pageProps }: AppProps<PageProps>) {
                     <Header />
                     {Component.defaultProps?.noAuthPage ? (
                         <LoggedOutLayout>
-                            <Component {...pageProps} />
+                            <ErrorBoundary>
+                                <Component {...pageProps} />
+                            </ErrorBoundary>
                         </LoggedOutLayout>
                     ) : (
                         <LoggedInLayout>
-                            <Component {...pageProps} />
+                            <ErrorBoundary>
+                                <Component {...pageProps} />
+                            </ErrorBoundary>
                         </LoggedInLayout>
                     )}
                 </UserWrapper>
@@ -54,4 +59,4 @@ function MyApp({ Component, pageProps }: AppProps<PageProps>) {
     );
 }
 
-export default MyApp;
+export default Twatter;

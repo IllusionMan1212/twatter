@@ -1,5 +1,4 @@
 - POST MVP
-  - Error Boundary component for when app crashes
   - Following ability.
   - Video attachments
   - Make back button close media modal when modal is open instead of going back thru the history
