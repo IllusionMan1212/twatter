@@ -8,7 +8,6 @@
   - Attachment compression and resizing as well as thumbnails using (https://github.com/lovell/sharp)
   - save an attachment's height to db when sending a message so we can use that to make sure the container has the proper height so no jumping happens with virtuoso (if an attachment's height exceeds 400px then we'll set the height to 400px since that's the max)
 
-  - Profile picture cropping modal
   - Account deletion
 
   - Searching using post content

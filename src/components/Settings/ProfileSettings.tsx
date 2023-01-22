@@ -6,6 +6,7 @@ import {
     Flex,
     Button,
     ButtonGroup,
+    useDisclosure,
 } from "@chakra-ui/react";
 import { ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
@@ -18,6 +19,7 @@ import { AxiosError } from "axios";
 import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
+import AvatarCropModal from "./AvatarCropModal";
 
 interface UpdateProfileData {
     displayName: string;
@@ -27,7 +29,10 @@ interface UpdateProfileData {
 export default function ProfileSettings(): ReactElement {
     const { user, mutate } = useUserContext();
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     const [previewImage, setPreviewImage] = useState("");
+    const [croppedPreview, setCroppedPreview] = useState("");
     const [attachment, setAttachment] = useState<File | null>(null);
     const [isSubmitting, setSubmitting] = useState(false);
     const [form, setForm] = useState<UpdateProfileData>({
@@ -49,11 +54,18 @@ export default function ProfileSettings(): ReactElement {
         }
 
         setPreviewImage(URL.createObjectURL(files[0]));
-        setAttachment(files[0]);
+        onOpen();
+    };
+
+    const confirmCrop = (blob: Blob) => {
+        setCroppedPreview(URL.createObjectURL(blob));
+        setAttachment(new File([blob], `${user?.username}'s temp profile`));
+        onClose();
     };
 
     const removeAttachment = () => {
         setPreviewImage("");
+        setCroppedPreview("");
         setAttachment(null);
     };
 
@@ -152,7 +164,7 @@ export default function ProfileSettings(): ReactElement {
                     justify={{ base: "center", md: "initial" }}
                     gap={{ base: 3, md: 10 }}
                 >
-                    {!previewImage && (
+                    {!croppedPreview && (
                         <Avatar
                             src={user?.avatarURL}
                             alt={`${user?.username}'s avatar`}
@@ -160,9 +172,9 @@ export default function ProfileSettings(): ReactElement {
                             height="150px"
                         />
                     )}
-                    {previewImage && (
+                    {croppedPreview && (
                         <AttachmentPreview
-                            image={previewImage}
+                            image={croppedPreview}
                             size="150px"
                             idx={0}
                             removeAttachment={removeAttachment}
@@ -202,6 +214,7 @@ export default function ProfileSettings(): ReactElement {
             >
                 Save
             </Button>
+            <AvatarCropModal isOpen={isOpen} onClose={onClose} imageBlob={previewImage} onConfirmCrop={confirmCrop} />
         </VStack>
     );
 }
