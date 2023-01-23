@@ -2,9 +2,9 @@ import { Prisma, User, UserSettings } from "@prisma/client";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
-export const createUser = async (username: string, email: string, password: string): Promise<DatabaseError> => {
-    await prisma.user
-        .create({
+export const createUser = async (username: string, email: string, password: string): Promise<[DatabaseError, string | null]> => {
+    try {
+        await prisma.user.create({
             data: {
                 displayName: username,
                 username: username,
@@ -14,23 +14,23 @@ export const createUser = async (username: string, email: string, password: stri
                     create: {},
                 },
             },
-        })
-        .catch((err) => {
-            if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                if (err.code === "P2002") {
-                    // Unique constraint failed
-                    return DatabaseError.DUPLICATE;
-                }
-            }
-
-            console.error(
-                "Unknown error:",
-                typeof err === "string" ? err : JSON.stringify(err),
-            );
-            return DatabaseError.UNKNOWN;
         });
+    } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+            if (err.code === "P2002") {
+                // Unique constraint failed
+                return [DatabaseError.DUPLICATE, (err.meta?.["target"] as string[])[0] as string];
+            }
+        }
 
-    return DatabaseError.SUCCESS;
+        console.error(
+            "Unknown error:",
+            typeof err === "string" ? err : JSON.stringify(err),
+        );
+        return [DatabaseError.UNKNOWN, null];
+    }
+
+    return [DatabaseError.SUCCESS, null];
 };
 
 export const getUserByEmailOrUsername = async (usernameOrEmail: string): Promise<User & { settings: UserSettings | null } | null> => {

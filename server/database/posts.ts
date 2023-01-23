@@ -190,18 +190,24 @@ export const createPostDB = async (id: string, userId: string, content: string |
 };
 
 export const deletePostDB = async (postId: string, userId: string): Promise<DatabaseError> => {
-    await prisma.post.updateMany({
-        where: {
-            AND: [
-                { id: postId },
-                { authorId: userId },
-                { deleted: false }
-            ],
-        },
-        data: {
-            deleted: true,
+    try {
+        const t = await prisma.post.updateMany({
+            where: {
+                AND: [
+                    { id: postId },
+                    { authorId: userId },
+                    { deleted: false }
+                ],
+            },
+            data: {
+                deleted: true,
+            }
+        });
+
+        if (t.count === 0) {
+            return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
         }
-    }).catch((e) => {
+    } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === "P2025") {
                 // Operation depends on required record that was not found
@@ -214,7 +220,7 @@ export const deletePostDB = async (postId: string, userId: string): Promise<Data
             typeof e === "string" ? e : JSON.stringify(e),
         );
         return DatabaseError.UNKNOWN;
-    });
+    }
 
     return DatabaseError.SUCCESS;
 };

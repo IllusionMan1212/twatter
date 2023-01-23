@@ -31,9 +31,11 @@ export async function register(req: Request, res: Response) {
         ...user.data,
         password: hash,
     };
-    const error = await createUser(userData.username, userData.email, userData.password);
+    const [error, field] = await createUser(userData.username, userData.email, userData.password);
 
-    if (error === DatabaseError.UNKNOWN) {
+    if (error === DatabaseError.DUPLICATE) {
+        return res.status(400).json({ message: `An account with that ${field} already exists` });
+    } else if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal error has occurred" });
     }
 
