@@ -15,18 +15,32 @@ export const GetPostData = z.object({
 function linkUsernames(val: string): string {
     const usernames = extractMentions(val);
 
+    let searchIdx = 0;
     for (let i = 0; i < usernames.length; i++) {
-        val = val.replace(`@${usernames[i]}`, `<a href="/@${usernames[i]}" class="usernameLink">@${usernames[i]}</a>`);
+        const idxOfMention = val.indexOf(usernames[i], searchIdx);
+        searchIdx = idxOfMention - 1;
+        const anchorTag = `<a href="/@${usernames[i]}" class="usernameLink">@${usernames[i]}</a>`;
+        val = replaceAfter(val, `@${usernames[i]}`, anchorTag, searchIdx);
+        searchIdx += anchorTag.length;
     }
 
     return val;
 }
 
+function replaceAfter(str: string, searchVal: string, replacement: string, from: number) {
+    return str.slice(0, from) + str.slice(from).replace(searchVal, replacement);
+}
+
 export function linkUrls(val: string): string {
     const urls = extractUrls(val);
 
+    let searchIdx = 0;
     for (let i = 0; i < urls.length; i++) {
-        val = val.replace(urls[i], `<a href="${urls[i].startsWith("http") ? urls[i] : `https://${urls[i]}`}" class="link" target="_blank">${urls[i]}</a>`);
+        const idxOfUrl = val.indexOf(urls[i], searchIdx);
+        searchIdx = idxOfUrl;
+        const anchorTag = `<a href="${urls[i].startsWith("http") ? urls[i] : `https://${urls[i]}`}" class="link" target="_blank">${urls[i]}</a>`;
+        val = replaceAfter(val, urls[i], anchorTag, searchIdx);
+        searchIdx += anchorTag.length;
     }
 
     return val;
