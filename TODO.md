@@ -11,7 +11,6 @@
   - Account deletion
 
   - Searching using post content
-  - Show recent searches when focusing searchbar (recent searches will be saved in localstorage or indexedDB. Max of 5)
 
   - A notification system
   - notify people that are interested in an event when the event starts.

@@ -131,6 +131,7 @@ export default function Search(): ReactElement {
                 size="md"
                 onSubmit={handleSearchSubmit}
                 withButton
+                showRecent
                 display={{ base: "flex", md: "none" }}
             />
             {router.query.q ? (

@@ -1,15 +1,106 @@
-import { MagnifyingGlass } from "phosphor-react";
+import { ClockCounterClockwise, MagnifyingGlass } from "phosphor-react";
 import {
     Box,
+    Text,
     HStack,
     IconButton,
     Input,
     InputGroup,
     InputRightElement,
     ResponsiveValue,
+    VStack,
+    Link as ChakraLink,
 } from "@chakra-ui/react";
-import { ChangeEventHandler, ReactElement, useRef, useState } from "react";
+import { ChangeEventHandler, forwardRef, ReactElement, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as CSS from "csstype";
+import useRecentSearches from "src/hooks/useRecentSearches";
+import NextLink from "next/link";
+import { XIcon } from "@heroicons/react/solid";
+
+interface RecentSearchItemProps {
+    value: string;
+    idx: number;
+    removeItem: (idx: number) => void;
+    setShowRecent: Dispatch<SetStateAction<boolean>>;
+}
+
+function RecentSearchItem({ value, idx, removeItem, setShowRecent }: RecentSearchItemProps): ReactElement {
+    const handleRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        removeItem(idx);
+    };
+
+    return (
+        <NextLink className="w-full" tabIndex={-1} href={`/search?q=${value}`} passHref>
+            <ChakraLink width="full" onClick={() => setShowRecent(false)}>
+                <HStack
+                    width="full"
+                    _active={{ bgColor: "bgSecondary" }}
+                    _hover={{ bgColor: "bgSecondary" }}
+                    px={5}
+                    justify="space-between"
+                >
+                    <HStack spacing={4}>
+                        <ClockCounterClockwise size={24} color="var(--chakra-colors-textMain)" />
+                        <Text fontSize="sm">{value}</Text>
+                    </HStack>
+                    <IconButton
+                        size="sm"
+                        variant="ghost"
+                        aria-label="Remove Search Item"
+                        onClick={handleRemove}
+                        icon={
+                            <XIcon
+                                width="20"
+                                height="20"
+                                color="var(--chakra-colors-textMain)"
+                            />
+                        }
+                    />
+                </HStack>
+            </ChakraLink>
+        </NextLink>
+    );
+}
+
+interface RecentSearchesProps {
+    recent: string[];
+    removeItem: (idx: number) => void;
+    setShowRecent: Dispatch<SetStateAction<boolean>>;
+}
+
+const RecentSearches = forwardRef<HTMLDivElement, RecentSearchesProps>(
+    function RecentSearches({ recent, removeItem, setShowRecent }, ref): ReactElement | null {
+        return (
+            <Box
+                ref={ref}
+                py={3}
+                zIndex={1}
+                tabIndex={-1}
+                top="40px"
+                bgColor="bgPrimary"
+                width="full"
+                borderTop="1px solid"
+                borderColor="bgSecondary"
+                position="absolute"
+                rounded="0 0 var(--chakra-radii-lg) var(--chakra-radii-lg)"
+            >
+                <VStack width="full" align="start">
+                    {recent.map((val, i) => (
+                        <RecentSearchItem
+                            key={`${val + i.toString()}`}
+                            value={val}
+                            removeItem={removeItem}
+                            setShowRecent={setShowRecent}
+                            idx={i}
+                        />
+                    ))}
+                </VStack>
+            </Box>
+        );
+    },
+);
 
 interface SearchBarProps {
     placeholder?: string;
@@ -19,30 +110,60 @@ interface SearchBarProps {
     display?: ResponsiveValue<CSS.Property.Display>;
     isDisabled?: boolean;
     withButton: boolean;
+    showRecent?: boolean;
     onSubmit?: (input: HTMLInputElement | null) => void;
 }
 
 export default function SearchBar(props: SearchBarProps): ReactElement {
     const inputRef = useRef<HTMLInputElement>(null);
-    const [buttonDisabled, setButtonDisabled] = useState(true);
+    const recentRef = useRef<HTMLDivElement>(null);
 
-    const handleEnterPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && inputRef.current?.value) {
-            e.preventDefault();
+    const [buttonDisabled, setButtonDisabled] = useState(true);
+    const [showRecent, setShowRecent] = useState(false);
+
+    const { addItem, recent, removeItem } = useRecentSearches();
+
+    const doSearch = () => {
+        if (inputRef.current?.value) {
             props.onSubmit?.(inputRef.current);
+            addItem(inputRef.current.value);
             inputRef.current.value = "";
+            inputRef.current.blur();
             setButtonDisabled(true);
+            props.showRecent && setShowRecent(false);
         }
     };
+
+    const handleEnterPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            doSearch();
+        }
+    };
+
+    const handleFocus = () => {
+        props.showRecent && setShowRecent(!!recent.length);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        if (e.relatedTarget === recentRef.current || e.relatedTarget?.matches("a, button")) return;
+        props.showRecent && setShowRecent(false);
+    };
+
+    useEffect(() => {
+        if (!recent.length) {
+            setShowRecent(false);
+        }
+    }, [recent]);
 
     return (
         <>
             {props.withButton ? (
-                <HStack width="full" spacing={0} display={props.display}>
+                <HStack width="full" onBlur={handleBlur} position="relative" spacing={0} display={props.display}>
                     <Input
                         ref={inputRef}
                         color="text"
-                        rounded="var(--chakra-radii-lg) 0 0 var(--chakra-radii-lg)"
+                        rounded={`var(--chakra-radii-lg) 0 0 ${showRecent ? "0" : "var(--chakra-radii-lg)"}`}
                         bgColor="bgPrimary"
                         borderColor="bgPrimary"
                         borderRight="1px solid var(--chakra-colors-bgMain)"
@@ -57,17 +178,28 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                             setButtonDisabled(Boolean(!e.target.value));
                             props.onChange?.(e);
                         }}
+                        transition="border-radius 0.1s linear"
                         onKeyPress={handleEnterPress}
+                        onFocus={handleFocus}
                     />
                     <IconButton
                         aria-label="Search button"
-                        rounded="0 var(--chakra-radii-lg) var(--chakra-radii-lg) 0"
+                        rounded={`0 var(--chakra-radii-lg) ${showRecent ? "0" : "var(--chakra-radii-lg)"} 0`}
                         size={props.size}
                         colorScheme="conversationItem"
                         icon={<Box size="28" as={MagnifyingGlass} color="textMain" />}
-                        onClick={() => props.onSubmit?.(inputRef.current)}
+                        transition="border-radius 0.1s linear"
+                        onClick={doSearch}
                         disabled={buttonDisabled}
                     />
+                    {showRecent ? (
+                        <RecentSearches
+                            ref={recentRef}
+                            recent={recent}
+                            removeItem={removeItem}
+                            setShowRecent={setShowRecent}
+                        />
+                    ) : null}
                 </HStack>
             ) : (
                 <InputGroup display={props.display} alignItems="center" size={props.size}>
@@ -107,4 +239,5 @@ SearchBar.defaultProps = {
     withButton: false,
     isDisabled: false,
     display: "flex",
+    showRecent: false,
 };

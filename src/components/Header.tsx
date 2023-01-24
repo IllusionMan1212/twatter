@@ -266,7 +266,7 @@ function LoggedInHeader(): ReactElement {
                         display={{ base: "none", md: "initial" }}
                         width={{ md: "35%", xl: "40%" }}
                     >
-                        <SearchBar size="md" withButton onSubmit={handleSearchSubmit} />
+                        <SearchBar size="md" withButton showRecent onSubmit={handleSearchSubmit} />
                     </Box>
                     <Flex
                         gap={7}
