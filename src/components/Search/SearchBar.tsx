@@ -78,12 +78,13 @@ const RecentSearches = forwardRef<HTMLDivElement, RecentSearchesProps>(
                 py={3}
                 zIndex={1}
                 tabIndex={-1}
-                top="40px"
+                top="38px"
                 bgColor="bgPrimary"
-                width="full"
-                borderTop="1px solid"
-                borderColor="bgSecondary"
+                width="calc(100% - 40px)"
+                border="2px solid"
+                borderColor="button.400"
                 position="absolute"
+                boxSizing="border-box"
                 rounded="0 0 var(--chakra-radii-lg) var(--chakra-radii-lg)"
             >
                 <VStack width="full" align="start">
@@ -163,13 +164,16 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                     <Input
                         ref={inputRef}
                         color="text"
-                        rounded={`var(--chakra-radii-lg) 0 0 ${showRecent ? "0" : "var(--chakra-radii-lg)"}`}
+                        rounded={`var(--chakra-radii-lg) ${showRecent ? "var(--chakra-radii-lg)" : "0"} 0 ${showRecent ? "0" : "var(--chakra-radii-lg)"}`}
                         bgColor="bgPrimary"
                         borderColor="bgPrimary"
                         borderRight="1px solid var(--chakra-colors-bgMain)"
                         placeholder={props.placeholder}
                         _placeholder={{ color: "textMain", opacity: 0.8 }}
-                        focusBorderColor="button.400"
+                        focusBorderColor="unset"
+                        _focus={{
+                            border: "2px solid var(--chakra-colors-button-400)"
+                        }}
                         _hover={{ borderColor: "gray.400" }}
                         pl={6}
                         isDisabled={props.isDisabled}
@@ -184,7 +188,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                     />
                     <IconButton
                         aria-label="Search button"
-                        rounded={`0 var(--chakra-radii-lg) ${showRecent ? "0" : "var(--chakra-radii-lg)"} 0`}
+                        rounded="0 var(--chakra-radii-lg) var(--chakra-radii-lg) 0"
                         size={props.size}
                         colorScheme="conversationItem"
                         icon={<Box size="28" as={MagnifyingGlass} color="textMain" />}
