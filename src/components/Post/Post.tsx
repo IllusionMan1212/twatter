@@ -112,14 +112,14 @@ const DeleteDialog = memo(function DeleteDialog({
 export const parsingOptions = {
     replace: (domNode: unknown) => {
         if (domNode instanceof Element && domNode.name === "a") {
-            if (domNode.attribs.target === "_blank") {
-                return (
-                    <a className={domNode.attribs.class} {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
-                );
-            }
-
             const className = domNode.attribs.class;
             delete domNode.attribs.class;
+
+            if (domNode.attribs.target === "_blank") {
+                return (
+                    <a className={className} {...domNode.attribs} onClick={(e) => e.stopPropagation()}>{domToReact(domNode.children)}</a>
+                );
+            }
 
             return (
                 <Link href={domNode.attribs.href} passHref>

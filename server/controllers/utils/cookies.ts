@@ -28,7 +28,7 @@ const setTokenCookie = (res: Response, token: string, twoFA: boolean) => {
         httpOnly: true,
         path: "/",
         sameSite: "strict",
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         expires: new Date(Date.now() + (twoFA ? TWOFA_MAX_AGE : MAX_AGE * 1000)),
         maxAge: twoFA ? TWOFA_MAX_AGE : MAX_AGE,
     });

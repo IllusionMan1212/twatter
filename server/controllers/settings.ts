@@ -54,8 +54,14 @@ export async function changePassword(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    if (!(await bcrypt.compare(data.data.currentPassword, req.session.user.password))) {
-        return res.status(401).json({ message: "Incorrect password or invalid token" });
+    const user = await getUserById(req.session.user.id);
+
+    if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!(await bcrypt.compare(data.data.currentPassword, user.password))) {
+        return res.status(401).json({ message: "Incorrect password" });
     }
 
     if (data.data.newPassword !== data.data.newPasswordConfirm) {
@@ -69,8 +75,6 @@ export async function changePassword(req: Request, res: Response) {
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal server error has occurred" });
     }
-
-    Cookies.removeTokenCookie(res);
 
     return res.status(200).json({ message: "Password changed successfully" });
 }
