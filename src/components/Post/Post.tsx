@@ -268,8 +268,8 @@ export default function Post(props: PostProps): ReactElement {
                                 <IconButton
                                     className="rounded-full"
                                     ariaLabel="Comment Button"
-                                    hoverColor="hover:bg-gray-300/10"
-                                    activeColor="active:bg-gray-300/20"
+                                    hoverColor="hover:bg-gray-400/10"
+                                    activeColor="active:bg-gray-400/20"
                                     icon={<ChatIcon />}
                                     onClick={handleComment}
                                 />

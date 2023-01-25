@@ -50,6 +50,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
             attachments.forEach((a) => payload.append("attachments", a));
 
             ref.current.value = "";
+            ref.current.parentElement!.dataset.value = "";
             setHasText(false);
             setCharsLeft(POST_MAX_CHARS);
 

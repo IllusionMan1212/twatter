@@ -32,18 +32,14 @@ export default function AvatarCropModal({ isOpen, onClose, ...props }: AvatarCro
     const handleLoad = (e: SyntheticEvent<HTMLImageElement>) => {
         const w = e.currentTarget.width;
         const h = e.currentTarget.height;
-        const parentWidth = e.currentTarget.parentElement!.clientWidth;
         setImageW(w);
         setImageH(h);
-        if (h < w && h < parentWidth) {
+        if (h < w) {
             setOverlayW(h);
             setOverlayH(h);
-        } else if (w < h) {
+        } else {
             setOverlayW(w);
             setOverlayH(w);
-        } else {
-            setOverlayW(parentWidth);
-            setOverlayH(parentWidth);
         }
     };
 

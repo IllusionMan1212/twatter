@@ -135,9 +135,16 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
         }
     };
 
-    const handleEnterPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") {
+    const handleEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" || e.code == "Enter") {
             e.preventDefault();
+            doSearch();
+        }
+    };
+
+    const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+        const ev = e.nativeEvent as InputEvent;
+        if (ev.composed && ev.inputType === "insertCompositionText" && ev.data?.[ev.data?.length - 1] == "\n") {
             doSearch();
         }
     };
@@ -183,7 +190,8 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                             props.onChange?.(e);
                         }}
                         transition="border-radius 0.1s linear"
-                        onKeyPress={handleEnterPress}
+                        onKeyDown={handleEnterPress}
+                        onInput={handleInput}
                         onFocus={handleFocus}
                     />
                     <IconButton
