@@ -132,7 +132,7 @@ export default function AvatarCropModal({ isOpen, onClose, ...props }: AvatarCro
                 </ModalHeader>
                 <ModalBody as={VStack} width="full" py={0} spacing={4}>
                     <div className="bg-[color:var(--chakra-colors-bgPrimary)] w-full">
-                        <div className="flex h-[400px] max-h-[400px] relative items-center justify-center overflow-hidden">
+                        <div className="flex h-[300px] sm:h-[400px] max-h-[300px] sm:max-h-[400px] relative items-center justify-center overflow-hidden">
                             <img
                                 id="image"
                                 src={props.imageBlob}

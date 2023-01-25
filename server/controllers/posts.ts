@@ -6,7 +6,7 @@ import { GetPagedData } from "../validators/general";
 import fs from "fs/promises";
 import { snowflake } from "../database/snowflake";
 import { traversalSafeRm } from "../utils";
-import sharp from "sharp";
+import { processAttachments } from "./utils/posts";
 
 export async function getUserPosts(req: Request, res: Response) {
     const data = GetPostsData.safeParse(req.params);
@@ -75,45 +75,28 @@ export async function createPost(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const attachmentsURLs = <string[]>[];
-    const attachmentsPaths = <string[]>[];
+    const id = snowflake.getUniqueID().toString();
 
-    const id = snowflake.getUniqueID();
-    let counter = 1;
+    const attachmentFiles = req.files?.attachments ? Array.isArray(req.files.attachments) ? [...req.files.attachments] : [req.files.attachments] : [];
 
-    const attachments = req.files?.attachments ? Array.isArray(req.files.attachments) ? [...req.files.attachments] : [req.files.attachments] : [];
-
-    if (!data.data.content && !attachments.length) {
+    if (!data.data.content && !attachmentFiles.length) {
         return res.status(400).json({ message: "Cannot submit an empty post" });
     }
 
-    for (const attachment of attachments) {
-        const sh = sharp(attachment.data);
-        const { orientation } = await sh.metadata();
-        const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+    const attachments = await processAttachments(id, attachmentFiles, req.headers.host);
 
-        const fileName = counter;
-        const dir = `${__dirname}/../cdn/posts/${id}`;
-
-        const ext = "jpeg";
-        await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
-
-        attachmentsURLs.push(`${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/posts/${id}/${fileName}.${ext}`);
-        attachmentsPaths.push(`${dir}/${fileName}.${ext}`);
-        counter++;
-    }
-
-    const error = await createPostDB(id.toString(), req.session.user.id, data.data.content, attachmentsURLs, data.data.parentId);
+    const error = await createPostDB(id, req.session.user.id, data.data.content, attachments, data.data.parentId);
 
     if (error === DatabaseError.UNKNOWN) {
-        attachmentsPaths.forEach(async (path) => {
-            await fs.rm(path, { recursive: true, force: true });
+        attachments.forEach(async (attachment) => {
+            await fs.rm(attachment.fullPath, { recursive: true, force: true });
+            await fs.rm(attachment.thumbnailPath, { recursive: true, force: true });
         });
         return res.status(500).json({ message: "An internal error occurred while creating the post" });
     } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND) {
-        attachmentsPaths.forEach(async (path) => {
-            await fs.rm(path, { recursive: true, force: true });
+        attachments.forEach(async (attachment) => {
+            await fs.rm(attachment.fullPath, { recursive: true, force: true });
+            await fs.rm(attachment.thumbnailPath, { recursive: true, force: true });
         });
         return res.status(404).json({ message: "Cannot comment on a deleted post" });
     }

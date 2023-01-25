@@ -51,7 +51,7 @@ app.prepare().then(() => {
             "Access-Control-Allow-Headers",
             "Origin, Content-Type, Accept",
         );
-        res.header("Access-Control-Allow-Credentials");
+        res.header("Access-Control-Allow-Credentials", "true");
         next();
     });
 

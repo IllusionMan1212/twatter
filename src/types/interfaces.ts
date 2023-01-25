@@ -56,6 +56,12 @@ export interface IMessage {
     deleted: boolean;
 }
 
+export interface IAttachment {
+    url: string;
+    thumbUrl: string;
+    bgColor: string;
+}
+
 export interface IPost {
     id: string;
     content: string;
@@ -63,7 +69,7 @@ export interface IPost {
     authorName: string;
     authorUsername: string;
     authorAvatarURL: string;
-    attachments: string[] | null;
+    attachments: IAttachment[] | null;
     likes: number;
     liked: boolean;
     comments: number;

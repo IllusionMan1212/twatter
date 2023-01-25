@@ -235,7 +235,7 @@ export async function updateProfile(req: Request, res: Response) {
     if (req.files?.profileImage) {
         const file = <fileUpload.UploadedFile>req.files.profileImage;
 
-        const sh = sharp(file.data);
+        const sh = sharp(file.data).resize(400, 400, { fit: sharp.fit.cover, position: sharp.strategy.entropy });
         const { orientation } = await sh.metadata();
         const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
 

@@ -66,8 +66,10 @@ model PostLike {
 }
 
 model PostAttachment {
-  postId String
-  url    String
+  postId   String
+  url      String
+  thumbUrl String
+  bgColor  String @default("#000000")
 
   Post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 

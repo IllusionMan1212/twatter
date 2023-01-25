@@ -1,4 +1,5 @@
 import { Post, Prisma } from "@prisma/client";
+import { Attachment } from "../controllers/utils/posts";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
@@ -9,7 +10,7 @@ export const queryUserPosts = async (sessionUserId: string | undefined, userId: 
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
-    ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
@@ -35,7 +36,7 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
-    ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
@@ -63,7 +64,7 @@ export const queryPost = async (userId: string | undefined, postId: string): Pro
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
-    ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
@@ -102,7 +103,7 @@ export const queryThread = async (userId: string | undefined, postId: string): P
     )
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL", u."displayName" as "authorName",
-    CASE WHEN p.deleted = FALSE THEN ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) ELSE NULL END as attachments,
+    CASE WHEN p.deleted = FALSE THEN JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) ELSE NULL END as attachments,
     CASE WHEN p.deleted = FALSE THEN (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) ELSE 0 END as likes,
     CASE WHEN p.deleted = FALSE THEN ${liked} ELSE false END as liked,
     CASE WHEN p.deleted = FALSE THEN (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) ELSE 0 END as comments,
@@ -129,7 +130,7 @@ export const queryComments = async (userId: string | undefined, postId: string, 
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
-    ARRAY_AGG(a.url) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     ${liked},
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
@@ -150,7 +151,7 @@ export const queryComments = async (userId: string | undefined, postId: string, 
     ;`;
 };
 
-export const createPostDB = async (id: string, userId: string, content: string | undefined, attachmentsURLs: string[], parentId: string | undefined): Promise<DatabaseError> => {
+export const createPostDB = async (id: string, userId: string, content: string | undefined, attachments: Attachment[], parentId: string | undefined): Promise<DatabaseError> => {
     try {
         await prisma.$transaction(async (tx) => {
             const parent = await tx.post.findUnique({
@@ -177,7 +178,12 @@ export const createPostDB = async (id: string, userId: string, content: string |
 
             await tx.postAttachment.createMany({
                 data: [
-                    ...attachmentsURLs.map((url) => ({ postId: post.id, url: url }))
+                    ...attachments.map((attachment) => ({
+                        postId: post.id,
+                        url: attachment.fullUrl,
+                        thumbUrl: attachment.thumbnailUrl,
+                        bgColor: attachment.color
+                    }))
                 ]
             });
         });

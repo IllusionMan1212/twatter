@@ -331,7 +331,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                         </Text>
                         {post.attachments ? (
                             <Box width="full">
-                                <Attachments urls={post.attachments} />
+                                <Attachments attachments={post.attachments} />
                             </Box>
                         ) : null}
                         <HStack width="full" justifyContent="space-between">
@@ -531,16 +531,16 @@ export default function PostPage({ post }: Props): ReactElement {
                     },
                     images: [
                         {
-                            url: post.attachments?.[0] ?? "",
+                            url: post.attachments?.[0]?.thumbUrl ?? "",
                         },
                         {
-                            url: post.attachments?.[1] ?? "",
+                            url: post.attachments?.[1]?.thumbUrl ?? "",
                         },
                         {
-                            url: post.attachments?.[2] ?? "",
+                            url: post.attachments?.[2]?.thumbUrl ?? "",
                         },
                         {
-                            url: post.attachments?.[3] ?? "",
+                            url: post.attachments?.[3]?.thumbUrl ?? "",
                         },
                     ],
                 }}

@@ -3,9 +3,7 @@
   - Video attachments
   - Make back button close media modal when modal is open instead of going back thru the history
       
-  - Image background color from the image itself
-  - Background color for attachments
-  - Attachment compression and resizing as well as thumbnails using (https://github.com/lovell/sharp)
+  - attachment bgcolor and thumbnails for message attachments
   - save an attachment's height to db when sending a message so we can use that to make sure the container has the proper height so no jumping happens with virtuoso (if an attachment's height exceeds 400px then we'll set the height to 400px since that's the max)
 
   - Account deletion

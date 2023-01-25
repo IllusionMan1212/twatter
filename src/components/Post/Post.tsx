@@ -14,7 +14,7 @@ import {
     GetThreadRes,
 } from "src/types/server";
 import toast from "react-hot-toast";
-import { IPostAuthor } from "src/types/interfaces";
+import { IAttachment, IPostAuthor } from "src/types/interfaces";
 import Avatar from "src/components/User/Avatar";
 import { useUserContext } from "src/contexts/userContext";
 import Attachments from "src/components/Attachments/AttachmentsContainer";
@@ -50,7 +50,7 @@ export interface PostProps {
     content: string;
     author: IPostAuthor;
     createdAt: string;
-    attachments: string[] | null;
+    attachments: IAttachment[] | null;
     likes: number;
     liked: boolean;
     comments: number;
@@ -249,7 +249,7 @@ export default function Post(props: PostProps): ReactElement {
                             </p>
                             {props.attachments ? (
                                 <div className="w-full">
-                                    <Attachments urls={props.attachments} />
+                                    <Attachments attachments={props.attachments} />
                                 </div>
                             ) : null}
                         </div>
