@@ -120,11 +120,23 @@ model ConversationMember {
   @@id([userId, conversationId])
 }
 
+model MessageAttachment {
+  messageId String @unique
+  url String
+  thumbUrl String
+  bgColor String @default("#000000")
+  height Int
+  width Int
+
+  Message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, url])
+}
+
 model Message {
   id             String   @id @default(cuid())
   content        String
   memberId       String
-  attachmentURL  String?
   conversationId String
   wasRead        Boolean  @default(false)
   deleted        Boolean  @default(false)
@@ -132,4 +144,5 @@ model Message {
 
   Conversation       Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   ConversationMember ConversationMember? @relation(fields: [memberId, conversationId], references: [userId, conversationId])
+  Attachment         MessageAttachment?
 }

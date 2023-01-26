@@ -1,4 +1,5 @@
-import { Conversation, ConversationMember, Message, Prisma, User, UserSettings } from "@prisma/client";
+import { Conversation, ConversationMember, Message, Prisma, User, UserSettings, MessageAttachment as PrismaMessageAttachment } from "@prisma/client";
+import { MessageAttachment } from "../sockets/utils";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
@@ -80,10 +81,24 @@ export const isMemberOfConvo = async (conversationId: string, userId: string): P
     });
 };
 
-export const getMessagesDB = async (conversationId: string, page: number): Promise<Message[]> => {
+export const getMessagesDB = async (
+    conversationId: string,
+    page: number
+): Promise<(Message & { Attachment: { url: string, thumbUrl: string, bgColor: string, height: number, width: number } | null })[]> => {
     return await prisma.message.findMany({
         where: {
             conversationId,
+        },
+        include: {
+            Attachment: {
+                select: {
+                    url: true,
+                    thumbUrl: true,
+                    bgColor: true,
+                    height: true,
+                    width: true,
+                }
+            }
         },
         take: 50,
         skip: page * 50,
@@ -176,7 +191,13 @@ export const isValidUser = async (userId: string): Promise<Partial<User & { sett
     });
 };
 
-export const createMessage = async (message: string, attachmentURL: string | null, conversationId: string, userId: string, recipientId: string): Promise<Message | null> => {
+export const createMessage = async (
+    message: string,
+    attachment: MessageAttachment | null,
+    conversationId: string,
+    userId: string,
+    recipientId: string
+): Promise<(Message & { Attachment: PrismaMessageAttachment | null }) | null> => {
     try {
         const newMessage = await prisma.$transaction(async (tx) => {
             const members = await tx.conversationMember.findMany({
@@ -200,10 +221,21 @@ export const createMessage = async (message: string, attachmentURL: string | nul
             const newMessage = await tx.message.create({
                 data: {
                     content: message,
-                    attachmentURL,
                     conversationId,
                     memberId: userId,
+                    Attachment: attachment ? {
+                        create: {
+                            url: attachment.fullUrl,
+                            thumbUrl: attachment.thumbnailUrl,
+                            bgColor: attachment.color,
+                            height: attachment.height,
+                            width: attachment.width,
+                        }
+                    } : undefined,
                 },
+                include: {
+                    Attachment: true
+                }
             });
 
             await tx.conversation.update({

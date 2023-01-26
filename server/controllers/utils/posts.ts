@@ -1,6 +1,6 @@
 import { UploadedFile } from "express-fileupload";
 import fs from "fs/promises";
-import { Magic } from "../../utils";
+import { Magic, rgbToHex } from "../../utils";
 import sharp, { AvailableFormatInfo, FormatEnum } from "sharp";
 
 export interface Attachment {
@@ -9,15 +9,6 @@ export interface Attachment {
     fullPath: string;
     thumbnailPath: string;
     color: string;
-}
-
-function componentToHex(c: number) {
-    const hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r: number, g: number, b: number) {
-    return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
 }
 
 export async function processAttachments(id: string, attachments: UploadedFile[], host: string | undefined): Promise<Attachment[]> {

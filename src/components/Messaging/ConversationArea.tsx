@@ -63,6 +63,7 @@ import Typing from "src/components/Messaging/Typing";
 import useTyping from "src/hooks/useTyping";
 import { KeyedMutator } from "swr";
 import CharsRemaining from "../CharsRemaining";
+import useWindowSize from "src/hooks/useWindowSize";
 
 const nonTypingInputs = [
     "deleteWordBackward",
@@ -447,8 +448,10 @@ function ConversationBody({
     const [reachedStart, setReachedStart] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
     const [firstItemIndex, setFirstItemIndex] = useState(START_INDEX);
+    const [convoWidth, setConvoWidth] = useState(300);
 
     const isRecipientTyping = useTyping(convo.id);
+    const windowSize = useWindowSize();
 
     const getKey = (pageIndex: number) => {
         return `message/get-messages/${convo.id}/${pageIndex}`;
@@ -502,6 +505,10 @@ function ConversationBody({
         }
     }, [data, error]);
 
+    useEffect(() => {
+        setConvoWidth(document.getElementById("virtual-messages")?.clientWidth ?? 300);
+    }, [windowSize.width]);
+
     const Header = () => {
         return (
             <VStack width="full">
@@ -523,6 +530,7 @@ function ConversationBody({
 
     return (
         <div
+            id="virtual-messages"
             className="flex flex-col gap-5 grow w-full py-2"
         >
             {(isValidating && data?.length === 0) || (!data?.length && state.messages.length === 0) ? (
@@ -609,11 +617,12 @@ function ConversationBody({
                                             ? user?.username ?? ""
                                             : convo.members[0].User.username
                                     }
-                                    attachmentURL={message.attachmentURL}
+                                    attachment={message.Attachment}
                                     createdAt={message.createdAt}
                                     wasRead={message.wasRead}
                                     recipientId={convo.members[0].User.id}
                                     recipientAvatarURL={convo.members[0].User.avatarURL}
+                                    convoWidth={convoWidth}
                                 />;
                             }}
                         />

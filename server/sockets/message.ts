@@ -3,12 +3,11 @@ import { Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { ClientToServerEvents, ServerToClientEvents } from "./types";
 import fs from "fs/promises";
-import crypto from "crypto";
 import { MESSAGE_MAX_CHARS } from "../../src/utils/constants";
 import { linkUrls } from "../validators/posts";
-import sharp from "sharp";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 import { htmlEscape } from "twitter-text";
+import { MessageAttachment, processAttachment } from "./utils";
 
 const limit = new RateLimiterMemory({
     points: 10,
@@ -45,24 +44,21 @@ export const handleMessage = (
             return;
         }
 
-        let attachmentURL: string | null = null;
-        let attachmentPath: string | null = null;
+        if (socket.userId === data.recipientId) return;
+
+        const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
+
+        if (!convos.length || !convos?.[0]) {
+            socket.emit("error", {
+                message: "Forbidden",
+            });
+            return;
+        }
+
+        let attachment: MessageAttachment | null = null;
 
         if (data.attachment) {
-            const sh = sharp(data.attachment.data);
-            const { orientation } = await sh.metadata();
-            const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
-
-            const bytes = crypto.randomBytes(12).toString("hex");
-            const fileName = `${bytes}-${Date.now()}`;
-            const dir = `${__dirname}/../cdn/messages/${data.conversationId}`;
-
-            const ext = "jpeg";
-            await fs.mkdir(dir, { recursive: true });
-            await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
-
-            attachmentURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${socket.handshake.headers.host}/cdn/messages/${data.conversationId}/${fileName}.${ext}`;
-            attachmentPath = `${dir}/${fileName}.${ext}`;
+            attachment = await processAttachment(data.attachment.data, data.conversationId, socket.request.headers.host);
         }
 
         let message = data.message.replaceAll("\r", "").replaceAll(/\n{2,}/g, "\n\n").trim();
@@ -78,11 +74,12 @@ export const handleMessage = (
 
         message = linkUrls(htmlEscape(message));
 
-        const newMessage = await createMessage(message, attachmentURL, data.conversationId, socket.userId, data.recipientId);
+        const newMessage = await createMessage(message, attachment, data.conversationId, socket.userId, data.recipientId);
 
         if (!newMessage) {
-            if (attachmentPath) {
-                await fs.rm(attachmentPath, { recursive: true, force: true });
+            if (attachment) {
+                await fs.rm(attachment.fullPath, { recursive: true, force: true });
+                await fs.rm(attachment.thumbnailPath, { recursive: true, force: true });
             }
             socket.emit("error", {
                 message: "An error occurred while sending message",
@@ -129,6 +126,9 @@ export const handleTyping = (
         const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
 
         if (!convos.length || !convos?.[0]) {
+            socket.emit("error", {
+                message: "Forbidden",
+            });
             return;
         }
 
@@ -163,6 +163,9 @@ export const handleMarkMessagesAsRead = (
         const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
 
         if (!convos.length || !convos?.[0]) {
+            socket.emit("error", {
+                message: "Forbidden",
+            });
             return;
         }
 
@@ -194,6 +197,17 @@ export const handleDeleteMessage = (
                     "retry-ms": (e as RateLimiterRes).msBeforeNext,
                     limit: deleteMessageLimit.points,
                 }
+            });
+            return;
+        }
+
+        if (socket.userId === data.recipientId) return;
+
+        const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
+
+        if (!convos.length || !convos?.[0]) {
+            socket.emit("error", {
+                message: "Forbidden",
             });
             return;
         }

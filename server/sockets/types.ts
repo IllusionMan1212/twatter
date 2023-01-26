@@ -1,3 +1,5 @@
+import { MessageAttachment } from "@prisma/client";
+
 interface Attachment {
     data: Buffer;
     mimetype: string;
@@ -22,7 +24,7 @@ export interface ServerMessageEventData {
     memberId: string;
     conversationId: string;
     wasRead: boolean;
-    attachmentURL: string | null;
+    Attachment: MessageAttachment | null;
     deleted: boolean;
 }
 

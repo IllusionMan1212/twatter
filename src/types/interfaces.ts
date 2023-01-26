@@ -1,3 +1,4 @@
+import { MessageAttachment } from "@prisma/client";
 import { ComponentType } from "react";
 
 interface IUserSettings {
@@ -52,7 +53,7 @@ export interface IMessage {
     memberId: string;
     conversationId: string;
     wasRead: boolean;
-    attachmentURL: string | null;
+    Attachment: MessageAttachment | null;
     deleted: boolean;
 }
 

@@ -406,12 +406,14 @@ export default function Messages(): ReactElement {
                 (convo) => convo.id === router.query.conversationId![0],
             ) ?? null;
         if (user?.settings?.readReceipts) {
-            const payload: MarkMessagesAsReadData = {
-                conversationId: conversation?.id ?? "",
-                userId: user?.id ?? "",
-                recipientId: conversation?.members[0].User.id ?? "",
-            };
-            socket?.emit("markMessagesAsRead", payload);
+            if (conversation && user) {
+                const payload: MarkMessagesAsReadData = {
+                    conversationId: conversation.id,
+                    userId: user.id,
+                    recipientId: conversation.members[0].User.id,
+                };
+                socket?.emit("markMessagesAsRead", payload);
+            }
         }
 
         dispatch({

@@ -23,6 +23,9 @@ async function prepareDb() {
                 username: "username",
                 email: "email",
                 password: "password",
+                settings: {
+                    create: {}
+                }
             }
         });
     }
