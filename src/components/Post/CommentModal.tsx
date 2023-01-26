@@ -117,7 +117,7 @@ const CommentModal = memo(function CommentModal({
                             </GridItem>
                             {post.attachments ? (
                                 <GridItem colStart={1} colEnd={4}>
-                                    <Attachments urls={post.attachments} />
+                                    <Attachments attachments={post.attachments} />
                                 </GridItem>
                             ) : null}
                             <GridItem colStart={1} colEnd={4}>
