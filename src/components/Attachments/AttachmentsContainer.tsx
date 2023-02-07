@@ -66,7 +66,7 @@ export default function Attachments({ attachments }: AttachmentsProps) {
                                 ref={(r) => (imagesRef.current[0] = r)}
                                 className={`${styles.imageAttachment}`}
                                 style={{
-                                    backgroundColor: attachments[3].bgColor
+                                    backgroundColor: attachments[0].bgColor
                                 }}
                                 onClick={(e) => handleClick(e, 0)}
                             />
