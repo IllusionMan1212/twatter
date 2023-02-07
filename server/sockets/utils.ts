@@ -30,22 +30,12 @@ export async function processAttachment(attachment: Buffer, conversationId: stri
     let thumbnail = fullSized;
 
     if (height && width) {
-        if (height > width) {
-            ratio = height / width;
-            if (height > 400) {
-                thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
-            }
-        } else {
-            ratio = width / height;
-            if (width > 400) {
-                thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
-            }
-        }
-
+        ratio = width / height;
         if (height > 400) {
             height = 400;
-            width = ratio * 400;
+            thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
         }
+        width = height * ratio;
     }
 
     const bytes = crypto.randomBytes(12).toString("hex");
@@ -56,6 +46,9 @@ export async function processAttachment(attachment: Buffer, conversationId: stri
     await fs.writeFile(`${dir}/${fileName}-full.${format}`, fullSized);
     await fs.writeFile(`${dir}/${fileName}-thumb.${format}`, thumbnail);
 
+    console.log(height);
+    console.log(width);
+
     return {
         fullUrl: `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${host}/cdn/messages/${conversationId}/${fileName}-full.${format}`,
         thumbnailUrl: `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${host}/cdn/messages/${conversationId}/${fileName}-thumb.${format}`,
@@ -63,6 +56,6 @@ export async function processAttachment(attachment: Buffer, conversationId: stri
         thumbnailPath: `${dir}/${fileName}-thumb.${format}`,
         color: dominantColor,
         height: height ?? 400,
-        width: Math.round(width ?? ratio * 400),
+        width: Math.round(width ?? (ratio * 400)),
     };
 }

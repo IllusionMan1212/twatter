@@ -21,7 +21,6 @@ interface AttachmentProps {
 
 function Attachment({ attachment, convoWidth }: AttachmentProps): ReactElement | null {
     const bgRef = useRef<HTMLDivElement | null>(null);
-    const imageRef = useRef<HTMLImageElement | null>(null);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
@@ -41,10 +40,6 @@ function Attachment({ attachment, convoWidth }: AttachmentProps): ReactElement |
         const bgImg = new Image();
         bgImg.src = attachment.url;
         bgImg.onload = () => {
-            if (imageRef.current) {
-                imageRef.current.style.width = "initial";
-                imageRef.current.style.aspectRatio = "unset";
-            }
             if (bgRef.current) {
                 bgRef.current.remove();
             }
@@ -54,6 +49,9 @@ function Attachment({ attachment, convoWidth }: AttachmentProps): ReactElement |
 
     if (!attachment) return null;
 
+    const width = attachment.width < imageWidth ? attachment.width : imageWidth;
+    const ratio = attachment.width / attachment.height;
+
     return (
         <>
             <div className="max-h-[400px] max-w-full relative overflow-hidden">
@@ -62,18 +60,17 @@ function Attachment({ attachment, convoWidth }: AttachmentProps): ReactElement |
                     className="h-full w-full absolute top-0"
                     style={{
                         backgroundColor: attachment.bgColor,
-                        width: attachment.width < imageWidth ? attachment.width : imageWidth,
-                        height: attachment.width < imageWidth ? attachment.width * (attachment.width / attachment.height) : imageWidth * (attachment.width / attachment.height)
+                        width: width,
+                        height: width / ratio
                     }}
                 />
                 <img
-                    ref={imageRef}
                     src={attachment.thumbUrl}
                     className="hover:cursor-pointer w-full"
                     style={{
                         maxWidth: "100%",
-                        width: attachment.width < imageWidth ? attachment.width : imageWidth,
-                        height: attachment.width < imageWidth ? attachment.width * (attachment.width / attachment.height) : imageWidth * (attachment.width / attachment.height)
+                        width: width,
+                        height: width / ratio
                     }}
                     alt="Attachment"
                     onClick={handleClick}
