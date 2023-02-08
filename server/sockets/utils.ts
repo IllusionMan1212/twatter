@@ -10,7 +10,7 @@ export interface MessageAttachment extends Attachment {
 }
 
 export async function processAttachment(attachment: Buffer, conversationId: string, host: string | undefined): Promise<MessageAttachment> {
-    const sh = sharp(attachment);
+    const sh = sharp(attachment, { animated: true });
 
     const { r, g, b } = (await sh.stats()).dominant;
     const dominantColor = rgbToHex(r, g, b);
@@ -26,14 +26,19 @@ export async function processAttachment(attachment: Buffer, conversationId: stri
         format = "png";
     }
 
-    const fullSized = await sharp(await sh.toBuffer()).toFormat(format).withMetadata({ orientation }).toBuffer();
+    if (attachment.compare(Buffer.from(Magic.GIF87a), 0, Magic.GIF87a.length, 0, Magic.GIF87a.length) === 0 ||
+        attachment.compare(Buffer.from(Magic.GIF89a), 0, Magic.GIF89a.length, 0, Magic.GIF89a.length) === 0) {
+        format = "gif";
+    }
+
+    const fullSized = await sharp(await sh.toBuffer(), { animated: true }).toFormat(format).withMetadata({ orientation }).toBuffer();
     let thumbnail = fullSized;
 
     if (height && width) {
         ratio = width / height;
         if (height > 400) {
             height = 400;
-            thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
+            thumbnail = await sharp(fullSized, { animated: true }).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
         }
         width = height * ratio;
     }

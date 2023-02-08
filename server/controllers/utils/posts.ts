@@ -16,7 +16,7 @@ export async function processAttachments(id: string, attachments: UploadedFile[]
     let counter = 1;
 
     for (const attachment of attachments) {
-        const sh = sharp(attachment.data);
+        const sh = sharp(attachment.data, { animated: true });
 
         const { r, g, b } = (await sh.stats()).dominant;
         const dominantColor = rgbToHex(r, g, b);
@@ -29,17 +29,22 @@ export async function processAttachments(id: string, attachments: UploadedFile[]
             format = "png";
         }
 
-        const fullSized = await sharp(await sh.toBuffer()).toFormat(format).withMetadata({ orientation }).toBuffer();
+        if (attachment.data.compare(Buffer.from(Magic.GIF87a), 0, Magic.GIF87a.length, 0, Magic.GIF87a.length) === 0 ||
+            attachment.data.compare(Buffer.from(Magic.GIF89a), 0, Magic.GIF89a.length, 0, Magic.GIF89a.length) === 0) {
+            format = "gif";
+        }
+
+        const fullSized = await sharp(await sh.toBuffer(), { animated: true }).toFormat(format).withMetadata({ orientation }).toBuffer();
         let thumbnail = fullSized;
 
         if (height && width) {
             if (height > width) {
                 if (height > 400) {
-                    thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
+                    thumbnail = await sharp(fullSized, { animated: true }).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
                 }
             } else {
                 if (width > 400) {
-                    thumbnail = await sharp(fullSized).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
+                    thumbnail = await sharp(fullSized, { animated: true }).toFormat(format).withMetadata({ orientation }).resize({ height: 400 }).toBuffer();
                 }
             }
         }
