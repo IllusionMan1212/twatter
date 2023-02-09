@@ -22,6 +22,7 @@ import { useUserContext } from "src/contexts/userContext";
 import styles from "src/styles/nav.module.scss";
 import ComposePostModal from "src/components/Post/ComposePostModal";
 import UserDrawer from "src/components/User/UserDrawer";
+import UnreadIndicator from "../UnreadIndicator";
 
 const DashboardIcon = () => {
     return <Gauge size="26" weight="fill" />;
@@ -70,7 +71,7 @@ export default function Nav(): ReactElement {
                         <NavItem href="/messages" icon={ChatAlt2Icon}>
                             Messages
                         </NavItem>
-                        <NavItem href="/notifications" icon={BellIcon}>
+                        <NavItem href="/notifications" icon={BellIcon} indicator={<UnreadIndicator position="top-1 left-2" />}>
                             Notifications
                         </NavItem>
                     </>

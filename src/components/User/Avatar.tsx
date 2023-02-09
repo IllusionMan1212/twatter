@@ -4,7 +4,7 @@ import { memo, ReactElement } from "react";
 interface AvatarProps {
     width: string;
     height: string;
-    src: string | undefined;
+    src: string | undefined | null;
     alt: string;
     onClick?: () => void;
 }
@@ -19,6 +19,8 @@ const Avatar = memo(function Avatar(props: AvatarProps): ReactElement {
             height={props.height}
             minWidth={props.width}
             minHeight={props.height}
+            maxWidth={props.width}
+            maxHeight={props.height}
             onClick={props.onClick}
         />
     );

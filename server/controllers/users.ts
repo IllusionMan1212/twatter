@@ -9,6 +9,7 @@ import nodemailer from "nodemailer";
 import { excludedUserProps } from "./utils/users";
 import { prepareResetPasswordEmailHTML, prepareResetPasswordEmailText } from "../email";
 import Mail from "nodemailer/lib/mailer";
+import novu from "../novu";
 
 export async function register(req: Request, res: Response) {
     const user = RegisterUserData.safeParse(req.body);
@@ -31,13 +32,18 @@ export async function register(req: Request, res: Response) {
         ...user.data,
         password: hash,
     };
-    const [error, field] = await createUser(userData.username, userData.email, userData.password);
+    const [error, field, userId] = await createUser(userData.username, userData.email, userData.password);
 
     if (error === DatabaseError.DUPLICATE) {
         return res.status(400).json({ message: `An account with that ${field} already exists` });
     } else if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal error has occurred" });
     }
+
+    await novu.subscribers.identify(userId!, {
+        email: user.data.email,
+        avatar: `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/default_profile.svg`
+    });
 
     return res.status(201).json({
         message: "Account created successfully.",

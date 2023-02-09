@@ -2,11 +2,12 @@ import dynamic from "next/dynamic";
 import { Divider, Flex, VStack, Text, HStack } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { ShieldCheck, UserGear } from "phosphor-react";
+import { BellSimple, ShieldCheck, UserGear } from "phosphor-react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { SettingItem } from "src/types/interfaces";
 import SettingsItem from "src/components/Settings/SettingsItem";
 import SettingArea from "src/components/Settings/SettingArea";
+import NotificationsSettings from "src/components/Settings/NotificationsSettings";
 const ProfileSettings = dynamic(() => import("src/components/Settings/ProfileSettings"));
 const PrivacySettings = dynamic(() => import("src/components/Settings/PrivacySettings"));
 const SecuritySettings = dynamic(
@@ -19,6 +20,10 @@ const UserGearIcon = () => {
 
 const ShieldCheckIcon = () => {
     return <ShieldCheck weight="fill" size="24" />;
+};
+
+const BellIcon = () => {
+    return <BellSimple weight="fill" size="24" />;
 };
 
 const settings = [
@@ -35,6 +40,13 @@ const settings = [
         icon: LockClosedIcon,
         desc: "Control what information about your account is public",
         settings: PrivacySettings,
+    },
+    {
+        id: "notifications",
+        title: "Notifications",
+        icon: BellIcon,
+        desc: "Customize how and where you receive notifications and fine-tune them to your liking",
+        settings: NotificationsSettings,
     },
     {
         id: "security",

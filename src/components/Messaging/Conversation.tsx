@@ -39,8 +39,8 @@ export default function Conversation(props: ConversationProps): ReactElement {
             height="full"
             align="start"
             position="relative"
-            bgColor={props.isActive ? "conversationItem" : "conversationItem"}
-            colorScheme={"conversationItem"}
+            bgColor="conversationItem"
+            colorScheme="conversationItem"
             textAlign="left"
             rounded={{ base: 0, md: "4px" }}
             py={3}

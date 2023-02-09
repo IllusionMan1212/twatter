@@ -14,6 +14,7 @@ import fs from "fs/promises";
 import z from "zod";
 import { USERNAME_REGEX } from "../validators/users";
 import sharp from "sharp";
+import novu from "../novu";
 
 export async function toggleAllowAllDMs(req: Request, res: Response) {
     const data = ToggleAllowAllDMsData.safeParse(req.body);
@@ -254,6 +255,10 @@ export async function updateProfile(req: Request, res: Response) {
         }
 
         await fs.rm(`${dir}/${req.session.user.avatarURL?.split("/").at(-1)}`, { recursive: true, force: true });
+
+        await novu.subscribers.update(req.session.user.id, {
+            avatar: avatarURL,
+        });
     }
 
     return res.status(200).json({ message: "Successfully updated your profile" });

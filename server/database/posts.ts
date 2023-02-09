@@ -1,4 +1,4 @@
-import { Post, Prisma } from "@prisma/client";
+import { Post, PostAttachment, Prisma } from "@prisma/client";
 import { Attachment } from "../controllers/utils/posts";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
@@ -151,7 +151,15 @@ export const queryComments = async (userId: string | undefined, postId: string, 
     ;`;
 };
 
-export const createPostDB = async (id: string, userId: string, content: string | undefined, attachments: Attachment[], parentId: string | undefined): Promise<DatabaseError> => {
+export const createPostDB = async (
+    id: string,
+    userId: string,
+    content: string | undefined,
+    attachments: Attachment[],
+    parentId: string | undefined
+): Promise<[DatabaseError, Partial<Post & { attachments: Partial<PostAttachment>[], parent: Partial<Post> | null } | null>]> => {
+    let post: Partial<Post> & { attachments: Partial<PostAttachment>[], parent: Partial<Post> | null } | null = null;
+
     try {
         await prisma.$transaction(async (tx) => {
             const parent = await tx.post.findUnique({
@@ -164,35 +172,50 @@ export const createPostDB = async (id: string, userId: string, content: string |
             });
 
             if (parent?.deleted) {
-                return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+                return [DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND, null];
             }
 
-            const post = await tx.post.create({
+            post = await tx.post.create({
                 data: {
                     id,
                     content,
                     authorId: userId,
                     parentId,
+                    attachments: {
+                        createMany: {
+                            data: [
+                                ...attachments.map((attachment) => ({
+                                    url: attachment.fullUrl,
+                                    thumbUrl: attachment.thumbnailUrl,
+                                    bgColor: attachment.color
+                                }))
+                            ]
+                        }
+                    }
+                },
+                select: {
+                    id: true,
+                    authorId: true,
+                    content: true,
+                    parent: {
+                        select: {
+                            authorId: true,
+                        }
+                    },
+                    attachments: {
+                        select: {
+                            url: true
+                        }
+                    }
                 }
-            });
-
-            await tx.postAttachment.createMany({
-                data: [
-                    ...attachments.map((attachment) => ({
-                        postId: post.id,
-                        url: attachment.fullUrl,
-                        thumbUrl: attachment.thumbnailUrl,
-                        bgColor: attachment.color
-                    }))
-                ]
             });
         });
     } catch (e) {
         console.error(e);
-        return DatabaseError.UNKNOWN;
+        return [DatabaseError.UNKNOWN, null];
     }
 
-    return DatabaseError.SUCCESS;
+    return [DatabaseError.SUCCESS, post];
 };
 
 export const deletePostDB = async (postId: string, userId: string): Promise<DatabaseError> => {
@@ -231,7 +254,7 @@ export const deletePostDB = async (postId: string, userId: string): Promise<Data
     return DatabaseError.SUCCESS;
 };
 
-export const likePostDB = async (postId: string, userId: string): Promise<DatabaseError> => {
+export const likePostDB = async (postId: string, userId: string): Promise<[DatabaseError, Partial<Post & { attachments: Partial<PostAttachment>[] }> | null]> => {
     try {
         return await prisma.$transaction(async (tx) => {
             const post = await tx.post.findUnique({
@@ -240,11 +263,18 @@ export const likePostDB = async (postId: string, userId: string): Promise<Databa
                 },
                 select: {
                     deleted: true,
+                    authorId: true,
+                    content: true,
+                    attachments: {
+                        select: {
+                            url: true
+                        }
+                    }
                 }
             });
 
             if (post?.deleted) {
-                return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+                return [DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND, null];
             }
 
             await tx.postLike.create({
@@ -253,16 +283,16 @@ export const likePostDB = async (postId: string, userId: string): Promise<Databa
                     userId
                 }
             });
-            return DatabaseError.SUCCESS;
+            return [DatabaseError.SUCCESS, post];
         });
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === "P2003") {
-                return DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED;
+                return [DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED, null];
             }
         }
         console.error(e);
-        return DatabaseError.UNKNOWN;
+        return [DatabaseError.UNKNOWN, null];
     }
 };
 

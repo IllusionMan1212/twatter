@@ -40,6 +40,8 @@ import { axiosAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
 import NavItem from "src/components/Nav/NavItem";
 import { BellIcon, ChatAlt2Icon } from "@heroicons/react/solid";
+import UnreadIndicator from "src/components/UnreadIndicator";
+import { NovuProvider } from "@novu/notification-center";
 
 interface UserDropDownCardButtonProps {
     isOpen: boolean;
@@ -295,6 +297,7 @@ function LoggedInHeader(): ReactElement {
                                 href="/notifications"
                                 ariaLabel="Notifications"
                                 icon={BellIcon}
+                                indicator={<UnreadIndicator position="top-0 right-0" />}
                             />
                         </Flex>
                     </Flex>
@@ -307,5 +310,13 @@ function LoggedInHeader(): ReactElement {
 export default function Header(): ReactElement {
     const { user } = useUserContext();
 
-    return user ? <LoggedInHeader /> : <LoggedOutHeader />;
+    return user ? (
+        <NovuProvider
+            subscriberId={user?.id}
+            applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
+            initialFetchingStrategy={{ fetchUnseenCount: true }}
+        >
+            <LoggedInHeader />
+        </NovuProvider>
+    ) : <LoggedOutHeader />;
 }

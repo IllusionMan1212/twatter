@@ -184,6 +184,17 @@ const theme = extendTheme({
             800: "#c9d0d7",
             900: "#c4cad1"
         },
+        notificationItem: {
+            100: "#09090a",
+            200: "#121314",
+            300: "#2b2c30",
+            400: "#3c3e44",
+            500: "#E6EDF4",
+            600: "#d4dce4",
+            700: "#ced6dd",
+            800: "#c9d0d7",
+            900: "#c4cad1"
+        },
         accent: {
             50: "#e6eefd",
             100: "#c5d5e7",

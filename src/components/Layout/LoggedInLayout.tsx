@@ -5,6 +5,7 @@ import { PropsWithChildren, ReactElement, useEffect } from "react";
 import Nav from "src/components/Nav/Nav";
 import { useUserContext } from "src/contexts/userContext";
 import Sidebar from "src/components/Sidebar";
+import { NovuProvider } from "@novu/notification-center";
 const JoinReminder = dynamic(() => import("src/components/JoinReminder"));
 
 const adminRoutes = ["/dashboard/[[...item]]"];
@@ -56,26 +57,32 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
             px={!isLargerThanMd ? 0 : "1rem"}
         >
             <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
-                <Nav />
-                <Flex
-                    gap={10}
-                    flex="7"
-                    flexBasis="70%"
-                    position="relative"
-                    mt={{
-                        base: "initial",
-                        md: 5,
-                    }}
-                    mb={{ base: !isGuest ? "var(--chakra-navBarHeight)" : "", md: fullScreenRoute ? 0 : 5 }}
-                    maxWidth="full"
-                    minWidth="0"
+                <NovuProvider
+                    subscriberId={user?.id}
+                    applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
+                    initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true }}
                 >
-                    <Box flex="7" maxWidth="full" minWidth="0">
-                        {children}
-                    </Box>
-                    {hasSidebar ? <Sidebar withEvents={withEvents} /> : null}
-                    {isGuest ? <JoinReminder /> : null}
-                </Flex>
+                    <Nav />
+                    <Flex
+                        gap={10}
+                        flex="7"
+                        flexBasis="70%"
+                        position="relative"
+                        mt={{
+                            base: "initial",
+                            md: 5,
+                        }}
+                        mb={{ base: !isGuest ? "var(--chakra-navBarHeight)" : "", md: fullScreenRoute ? 0 : 5 }}
+                        maxWidth="full"
+                        minWidth="0"
+                    >
+                        <Box flex="7" maxWidth="full" minWidth="0">
+                            {children}
+                        </Box>
+                        {hasSidebar ? <Sidebar withEvents={withEvents} /> : null}
+                        {isGuest ? <JoinReminder /> : null}
+                    </Flex>
+                </NovuProvider>
             </Flex>
         </Container>
     );

@@ -10,6 +10,7 @@ import {
     MouseEventHandler,
     PropsWithChildren,
     ReactElement,
+    ReactNode,
 } from "react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
@@ -18,6 +19,7 @@ interface NavItemProps {
     icon: (props: ComponentProps<"svg">) => ReactElement;
     href: string;
     ariaLabel?: string;
+    indicator?: ReactNode;
 }
 
 export default function NavItem({
@@ -25,6 +27,7 @@ export default function NavItem({
     href,
     ariaLabel,
     children,
+    indicator,
 }: PropsWithChildren<NavItemProps>): ReactElement {
     const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
     const router = useRouter();
@@ -38,6 +41,7 @@ export default function NavItem({
                     justifyContent="flex-start"
                     py={6}
                     minWidth="200px"
+                    position="relative"
                     rounded="full"
                     leftIcon={<Icon as={icon} w="26px" h="26px" />}
                     colorScheme={isActive ? "accent" : "conversationItem"}
@@ -47,14 +51,18 @@ export default function NavItem({
                     sx={{ "&:hover": { textDecoration: "none" } }}
                 >
                     {children}
+                    {indicator}
                 </Button>
             ) : (
-                <IconButton
-                    variant="ghost"
-                    aria-label={ariaLabel ?? ""}
-                    as={ChakraLink}
-                    icon={<Icon as={icon} w="26px" h="26px" />}
-                />
+                <div className="relative">
+                    <IconButton
+                        variant="ghost"
+                        aria-label={ariaLabel ?? ""}
+                        as={ChakraLink}
+                        icon={<Icon as={icon} w="26px" h="26px" />}
+                    />
+                    {indicator}
+                </div>
             )}
         </NextLink>
     );

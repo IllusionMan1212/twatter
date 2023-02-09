@@ -7,6 +7,7 @@ import fs from "fs/promises";
 import { snowflake } from "../database/snowflake";
 import { traversalSafeRm } from "../utils";
 import { processAttachments } from "./utils/posts";
+import novu from "../novu";
 
 export async function getUserPosts(req: Request, res: Response) {
     const data = GetPostsData.safeParse(req.params);
@@ -85,7 +86,7 @@ export async function createPost(req: Request, res: Response) {
 
     const attachments = await processAttachments(id, attachmentFiles, req.headers.host);
 
-    const error = await createPostDB(id, req.session.user.id, data.data.content, attachments, data.data.parentId);
+    const [error, post] = await createPostDB(id, req.session.user.id, data.data.content, attachments, data.data.parentId);
 
     if (error === DatabaseError.UNKNOWN) {
         attachments.forEach(async (attachment) => {
@@ -99,6 +100,23 @@ export async function createPost(req: Request, res: Response) {
             await fs.rm(attachment.thumbnailPath, { recursive: true, force: true });
         });
         return res.status(404).json({ message: "Cannot comment on a deleted post" });
+    }
+
+    if (post?.parent && req.session.user.id !== post.parent.authorId) {
+        await novu.trigger("comment", {
+            to: {
+                subscriberId: post?.parent?.authorId ?? "",
+            },
+            actor: {
+                subscriberId: req.session.user.id,
+            },
+            payload: {
+                name: `<b>${req.session.user.username}</b>`,
+                username: req.session.user.username,
+                body: [(post?.content ?? ""), (post?.attachments?.[0]?.url ?? "")].filter(Boolean).join(" "),
+                postId: id,
+            }
+        });
     }
 
     return res.status(201).json({ message: "Successfully created post" });
@@ -131,12 +149,29 @@ export async function likePost(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const error = await likePostDB(data.data.postId, req.session.user.id);
+    const [error, post] = await likePostDB(data.data.postId, req.session.user.id);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal error occurred" });
     } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND || error === DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED) {
         return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (req.session.user.id !== post?.authorId) {
+        await novu.trigger("post-like", {
+            to: {
+                subscriberId: post?.authorId ?? "",
+            },
+            actor: {
+                subscriberId: req.session.user.id,
+            },
+            payload: {
+                name: `<b>${req.session.user.username}</b>`,
+                username: req.session.user.username,
+                body: [(post?.content ?? ""), (post?.attachments?.[0]?.url ?? "")].filter(Boolean).join(" "),
+                postId: data.data.postId,
+            }
+        });
     }
 
     return res.sendStatus(200);
