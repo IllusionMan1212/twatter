@@ -740,7 +740,7 @@ export default function ConversationArea({
             position={{ base: "fixed", lg: "relative" }}
             top={0}
             right={0}
-            zIndex={3}
+            zIndex={{ base: 3, lg: "unset" }}
         >
             <ConversationHeader convo={convo} onOpen={onOpen} />
             <ConversationBody

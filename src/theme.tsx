@@ -138,6 +138,10 @@ const theme = extendTheme({
                 default: "#A0A0A0",
                 _dark: "#464646",
             },
+            strokeSecondary: {
+                default: "#CBD2DA",
+                _dark: "#202328",
+            }
         },
         radii: {
             button: "8px",

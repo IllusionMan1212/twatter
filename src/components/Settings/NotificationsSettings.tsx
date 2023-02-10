@@ -15,7 +15,7 @@ export default function NotificationsSettings(): ReactElement {
     const { data } = useFetchUserPreferences();
     const { updateUserPreferences } = useUpdateUserPreferences({
         onError: (error) => {
-            toast.error(error);
+            toast.error(error.message);
         }
     });
 
@@ -24,17 +24,17 @@ export default function NotificationsSettings(): ReactElement {
     const [emailEnabled] = useState(false);
     const [pushEnabled] = useState(false);
 
-    const updatePreference = async (prefId: string, channelType: string, enabled: boolean) => {
-        await updateUserPreferences({
+    const updatePreference = (prefId: string, channelType: string, enabled: boolean) => {
+        updateUserPreferences({
             templateId: prefId,
             channelType,
             checked: enabled
         });
     };
 
-    const toggleInAppPreferences = async () => {
+    const toggleInAppPreferences = () => {
         for (const pref of inAppPreferences) {
-            await updateUserPreferences({
+            updateUserPreferences({
                 templateId: pref.id,
                 channelType: "in_app",
                 checked: !inAppEnabled
@@ -53,7 +53,7 @@ export default function NotificationsSettings(): ReactElement {
                     id: pref.template._id,
                     name: pref.template.name,
                     critical: pref.template.critical,
-                    enabled: pref.preference.channels.in_app,
+                    enabled: pref.preference.channels.in_app ?? false,
                 };
             }));
         }
@@ -74,7 +74,7 @@ export default function NotificationsSettings(): ReactElement {
                 {inAppPreferences.map((pref) => (
                     <VStack key={pref.name} spacing={0} width="full" align="start">
                         <HStack width="full" justify="space-between">
-                            <Text fontSize="lg">{pref.name}</Text>
+                            <Text>{pref.name}</Text>
                             <Switch
                                 isChecked={pref.enabled}
                                 isDisabled={pref.critical}

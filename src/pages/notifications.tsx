@@ -3,9 +3,18 @@ import { ChannelCTATypeEnum, IMessage, useNotifications } from "@novu/notificati
 import { ReactElement, useEffect } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
-import HTMLToJSX from "html-react-parser";
+import HTMLToJSX, { Element, domToReact } from "html-react-parser";
 import Router from "next/router";
 import { Virtuoso } from "react-virtuoso";
+import styles from "src/styles/notifications.module.scss";
+
+const parsingOptions = {
+    replace: (domNode: unknown) => {
+        if (domNode instanceof Element) {
+            return <>{domToReact(domNode.children)}</>;
+        }
+    }
+};
 
 interface NotificationProps {
     notif: IMessage;
@@ -13,6 +22,7 @@ interface NotificationProps {
 
 function Notification({ notif }: NotificationProps): ReactElement {
     const content = HTMLToJSX(notif.content as string);
+    const body = HTMLToJSX(notif.payload?.["body"] as string, parsingOptions);
 
     const handleClick = () => {
         notif.cta.type === ChannelCTATypeEnum.REDIRECT && Router.push(notif.cta.data.url ?? "");
@@ -21,10 +31,7 @@ function Notification({ notif }: NotificationProps): ReactElement {
     return (
         <Flex
             as={Button}
-            borderBottom={"2px solid var(--chakra-colors-bgSecondary)"}
-            _last={{
-                borderBottom: "none",
-            }}
+            borderBottom={"1px solid var(--chakra-colors-strokeSecondary)"}
             width="full"
             height="full"
             justify="space-between"
@@ -45,7 +52,7 @@ function Notification({ notif }: NotificationProps): ReactElement {
                 />
                 <div className="flex flex-col gap-2 whitespace-normal">
                     <p>{content}</p>
-                    <p className="text-sm text-[color:var(--chakra-colors-textMain)]">{notif.payload?.["body"] as string}</p>
+                    <p className="text-sm text-[color:var(--chakra-colors-textMain)]">{body}</p>
                 </div>
             </div>
             <div className="flex flex-col justify-between items-end">
@@ -69,11 +76,21 @@ export default function Notifications(): ReactElement {
     } = useNotifications();
 
     useEffect(() => {
+        const markNotificationsAsRead = () => {
+            if (document.visibilityState === "hidden") {
+                markAllNotificationsAsRead();
+                markAllNotificationsAsSeen();
+            }
+        };
+
+        document.addEventListener("visibilitychange", markNotificationsAsRead);
+
         return () => {
+            document.removeEventListener("visibilitychange", markNotificationsAsRead);
             markAllNotificationsAsRead();
             markAllNotificationsAsSeen();
         };
-    }, [notifications]);
+    }, []);
 
     const Footer = (): ReactElement | null => {
         if (hasNextPage && isFetchingNextPage) return (

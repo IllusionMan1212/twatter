@@ -24,7 +24,7 @@ export default function SettingArea({ settingItem }: SettingAreaProps): ReactEle
             position={{ base: "fixed", lg: "relative" }}
             top={0}
             right={0}
-            zIndex={3}
+            zIndex={{ base: 3, lg: "unset" }}
         >
             <Flex width="full" px={3} py={2} boxShadow="conversationHeader">
                 <Flex gap={2} width="full" align="center">
