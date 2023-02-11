@@ -44,8 +44,16 @@ export async function getPost(req: Request, res: Response) {
 
     const posts = await queryPost(req.session?.user.id, data.data.id);
     if (posts.length && posts[0].authorId === req.session.user.id) {
-        const r = await novu.topics.get(posts[0].id);
-        posts[0].muted = !r.data.data.subscribers.includes(req.session.user.id);
+        try {
+            const r = await novu.topics.get(posts[0].id);
+            posts[0].muted = !r.data.data.subscribers.includes(req.session.user.id);
+        } catch (e) {
+            if (isAxiosError(e)) {
+                console.error(e.response?.data);
+            } else {
+                console.error(e);
+            }
+        }
     }
 
     return res.status(200).json({ message: "Successfully fetched post", post: posts[0] });
@@ -133,6 +141,8 @@ export async function createPost(req: Request, res: Response) {
         } catch (e) {
             if (isAxiosError(e)) {
                 console.error(e.response?.data);
+            } else {
+                console.error(e);
             }
         }
     }
@@ -225,8 +235,9 @@ export async function mutePost(req: Request, res: Response) {
     } catch (e) {
         if (isAxiosError(e)) {
             console.error(e.response?.data);
+        } else {
+            console.error(e);
         }
-        console.error(e);
         return res.status(500).json({ message: "An internal error has occurred" });
     }
 
@@ -247,8 +258,9 @@ export async function unmutePost(req: Request, res: Response) {
     } catch (e) {
         if (isAxiosError(e)) {
             console.error(e.response?.data);
+        } else {
+            console.error(e);
         }
-        console.error(e);
         return res.status(500).json({ message: "An internal error has occurred" });
     }
 
