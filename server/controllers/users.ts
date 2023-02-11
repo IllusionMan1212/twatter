@@ -75,6 +75,9 @@ export async function login(req: Request, res: Response) {
         return res.status(200).json({ message: "Please input your 2FA passcode", requiresTwoFactorAuth: true });
     }
 
+    const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
+    user.notificationSubHash = hmacHash;
+
     await Cookies.setLoginSession(res, user);
 
     return res.status(200).json({ message: "Logged in successfully", user, requiresTwoFactorAuth: false });

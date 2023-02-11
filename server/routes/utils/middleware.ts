@@ -6,6 +6,7 @@ import * as Cookies from "../../controllers/utils/cookies";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 import { exclude } from "../../database/utils";
 import { excludedUserProps } from "../../controllers/utils/users";
+import crypto from "crypto";
 
 export const adminGuard = async (req: Request, res: Response, next: NextFunction) => {
     const session = await Cookies.getLoginSession(req);
@@ -23,6 +24,9 @@ export const adminGuard = async (req: Request, res: Response, next: NextFunction
     if (!user.isAdmin) {
         return res.status(401).json({ message: req.method === "GET" ? "You're not authorized to access this resource": "You're not authorized to perform this action" });
     }
+
+    const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
+    user.notificationSubHash = hmacHash;
 
     session.user = user;
     req.session = session;
@@ -50,6 +54,9 @@ export const sessionGuard = async (req: Request, res: Response, next: NextFuncti
         return res.status(403).json({ message: "Restricted account" });
     }
 
+    const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
+    user.notificationSubHash = hmacHash;
+
     session.user = u;
     req.session = session;
 
@@ -76,6 +83,9 @@ export const sessionContext = async (req: Request, res: Response, next: NextFunc
         Cookies.removeTokenCookie(res);
         return res.status(403).json({ message: "Restricted account" });
     }
+
+    const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
+    user.notificationSubHash = hmacHash;
 
     session.user = u;
     req.session = session;

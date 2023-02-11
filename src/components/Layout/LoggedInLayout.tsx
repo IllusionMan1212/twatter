@@ -59,6 +59,7 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
             <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
                 <NovuProvider
                     subscriberId={user?.id}
+                    subscriberHash={user?.notificationSubHash}
                     applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
                     initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true }}
                 >

@@ -34,7 +34,7 @@ export const createUser = async (username: string, email: string, password: stri
     return [DatabaseError.SUCCESS, null, userId];
 };
 
-export const getUserByEmailOrUsername = async (usernameOrEmail: string): Promise<User & { settings: UserSettings | null } | null> => {
+export const getUserByEmailOrUsername = async (usernameOrEmail: string): Promise<User & { settings: UserSettings | null, notificationSubHash: string } | null> => {
     const user = await prisma.user.findFirst({
         where: {
             OR: [
@@ -51,7 +51,7 @@ export const getUserByEmailOrUsername = async (usernameOrEmail: string): Promise
         },
     });
 
-    return user;
+    return user ? { ...user, notificationSubHash: "" } : null;
 };
 
 export const setUserResetToken = async (userId: string, token: string, expiration: Date): Promise<DatabaseError> => {
@@ -123,8 +123,8 @@ export const updateUserPassword = async (hash: string, token: string): Promise<D
     return DatabaseError.SUCCESS;
 };
 
-export const getUserById = async (id: string): Promise<User & { settings: UserSettings | null } | null> => {
-    return await prisma.user.findUnique({
+export const getUserById = async (id: string): Promise<User & { settings: UserSettings | null, notificationSubHash: string } | null> => {
+    const user = await prisma.user.findUnique({
         where: {
             id,
         },
@@ -132,6 +132,8 @@ export const getUserById = async (id: string): Promise<User & { settings: UserSe
             settings: true,
         }
     });
+
+    return user ? { ...user, notificationSubHash: "" } : null;
 };
 
 export const getUserByUsername = async (username: string): Promise<Partial<User> & { settings: UserSettings | null } | null> => {

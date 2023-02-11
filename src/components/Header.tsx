@@ -312,7 +312,8 @@ export default function Header(): ReactElement {
 
     return user ? (
         <NovuProvider
-            subscriberId={user?.id}
+            subscriberId={user.id}
+            subscriberHash={user.notificationSubHash}
             applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
             initialFetchingStrategy={{ fetchUnseenCount: true }}
         >

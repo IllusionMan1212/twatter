@@ -16,6 +16,7 @@ export interface IUser {
     twoFactorAuth: boolean;
     isAdmin: boolean;
     restricted?: boolean;
+    notificationSubHash: string;
 }
 
 export interface ISearchUser {

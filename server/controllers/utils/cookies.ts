@@ -9,7 +9,7 @@ const TWOFA_TOKEN_NAME = "2fa_session";
 const MAX_AGE = 60 * 60 * 24 * 90; // 3 months
 const TWOFA_MAX_AGE = 60 * 5; // 5 minutes
 
-type SessionUser = Omit<User & { settings: UserSettings | null }, ExcludedUserProps>;
+type SessionUser = Omit<User & { settings: UserSettings | null, notificationSubHash: string }, ExcludedUserProps>;
 
 export interface Session {
     createdAt: number;
