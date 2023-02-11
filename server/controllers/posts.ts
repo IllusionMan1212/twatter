@@ -8,6 +8,8 @@ import { snowflake } from "../database/snowflake";
 import { traversalSafeRm } from "../utils";
 import { processAttachments } from "./utils/posts";
 import novu from "../novu";
+import { TriggerRecipientsTypeEnum } from "@novu/shared";
+import { isAxiosError } from "axios";
 
 export async function getUserPosts(req: Request, res: Response) {
     const data = GetPostsData.safeParse(req.params);
@@ -41,6 +43,10 @@ export async function getPost(req: Request, res: Response) {
     }
 
     const posts = await queryPost(req.session?.user.id, data.data.id);
+    if (posts.length && posts[0].authorId === req.session.user.id) {
+        const r = await novu.topics.get(posts[0].id);
+        posts[0].muted = !r.data.data.subscribers.includes(req.session.user.id);
+    }
 
     return res.status(200).json({ message: "Successfully fetched post", post: posts[0] });
 }
@@ -104,9 +110,7 @@ export async function createPost(req: Request, res: Response) {
 
     if (post?.parent && req.session.user.id !== post.parent.authorId) {
         await novu.trigger("comment", {
-            to: {
-                subscriberId: post?.parent?.authorId ?? "",
-            },
+            to: [{ type: TriggerRecipientsTypeEnum.TOPIC, topicKey: post?.parentId ?? "" }],
             actor: {
                 subscriberId: req.session.user.id,
             },
@@ -115,8 +119,22 @@ export async function createPost(req: Request, res: Response) {
                 username: req.session.user.username,
                 body: [(post?.content ?? ""), (post?.attachments?.[0]?.url ?? "")].filter(Boolean).join(" "),
                 postId: id,
-            }
+            },
         });
+    } else if (!post?.parent) {
+        try {
+            await novu.topics.create({
+                key: post?.id,
+                name: post?.id,
+            });
+            await novu.topics.addSubscribers(post?.id ?? "", {
+                subscribers: [req.session.user.id]
+            });
+        } catch (e) {
+            if (isAxiosError(e)) {
+                console.error(e.response?.data);
+            }
+        }
     }
 
     return res.status(201).json({ message: "Successfully created post" });
@@ -159,9 +177,7 @@ export async function likePost(req: Request, res: Response) {
 
     if (req.session.user.id !== post?.authorId) {
         await novu.trigger("post-like", {
-            to: {
-                subscriberId: post?.authorId ?? "",
-            },
+            to: [{ type: TriggerRecipientsTypeEnum.TOPIC, topicKey: post?.id ?? "" }],
             actor: {
                 subscriberId: req.session.user.id,
             },
@@ -190,6 +206,50 @@ export async function unlikePost(req: Request, res: Response) {
         return res.status(500).json({ message: "An internal error occurred" });
     } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND || error === DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED) {
         return res.status(404).json({ message: "Post not found" });
+    }
+
+    return res.sendStatus(200);
+}
+
+export async function mutePost(req: Request, res: Response) {
+    const data = LikePostData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    try {
+        await novu.topics.removeSubscribers(data.data.postId, {
+            subscribers: [req.session.user.id],
+        });
+    } catch (e) {
+        if (isAxiosError(e)) {
+            console.error(e.response?.data);
+        }
+        console.error(e);
+        return res.status(500).json({ message: "An internal error has occurred" });
+    }
+
+    return res.sendStatus(200);
+}
+
+export async function unmutePost(req: Request, res: Response) {
+    const data = LikePostData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    try {
+        await novu.topics.addSubscribers(data.data.postId, {
+            subscribers: [req.session.user.id],
+        });
+    } catch (e) {
+        if (isAxiosError(e)) {
+            console.error(e.response?.data);
+        }
+        console.error(e);
+        return res.status(500).json({ message: "An internal error has occurred" });
     }
 
     return res.sendStatus(200);

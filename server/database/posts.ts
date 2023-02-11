@@ -57,7 +57,7 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     ;`;
 };
 
-export const queryPost = async (userId: string | undefined, postId: string): Promise<Post[]> => {
+export const queryPost = async (userId: string | undefined, postId: string): Promise<(Post & { muted: boolean })[]> => {
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
 
     return await prisma.$queryRaw`
@@ -197,6 +197,7 @@ export const createPostDB = async (
                     id: true,
                     authorId: true,
                     content: true,
+                    parentId: true,
                     parent: {
                         select: {
                             authorId: true,
@@ -262,6 +263,7 @@ export const likePostDB = async (postId: string, userId: string): Promise<[Datab
                     id: postId,
                 },
                 select: {
+                    id: true,
                     deleted: true,
                     authorId: true,
                     content: true,

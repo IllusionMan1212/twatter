@@ -6,9 +6,21 @@ import Avatar from "src/components/User/Avatar";
 import HTMLToJSX, { Element, domToReact } from "html-react-parser";
 import Router from "next/router";
 import { Virtuoso } from "react-virtuoso";
-import styles from "src/styles/notifications.module.scss";
+import Link from "next/link";
 
-const parsingOptions = {
+const contentParsingOptions = {
+    replace: (domNode: unknown) => {
+        if (domNode instanceof Element && domNode.tagName === "b") {
+            return (
+                <Link href={`/@${(domNode.children[0] as any).data as string}`} passHref>
+                    <a className="hover:underline" onClick={(e) => e.stopPropagation()}><b>{domToReact(domNode.children)}</b></a>
+                </Link>
+            );
+        }
+    }
+};
+
+const bodyParsingOptions = {
     replace: (domNode: unknown) => {
         if (domNode instanceof Element) {
             return <>{domToReact(domNode.children)}</>;
@@ -21,11 +33,11 @@ interface NotificationProps {
 }
 
 function Notification({ notif }: NotificationProps): ReactElement {
-    const content = HTMLToJSX(notif.content as string);
-    const body = HTMLToJSX(notif.payload?.["body"] as string, parsingOptions);
+    const content = HTMLToJSX(notif.content as string, contentParsingOptions);
+    const body = HTMLToJSX(notif.payload["body"] as string, bodyParsingOptions);
 
     const handleClick = () => {
-        notif.cta.type === ChannelCTATypeEnum.REDIRECT && Router.push(notif.cta.data.url ?? "");
+        (notif.cta.type === ChannelCTATypeEnum.REDIRECT) && Router.push(notif.cta.data.url ?? "");
     };
 
     return (
@@ -44,12 +56,16 @@ function Notification({ notif }: NotificationProps): ReactElement {
             onClick={handleClick}
         >
             <div className="flex gap-2 w-full text-[color:var(--chakra-colors-text)]">
-                <Avatar
-                    src={notif.actor?.data}
-                    alt="Avatar"
-                    width="30"
-                    height="30"
-                />
+                <Link href={`/@${notif.payload["username"]}`} passHref>
+                    <a onClick={(e) => e.stopPropagation()}>
+                        <Avatar
+                            src={notif.actor?.data}
+                            alt="Avatar"
+                            width="30"
+                            height="30"
+                        />
+                    </a>
+                </Link>
                 <div className="flex flex-col gap-2 whitespace-normal">
                     <p>{content}</p>
                     <p className="text-sm text-[color:var(--chakra-colors-textMain)]">{body}</p>

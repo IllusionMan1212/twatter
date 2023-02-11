@@ -75,6 +75,7 @@ export interface IPost {
     liked: boolean;
     comments: number;
     parentAuthorUsername: string | null;
+    muted?: boolean;
     createdAt: string;
 }
 

@@ -298,6 +298,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                     authorId={post.authorId}
                                     authorUsername={post.authorUsername}
                                     postId={post.id}
+                                    muted={post.muted}
                                 />
                             </div>
                         </HStack>
