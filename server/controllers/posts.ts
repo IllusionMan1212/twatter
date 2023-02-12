@@ -117,18 +117,33 @@ export async function createPost(req: Request, res: Response) {
     }
 
     if (post?.parent && req.session.user.id !== post.parent.authorId) {
-        await novu.trigger("comment", {
-            to: [{ type: TriggerRecipientsTypeEnum.TOPIC, topicKey: post?.parentId ?? "" }],
-            actor: {
-                subscriberId: req.session.user.id,
-            },
-            payload: {
-                name: `<b>${req.session.user.username}</b>`,
-                username: req.session.user.username,
-                body: [(post?.content ?? ""), (post?.attachments?.[0]?.url ?? "")].filter(Boolean).join(" "),
-                postId: id,
-            },
-        });
+        try {
+            await novu.topics.create({
+                key: post?.id,
+                name: post?.id,
+            });
+            await novu.topics.addSubscribers(post?.id ?? "", {
+                subscribers: [req.session.user.id]
+            });
+            await novu.trigger("comment", {
+                to: [{ type: TriggerRecipientsTypeEnum.TOPIC, topicKey: post?.parentId ?? "" }],
+                actor: {
+                    subscriberId: req.session.user.id,
+                },
+                payload: {
+                    name: `<b>${req.session.user.username}</b>`,
+                    username: req.session.user.username,
+                    body: [(post?.content ?? ""), (post?.attachments?.[0]?.url ?? "")].filter(Boolean).join(" "),
+                    postId: id,
+                },
+            });
+        } catch (e) {
+            if (isAxiosError(e)) {
+                console.error(e.response?.data);
+            } else {
+                console.error(e);
+            }
+        }
     } else if (!post?.parent) {
         try {
             await novu.topics.create({
