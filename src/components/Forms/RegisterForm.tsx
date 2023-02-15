@@ -1,6 +1,6 @@
 import { Button, Icon, Link as ChakraLink, Stack, Text, VStack } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
-import { ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import toast from "react-hot-toast";
@@ -41,7 +41,9 @@ export default function RegisterForm(): ReactElement {
         });
     };
 
-    const handleSignup = () => {
+    const handleSignup = (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
+
         if (!form.username || !form.email || !form.password || !form.passwordConfirm) {
             toast.error("All fields must be set");
             return;
@@ -91,64 +93,71 @@ export default function RegisterForm(): ReactElement {
                     </ChakraLink>
                 </NextLink>
             </VStack>
-            <VStack spacing={5} align="stretch">
-                <Input
-                    placeholder="Username"
-                    name="username"
-                    withLabel="Username"
-                    onChange={handleChange}
-                />
-                <Input
-                    placeholder="Email"
-                    name="email"
-                    type="email"
-                    withLabel="Email"
-                    onChange={handleChange}
-                />
-                <Input
-                    placeholder="Password"
-                    type={passwordHidden ? "password" : "text"}
-                    withLabel="Password"
-                    name="password"
-                    icon={
-                        <Icon
-                            as={passwordHidden ? EyeOffIcon : EyeIcon}
-                            w={5}
-                            h={5}
-                            color="textMain"
-                            _hover={{ cursor: "pointer" }}
-                            onClick={togglePassword}
-                        />
-                    }
-                    onChange={handleChange}
-                />
-                <Input
-                    placeholder="Confirm Password"
-                    type={passwordHidden ? "password" : "text"}
-                    withLabel="Confirm Password"
-                    name="passwordConfirm"
-                    icon={
-                        <Icon
-                            as={passwordHidden ? EyeOffIcon : EyeIcon}
-                            w={5}
-                            h={5}
-                            color="textMain"
-                            _hover={{ cursor: "pointer" }}
-                            onClick={togglePassword}
-                        />
-                    }
-                    onChange={handleChange}
-                />
-            </VStack>
-            <Button
-                isLoading={isSubmitting}
-                loadingText="Submitting"
-                isDisabled={isSubmitting || isDisabled}
-                colorScheme="button"
-                onClick={handleSignup}
-            >
-                Sign up
-            </Button>
+            <form className="flex flex-col gap-10" onSubmit={handleSignup}>
+                <VStack spacing={5} align="stretch">
+                    <Input
+                        placeholder="Username"
+                        name="username"
+                        withLabel="Username"
+                        onChange={handleChange}
+                        required
+                    />
+                    <Input
+                        placeholder="Email"
+                        name="email"
+                        type="email"
+                        withLabel="Email"
+                        onChange={handleChange}
+                        required
+                    />
+                    <Input
+                        placeholder="Password"
+                        type={passwordHidden ? "password" : "text"}
+                        withLabel="Password"
+                        name="password"
+                        required
+                        icon={
+                            <Icon
+                                as={passwordHidden ? EyeOffIcon : EyeIcon}
+                                w={5}
+                                h={5}
+                                color="textMain"
+                                _hover={{ cursor: "pointer" }}
+                                onClick={togglePassword}
+                            />
+                        }
+                        onChange={handleChange}
+                    />
+                    <Input
+                        placeholder="Confirm Password"
+                        type={passwordHidden ? "password" : "text"}
+                        withLabel="Confirm Password"
+                        name="passwordConfirm"
+                        required
+                        icon={
+                            <Icon
+                                as={passwordHidden ? EyeOffIcon : EyeIcon}
+                                w={5}
+                                h={5}
+                                color="textMain"
+                                _hover={{ cursor: "pointer" }}
+                                onClick={togglePassword}
+                            />
+                        }
+                        onChange={handleChange}
+                    />
+                </VStack>
+                <Button
+                    isLoading={isSubmitting}
+                    loadingText="Submitting"
+                    isDisabled={isSubmitting || isDisabled}
+                    colorScheme="button"
+                    onClick={handleSignup}
+                    type="submit"
+                >
+                    Sign up
+                </Button>
+            </form>
         </Stack>
     );
 }

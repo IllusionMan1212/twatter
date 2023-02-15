@@ -9,7 +9,7 @@ import {
     Spinner,
 } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
-import { ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import { IUser } from "src/types/interfaces";
@@ -57,7 +57,9 @@ export default function ResetPasswordForm({
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
+
         setSubmitting(true);
 
         axiosNoAuth
@@ -122,52 +124,57 @@ export default function ResetPasswordForm({
                             >{`${user?.displayName} (@${user?.username})`}</Text>
                         </Text>
                     </HStack>
-                    <VStack spacing={5} align="stretch">
-                        <Input
-                            placeholder="New Password"
-                            type={passwordHidden ? "password" : "text"}
-                            withLabel="New Password"
-                            name="password"
-                            icon={
-                                <Icon
-                                    as={passwordHidden ? EyeOffIcon : EyeIcon}
-                                    w={5}
-                                    h={5}
-                                    color="textMain"
-                                    _hover={{ cursor: "pointer" }}
-                                    onClick={togglePassword}
-                                />
-                            }
-                            onChange={handleChange}
-                        />
-                        <Input
-                            placeholder="Confirm Password"
-                            type={passwordHidden ? "password" : "text"}
-                            withLabel="Confirm Password"
-                            name="passwordConfirm"
-                            icon={
-                                <Icon
-                                    as={passwordHidden ? EyeOffIcon : EyeIcon}
-                                    w={5}
-                                    h={5}
-                                    color="textMain"
-                                    _hover={{ cursor: "pointer" }}
-                                    onClick={togglePassword}
-                                />
-                            }
-                            onChange={handleChange}
-                        />
-                    </VStack>
-                    <Button
-                        alignSelf="stretch"
-                        isLoading={isSubmitting}
-                        loadingText="Resetting password"
-                        isDisabled={isSubmitting || isDisabled}
-                        colorScheme="button"
-                        onClick={handleSubmit}
-                    >
-                        Reset Password
-                    </Button>
+                    <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
+                        <VStack spacing={5} align="stretch">
+                            <Input
+                                placeholder="New Password"
+                                type={passwordHidden ? "password" : "text"}
+                                withLabel="New Password"
+                                name="password"
+                                required
+                                icon={
+                                    <Icon
+                                        as={passwordHidden ? EyeOffIcon : EyeIcon}
+                                        w={5}
+                                        h={5}
+                                        color="textMain"
+                                        _hover={{ cursor: "pointer" }}
+                                        onClick={togglePassword}
+                                    />
+                                }
+                                onChange={handleChange}
+                            />
+                            <Input
+                                placeholder="Confirm Password"
+                                type={passwordHidden ? "password" : "text"}
+                                withLabel="Confirm Password"
+                                name="passwordConfirm"
+                                required
+                                icon={
+                                    <Icon
+                                        as={passwordHidden ? EyeOffIcon : EyeIcon}
+                                        w={5}
+                                        h={5}
+                                        color="textMain"
+                                        _hover={{ cursor: "pointer" }}
+                                        onClick={togglePassword}
+                                    />
+                                }
+                                onChange={handleChange}
+                            />
+                        </VStack>
+                        <Button
+                            alignSelf="stretch"
+                            isLoading={isSubmitting}
+                            loadingText="Resetting password"
+                            isDisabled={isSubmitting || isDisabled}
+                            colorScheme="button"
+                            onClick={handleSubmit}
+                            type="submit"
+                        >
+                            Reset Password
+                        </Button>
+                    </form>
                 </>
             )}
         </Stack>

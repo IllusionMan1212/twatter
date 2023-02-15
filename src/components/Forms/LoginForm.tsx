@@ -14,7 +14,7 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
-import { ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import toast from "react-hot-toast";
@@ -113,7 +113,9 @@ export default function LoginForm(): ReactElement {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
+
         if (!form.username || !form.password) {
             toast.error("All fields must be set");
             return;
@@ -152,46 +154,49 @@ export default function LoginForm(): ReactElement {
                     <ChakraLink fontWeight="semibold">Not registered? Sign up</ChakraLink>
                 </NextLink>
             </VStack>
-            <VStack spacing={5} align="stretch">
-                <Input
-                    placeholder="Username or Email"
-                    name="username"
-                    withLabel="Username or Email"
-                    onChange={handleChange}
-                />
-                <Input
-                    placeholder="Password"
-                    type={passwordHidden ? "password" : "text"}
-                    name="password"
-                    withLabel="Password"
-                    icon={
-                        <Icon
-                            as={passwordHidden ? EyeOffIcon : EyeIcon}
-                            w={5}
-                            h={5}
-                            color="textMain"
-                            _hover={{ cursor: "pointer" }}
-                            onClick={togglePassword}
-                        />
-                    }
-                    onChange={handleChange}
-                />
-            </VStack>
-            <VStack align="start">
-                <NextLink href="/forgot-password" passHref>
-                    <ChakraLink fontWeight="semibold">Forgot your password?</ChakraLink>
-                </NextLink>
-                <Button
-                    alignSelf="stretch"
-                    isLoading={isSubmitting}
-                    loadingText="Logging in"
-                    isDisabled={isSubmitting || isDisabled}
-                    colorScheme="button"
-                    onClick={handleSubmit}
-                >
-                    Log in
-                </Button>
-            </VStack>
+            <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
+                <VStack spacing={5} align="stretch">
+                    <Input
+                        placeholder="Username or Email"
+                        name="username"
+                        withLabel="Username or Email"
+                        onChange={handleChange}
+                    />
+                    <Input
+                        placeholder="Password"
+                        type={passwordHidden ? "password" : "text"}
+                        name="password"
+                        withLabel="Password"
+                        icon={
+                            <Icon
+                                as={passwordHidden ? EyeOffIcon : EyeIcon}
+                                w={5}
+                                h={5}
+                                color="textMain"
+                                _hover={{ cursor: "pointer" }}
+                                onClick={togglePassword}
+                            />
+                        }
+                        onChange={handleChange}
+                    />
+                </VStack>
+                <VStack align="start">
+                    <NextLink href="/forgot-password" passHref>
+                        <ChakraLink fontWeight="semibold">Forgot your password?</ChakraLink>
+                    </NextLink>
+                    <Button
+                        alignSelf="stretch"
+                        isLoading={isSubmitting}
+                        loadingText="Logging in"
+                        isDisabled={isSubmitting || isDisabled}
+                        colorScheme="button"
+                        onClick={handleSubmit}
+                        type="submit"
+                    >
+                        Log in
+                    </Button>
+                </VStack>
+            </form>
             <TwoFAModal isOpen={isOpen} onClose={onClose} />
         </Stack>
     );

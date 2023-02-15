@@ -6,7 +6,7 @@ import {
     VStack,
     HStack,
 } from "@chakra-ui/react";
-import { ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import { axiosNoAuth } from "src/utils/axios";
@@ -18,7 +18,9 @@ export default function ResetPasswordForm(): ReactElement {
     const [email, setEmail] = useState("");
     const [isSubmitting, setSubmitting] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
+
         setSubmitting(true);
 
         axiosNoAuth
@@ -52,22 +54,26 @@ export default function ResetPasswordForm(): ReactElement {
                     Enter your email to receive a recovery link to reset your password.
                 </Text>
             </HStack>
-            <Input
-                placeholder="Email"
-                type="email"
-                withLabel="Email"
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <Button
-                alignSelf="stretch"
-                isLoading={isSubmitting}
-                loadingText="Sending email"
-                isDisabled={isSubmitting}
-                colorScheme="button"
-                onClick={handleSubmit}
-            >
-                Send Recovery Email
-            </Button>
+            <form className="flex flex-col w-full gap-10" onSubmit={handleSubmit}>
+                <Input
+                    placeholder="Email"
+                    type="email"
+                    withLabel="Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <Button
+                    alignSelf="stretch"
+                    isLoading={isSubmitting}
+                    loadingText="Sending email"
+                    isDisabled={isSubmitting}
+                    colorScheme="button"
+                    onClick={handleSubmit}
+                    type="submit"
+                >
+                    Send Recovery Email
+                </Button>
+            </form>
         </Stack>
     );
 }
