@@ -122,14 +122,14 @@ const UserDrawer = ((props: BoxProps) => {
                 <DrawerContent bgColor="bgMain" maxWidth="275px">
                     <DrawerCloseButton />
                     <DrawerHeader>
-                        <VStack align="start">
+                        <VStack minWidth={0} align="start">
                             <Avatar
                                 src={user?.avatarURL}
                                 alt={`${user?.username}'s avatar`}
                                 width="45px"
                                 height="45px"
                             />
-                            <Text fontWeight="semibold">{user?.displayName}</Text>
+                            <p className="truncate font-semibold max-w-full">{user?.displayName}</p>
                         </VStack>
                     </DrawerHeader>
                     <DrawerBody>

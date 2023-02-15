@@ -94,11 +94,11 @@ function User({ user }: Props): ReactElement {
                         width="100px"
                         height="100px"
                     />
-                    <Flex height="full" gap={2} direction="column" align="start">
-                        <Box>
-                            <Text fontSize="2xl" fontWeight="semibold">
+                    <Flex height="full" minWidth={0} gap={2} direction="column" align="start">
+                        <Box minWidth={0}>
+                            <p className="font-semibold text-2xl max-w-full break-all">
                                 {user.displayName}
-                            </Text>
+                            </p>
                             <Text fontSize="md" color="textMain" fontWeight="semibold">
                                 @{user.username}
                             </Text>

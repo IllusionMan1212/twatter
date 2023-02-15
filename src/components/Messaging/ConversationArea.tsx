@@ -242,7 +242,7 @@ function ConversationHeader({ convo, onOpen }: ConversationHeaderProps): ReactEl
     return (
         <Flex width="full" px={3} py={2} boxShadow="conversationHeader">
             <HStack width="full">
-                <Flex gap={2} width="full" align="center">
+                <Flex gap={2} minWidth={0} width="full" align="center">
                     <IconButton
                         variant="ghost"
                         display={{ base: "flex", lg: "none" }}
@@ -251,15 +251,15 @@ function ConversationHeader({ convo, onOpen }: ConversationHeaderProps): ReactEl
                         onClick={() => Router.back()}
                     />
                     <NextLink href={`/@${convo.members[0].User.username}`} passHref>
-                        <HStack as={ChakraLink}>
+                        <HStack minWidth={0} as={ChakraLink}>
                             <Avatar
                                 src={convo.members[0].User.avatarURL}
                                 alt={`${convo.members[0].User.username}'s avatar`}
                                 width="40px"
                                 height="40px"
                             />
-                            <VStack width="full" spacing={0} align="start">
-                                <Text fontWeight="semibold">{convo.members[0].User.displayName}</Text>
+                            <VStack width="full" minWidth={0} spacing={0} align="start">
+                                <Text className="truncate max-w-full" fontWeight="semibold">{convo.members[0].User.displayName}</Text>
                                 {isRecipientTyping ? (
                                     <Text fontSize="xs" color="textMain">
                                         typing...

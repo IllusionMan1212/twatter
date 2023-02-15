@@ -56,10 +56,11 @@ export default function User(props: UserProps): ReactElement {
                 rounded="lg"
                 bgColor="bgPrimary"
                 width="full"
+                minWidth={0}
             >
                 <NextLink href={`/@${props.username}`} passHref>
-                    <LinkOverlay>
-                        <HStack>
+                    <LinkOverlay minWidth={0}>
+                        <HStack minWidth={0}>
                             <Avatar
                                 src={props.avatarURL}
                                 alt={`${props.username}'s avatar`}
@@ -67,7 +68,7 @@ export default function User(props: UserProps): ReactElement {
                                 height="50px"
                             />
                             <Tooltip label={props.displayName}>
-                                <Text noOfLines={1}>{props.displayName}</Text>
+                                <p className="truncate max-w-full">{props.displayName}</p>
                             </Tooltip>
                         </HStack>
                     </LinkOverlay>
@@ -78,6 +79,7 @@ export default function User(props: UserProps): ReactElement {
                         colorScheme="accent"
                         rightIcon={<Icon as={ChatAltIcon} />}
                         onClick={handleStartConversation}
+                        minWidth="fit-content"
                     >
                         Message
                     </Button>

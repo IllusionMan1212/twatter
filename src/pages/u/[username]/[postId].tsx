@@ -272,7 +272,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                 href={`/@${post.authorUsername}`}
                                 passHref
                             >
-                                <ChakraLink>
+                                <ChakraLink minWidth={0}>
                                     <HStack>
                                         <Avatar
                                             src={post.authorAvatarURL}
@@ -280,10 +280,10 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                             width="50px"
                                             height="50px"
                                         />
-                                        <VStack spacing={0} align="start">
-                                            <Text fontSize="md" fontWeight="semibold">
+                                        <VStack minWidth={0} spacing={0} align="start">
+                                            <p className="text-md font-semibold truncate max-w-full">
                                                 {post.authorName}
-                                            </Text>
+                                            </p>
                                             <Text fontSize="sm" color="textMain">
                                                 @{post.authorUsername}
                                             </Text>
@@ -555,6 +555,7 @@ export default function PostPage({ post }: Props): ReactElement {
                 align="start"
                 flex="7"
                 bgColor="bgPrimary"
+                minWidth={0}
             >
                 {user !== undefined ? (
                     <>

@@ -41,9 +41,9 @@ function RecentSearchItem({ value, idx, removeItem, setShowRecent }: RecentSearc
                     px={5}
                     justify="space-between"
                 >
-                    <HStack spacing={4}>
-                        <ClockCounterClockwise size={24} color="var(--chakra-colors-textMain)" />
-                        <Text fontSize="sm">{value}</Text>
+                    <HStack spacing={4} minWidth={0}>
+                        <ClockCounterClockwise size={24} className="min-w-[24px]" color="var(--chakra-colors-textMain)" />
+                        <p className="text-sm truncate max-w-full">{value}</p>
                     </HStack>
                     <IconButton
                         size="sm"

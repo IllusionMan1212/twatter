@@ -137,12 +137,12 @@ export default function Search(): ReactElement {
             {router.query.q ? (
                 <>
                     <TabBar activeTab={activeTab} />
-                    <Text fontSize="xl" mt={1}>
+                    <p className="mt-1 text-xl">
                         Results for:{" "}
-                        <Text as="span" fontWeight="bold">
+                        <span className="font-bold break-all">
                             {router.query.q}
-                        </Text>
-                    </Text>
+                        </span>
+                    </p>
                     <SearchResults
                         query={router.query.q as string}
                         tab={tabData[activeTab]}

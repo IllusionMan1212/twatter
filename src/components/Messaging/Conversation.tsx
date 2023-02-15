@@ -57,8 +57,8 @@ export default function Conversation(props: ConversationProps): ReactElement {
                 bgColor="accent.500"
                 rounded="4px 0 0 4px"
             />
-            <Flex gap={3} width="full" direction="column">
-                <HStack>
+            <Flex gap={3} width="full" minWidth={0} direction="column">
+                <HStack minWidth={0}>
                     <Avatar
                         src={props.recipientAvatarURL}
                         alt={`${props.recipientUsername}'s avatar`}
@@ -68,7 +68,7 @@ export default function Conversation(props: ConversationProps): ReactElement {
                     <Text
                         color="text"
                         fontWeight={props.isActive ? "bold" : "semibold"}
-                        noOfLines={1}
+                        className="truncate max-w-full"
                     >
                         {props.recipientName}
                     </Text>

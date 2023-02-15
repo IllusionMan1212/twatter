@@ -67,10 +67,9 @@ const CommentModal = memo(function CommentModal({
                         <Grid
                             width="full"
                             rowGap={3}
-                            columnGap={5}
-                            templateColumns="max-content 1fr max-content"
+                            templateColumns="1fr"
                         >
-                            <GridItem colStart={1} colEnd={2}>
+                            <GridItem minWidth={0} colStart={1} colEnd={2}>
                                 <NextLink href={`/@${post.author.username}`} passHref>
                                     <ChakraLink>
                                         <div className="flex space-x-3 items-center">
@@ -80,11 +79,11 @@ const CommentModal = memo(function CommentModal({
                                                 width="50px"
                                                 height="50px"
                                             />
-                                            <div className="flex flex-col items-start">
-                                                <p className="text-base font-semibold">
+                                            <div className="flex flex-col items-start min-w-0">
+                                                <p className="text-base font-semibold truncate max-w-full">
                                                     {post.author.displayName}
                                                 </p>
-                                                <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
+                                                <p className="text-sm text-[color:var(--chakra-colors-textMain)] truncate max-w-full">
                                                     @{post.author.username}
                                                 </p>
                                             </div>

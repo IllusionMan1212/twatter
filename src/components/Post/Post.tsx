@@ -197,18 +197,18 @@ export default function Post(props: PostProps): ReactElement {
                                 />
                             </a>
                         </NextLink>
-                        <div className="flex flex-col w-full items-start space-y-1">
+                        <div className="flex flex-col w-full items-start space-y-1 min-w-0">
                             <div className="flex items-center justify-between w-full">
                                 <NextLink href={`/@${props.author.username}`} passHref>
                                     <a
-                                        className="hover:underline"
+                                        className="hover:underline min-w-0"
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <div className="flex items-center w-full space-x-1">
-                                            <p className="text-base font-semibold">
+                                            <p className="text-base font-semibold truncate">
                                                 {props.author.displayName}
                                             </p>
-                                            <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
+                                            <p className="text-sm text-[color:var(--chakra-colors-textMain)] truncate min-w-[60px]">
                                                 @{props.author.username}
                                             </p>
                                         </div>
@@ -225,7 +225,7 @@ export default function Post(props: PostProps): ReactElement {
                                         />
                                     </div>
                                 ) : (
-                                    <DotsThree color="var(--chakra-colors-textMain)" size={30} />
+                                    <DotsThree color="var(--chakra-colors-textMain)" className="min-w-[30px]" size={30} />
                                 )}
                             </div>
                             {props.parentAuthorUsername ? (
