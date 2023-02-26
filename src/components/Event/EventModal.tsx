@@ -23,6 +23,8 @@ import CalendarDaysIcon from "src/components/Icons/CalendarDaysIcon";
 import { BellIcon, CheckIcon } from "@heroicons/react/solid";
 import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
+import { parsingOptions } from "../Post/Post";
+import HTMLToJSX from "html-react-parser";
 
 function ModalLocationIcon(): ReactElement {
     return <MapPinLine size="22" />;
@@ -123,7 +125,7 @@ export default function EventModal({
                                 {props.event.title}
                             </Text>
                             <Text fontSize="sm" fontWeight="medium" color="textSecondary">
-                                {props.event.description}
+                                {HTMLToJSX(props.event.description, parsingOptions)}
                             </Text>
                         </VStack>
                         {props.event.imageURL ? (
