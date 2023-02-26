@@ -54,7 +54,12 @@ export default function ProfileSettings(): ReactElement {
         }
 
         setPreviewImage(URL.createObjectURL(files[0]));
-        onOpen();
+        if (files[0].type === "image/gif") {
+            setCroppedPreview(URL.createObjectURL(files[0]));
+            setAttachment(files[0]);
+        } else {
+            onOpen();
+        }
     };
 
     const confirmCrop = (blob: Blob) => {
@@ -184,7 +189,7 @@ export default function ProfileSettings(): ReactElement {
                         {user?.avatarURL ? (
                             <>
                                 <FileUpload
-                                    acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp"
+                                    acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp,image/gif"
                                     onInputChange={(e) => handleProfileImageChange(e)}
                                 >
                                     Update
@@ -195,7 +200,7 @@ export default function ProfileSettings(): ReactElement {
                             </>
                         ) : (
                             <FileUpload
-                                acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp"
+                                acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp,image/gif"
                                 onInputChange={(e) => handleProfileImageChange(e)}
                             >
                                 Upload

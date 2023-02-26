@@ -10,6 +10,7 @@ export const SUPPORTED_PROFILE_IMAGE_TYPES = [
     "image/png",
     "image/jpg",
     "image/jpeg",
+    "image/gif",
     "image/webp",
 ];
 

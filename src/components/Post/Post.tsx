@@ -144,6 +144,7 @@ export default function Post(props: PostProps): ReactElement {
     } = useDisclosure();
 
     const [likeDisabled, setLikeDisabled] = useState(false);
+    const [hovering, setHovering] = useState(false);
 
     const handleLike = async () => {
         if (likeDisabled) {
@@ -178,6 +179,8 @@ export default function Post(props: PostProps): ReactElement {
                         ? "border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]"
                         : ""
                 }`}
+                onMouseOver={() => setHovering(true)}
+                onMouseOut={() => setHovering(false)}
                 onClick={async () => {
                     await Router.push(`/@${props.author.username}/${props.id}`);
                 }}
@@ -194,6 +197,7 @@ export default function Post(props: PostProps): ReactElement {
                                     alt={`${props.author.username}'s avatar`}
                                     width="50px"
                                     height="50px"
+                                    pauseAnimation={!hovering}
                                 />
                             </a>
                         </NextLink>

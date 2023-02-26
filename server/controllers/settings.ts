@@ -13,8 +13,9 @@ import fileUpload from "express-fileupload";
 import fs from "fs/promises";
 import z from "zod";
 import { USERNAME_REGEX } from "../validators/users";
-import sharp from "sharp";
+import sharp, { AvailableFormatInfo, FormatEnum } from "sharp";
 import novu from "../novu";
+import { Magic } from "../utils";
 
 export async function toggleAllowAllDMs(req: Request, res: Response) {
     const data = ToggleAllowAllDMsData.safeParse(req.body);
@@ -236,25 +237,44 @@ export async function updateProfile(req: Request, res: Response) {
     if (req.files?.profileImage) {
         const file = <fileUpload.UploadedFile>req.files.profileImage;
 
-        const sh = sharp(file.data).resize(400, 400, { fit: sharp.fit.cover, position: sharp.strategy.entropy });
+        let format: keyof FormatEnum | AvailableFormatInfo = "jpeg";
+
+        if (file.data.compare(Buffer.from(Magic.PNG), 0, Magic.PNG.length, 0, Magic.PNG.length) === 0) {
+            format = "png";
+        }
+
+        if (file.data.compare(Buffer.from(Magic.GIF87a), 0, Magic.GIF87a.length, 0, Magic.GIF87a.length) === 0 ||
+            file.data.compare(Buffer.from(Magic.GIF89a), 0, Magic.GIF89a.length, 0, Magic.GIF89a.length) === 0) {
+            format = "gif";
+        }
+
+        const sh = sharp(file.data, { animated: true }).resize(400, 400, format === "gif" ? {} : { fit: sharp.fit.cover, position: sharp.strategy.entropy });
         const { orientation } = await sh.metadata();
-        const fileData = await sharp(await sh.toBuffer()).toFormat("jpeg").withMetadata({ orientation }).toBuffer();
+
+        const fileData = await sharp(await sh.toBuffer(), { animated: true }).toFormat(format).withMetadata({ orientation }).toBuffer();
+        const gifThumb = await sharp(await sh.toBuffer()).toFormat("png").withMetadata({ orientation }).toBuffer();
 
         const bytes = crypto.randomBytes(8).toString("hex");
         const fileName = `profile-${bytes}`;
         const dir = `${__dirname}/../cdn/profile-images/${req.session.user.id}`;
 
-        const ext = "jpeg";
         await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(`${dir}/${fileName}.${ext}`, fileData);
+        await fs.writeFile(`${dir}/${fileName}.${format}`, fileData);
+        if (format === "gif") {
+            await fs.writeFile(`${dir}/${fileName}.png`, gifThumb);
+        }
 
-        const avatarURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/profile-images/${req.session.user.id}/${fileName}.${ext}`;
+        const avatarURL = `${process.env.NODE_ENV !== "production" ? "http" : "https"}://${req.headers.host}/cdn/profile-images/${req.session.user.id}/${fileName}.${format}`;
         const error = await updateUserProfileImage(req.session.user.id, avatarURL);
         if (error === DatabaseError.UNKNOWN) {
             return res.status(500).json({ message: "An internal error occurred while updating your profile image" });
         }
 
-        await fs.rm(`${dir}/${req.session.user.avatarURL?.split("/").at(-1)}`, { recursive: true, force: true });
+        for (const file of await fs.readdir(dir)) {
+            if (!file.includes(fileName)) {
+                await fs.rm(`${dir}/${file}`, { recursive: true, force: true });
+            }
+        }
 
         await novu.subscribers.update(req.session.user.id, {
             avatar: avatarURL,
