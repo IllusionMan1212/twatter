@@ -27,3 +27,91 @@
     justify-content: center;
     height: unset !important;
 }
+
+.react-datepicker > * {
+    font-family: Kufam;
+}
+
+.react-datepicker {
+    background-color: var(--chakra-colors-bgPrimary) !important;
+    display: flex;
+}
+
+.react-datepicker__header {
+    background-color: var(--chakra-colors-bgSecondary) !important;
+}
+
+.react-datepicker__current-month {
+    color: var(--chakra-colors-text) !important;
+}
+
+.react-datepicker-time__header {
+    color: var(--chakra-colors-text) !important;
+}
+
+.react-datepicker__month {
+    background-color: var(--chakra-colors-bgPrimary);
+    margin: 0 !important;
+    padding: 0.4rem;
+}
+
+.react-datepicker__time {
+    background: var(--chakra-colors-bgPrimary) !important;
+    color: var(--chakra-colors-text) !important;
+
+    &-list-item {
+        &:hover {
+            background: var(--chakra-colors-datepickerHover) !important;
+        }
+    }
+
+    &-list-item--selected {
+        background: var(--chakra-colors-accent-500) !important;
+
+        &:hover {
+            background: var(--chakra-colors-accent-600) !important;
+        }
+    }
+}
+
+.react-datepicker__navigation-icon:before {
+    border-color: var(--chakra-colors-bgThird) !important;
+}
+
+.react-datepicker__day {
+    color: var(--chakra-colors-text) !important;
+
+    &:hover:not(&--disabled):not(&--selected) {
+        background-color: var(--chakra-colors-datepickerHover) !important;
+    }
+
+    &--selected {
+        background-color: var(--chakra-colors-accent-500) !important;
+        color: white !important;
+
+        &:hover {
+            background-color: var(--chakra-colors-accent-600) !important;
+        }
+    }
+
+    &--disabled {
+        color: var(--chakra-colors-textMain) !important;
+        opacity: 0.6;
+    }
+}
+
+.react-datepicker__day-name {
+    color: var(--chakra-colors-text) !important;
+}
+
+.react-datepicker__navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+

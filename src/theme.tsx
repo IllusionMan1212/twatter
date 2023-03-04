@@ -141,6 +141,10 @@ const theme = extendTheme({
             strokeSecondary: {
                 default: "#CBD2DA",
                 _dark: "#202328",
+            },
+            datepickerHover: {
+                default: "#ced6dd",
+                _dark: "#2b2c30",
             }
         },
         radii: {

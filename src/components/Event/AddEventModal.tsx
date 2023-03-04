@@ -140,6 +140,8 @@ export default function AddEventModal({
                                 selected={eventDate}
                                 onChange={(date) => setEventDate(date)}
                                 showTimeSelect
+                                fixedHeight
+                                showPopperArrow={false}
                                 dateFormat="Pp"
                                 placeholderText="Date and Time"
                                 minDate={new Date(Date.now() + 3600 * 24 * 1000)}
