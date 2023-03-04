@@ -1,13 +1,12 @@
 import {
     HStack,
     LinkBox,
-    Text,
     LinkOverlay,
     Tooltip,
     Button,
     Icon,
 } from "@chakra-ui/react";
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 import NextLink from "next/link";
 import { ChatAltIcon } from "@heroicons/react/solid";
 import Avatar from "src/components/User/Avatar";
@@ -30,6 +29,8 @@ interface UserProps {
 export default function User(props: UserProps): ReactElement {
     const { user } = useUserContext();
 
+    const [hovering, setHovering] = useState(false);
+
     const handleStartConversation = () => {
         axiosAuth
             .post<StartConversationRes>("message/start-conversation", {
@@ -48,7 +49,11 @@ export default function User(props: UserProps): ReactElement {
     };
 
     return (
-        <LinkBox width="full">
+        <LinkBox
+            width="full"
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
+        >
             <HStack
                 px={4}
                 py={2}
@@ -66,6 +71,7 @@ export default function User(props: UserProps): ReactElement {
                                 alt={`${props.username}'s avatar`}
                                 width="50px"
                                 height="50px"
+                                pauseAnimation={!hovering}
                             />
                             <Tooltip label={props.displayName}>
                                 <p className="truncate max-w-full">{props.displayName}</p>

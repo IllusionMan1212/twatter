@@ -172,8 +172,14 @@ interface DeletedMessageProps extends Omit<MessageProps,
 }
 
 export function DeletedMessage(props: DeletedMessageProps): ReactElement {
+    const [hovering, setHovering] = useState(false);
+
     if (props.userOwned) return (
-        <div className="flex w-full justify-end py-4">
+        <div
+            className="flex w-full justify-end py-4"
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
+        >
             <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
                 <div className="flex flex-col gap-0.5 items-end">
                     <MessageTime date={props.createdAt} />
@@ -191,6 +197,7 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
                         alt={`${props.ownerUsername}'s avatar`}
                         width="35px"
                         height="35px"
+                        pauseAnimation={!hovering}
                     />
                 </div>
             </div>
@@ -198,12 +205,17 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
     );
 
     return (
-        <div className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]">
+        <div
+            className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]"
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
+        >
             <Avatar
                 src={props.ownerAvatarURL}
                 alt={`${props.ownerUsername}'s avatar`}
                 width="35px"
                 height="35px"
+                pauseAnimation={!hovering}
             />
             <div className="flex flex-col gap-0.5 items-start">
                 <MessageTime date={props.createdAt} />
@@ -270,12 +282,18 @@ interface MessageProps {
 }
 
 export default function Message(props: MessageProps): ReactElement {
+    const [hovering, setHovering] = useState(false);
+
     const { user } = useUserContext();
 
     return (
         <>
             {props.userOwned ? (
-                <div className="group flex w-full justify-end py-4">
+                <div
+                    className="group flex w-full justify-end py-4"
+                    onMouseOver={() => setHovering(true)}
+                    onMouseOut={() => setHovering(false)}
+                >
                     <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
                         <div className="flex flex-col gap-0.5 items-end max-w-full overflow-hidden">
                             <MessageTime date={props.createdAt} />
@@ -306,18 +324,24 @@ export default function Message(props: MessageProps): ReactElement {
                                 alt={`${props.ownerUsername}'s avatar`}
                                 width="35px"
                                 height="35px"
+                                pauseAnimation={!hovering}
                             />
                             {props.wasRead ? <ChecksIcon /> : <CheckIcon />}
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]">
+                <div
+                    className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]"
+                    onMouseOver={() => setHovering(true)}
+                    onMouseOut={() => setHovering(false)}
+                >
                     <Avatar
                         src={props.recipientAvatarURL}
                         alt={`${props.ownerUsername}'s avatar`}
                         width="35px"
                         height="35px"
+                        pauseAnimation={!hovering}
                     />
                     <div className="flex flex-col gap-0.5 items-start">
                         <MessageTime date={props.createdAt} />

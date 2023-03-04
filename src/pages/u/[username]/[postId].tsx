@@ -127,13 +127,25 @@ interface DeletedParentPostProps {
 }
 
 function DeletedParentPost({ authorName, authorUsername, authorAvatarURL }: DeletedParentPostProps): ReactElement {
+    const [hovering, setHovering] = useState(false);
+
     return (
-        <div className="w-full p-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]">
+        <div
+            className="w-full p-4 border-b-[1px] border-[color:var(--chakra-colors-bgSecondary)]"
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
+        >
             <div className="w-full flex gap-6 items-center">
                 <NextLink href={`/@${authorUsername}`} passHref>
                     <a className="hover:underline">
                         <div className="flex gap-2 items-center">
-                            <Avatar src={authorAvatarURL} alt={`${authorUsername}'s avatar`} width="40px" height="40px" />
+                            <Avatar
+                                src={authorAvatarURL}
+                                alt={`${authorUsername}'s avatar`}
+                                width="40px"
+                                height="40px"
+                                pauseAnimation={!hovering}
+                            />
                             <div className="flex flex-col justify-around">
                                 <p className="text-sm font-semibold">{authorName}</p>
                                 <p className="text-xs text-[color:var(--chakra-colors-textMain)]">@{authorUsername}</p>

@@ -31,7 +31,11 @@ export default function ProfileSettings(): ReactElement {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const [previewImage, setPreviewImage] = useState("");
+    const [previewImage, setPreviewImage] = useState({
+        url: "",
+        mimetype: "",
+    });
+    const [previewImageData, setPreviewImageData] = useState<ArrayBuffer | null>(null);
     const [croppedPreview, setCroppedPreview] = useState("");
     const [attachment, setAttachment] = useState<File | null>(null);
     const [isSubmitting, setSubmitting] = useState(false);
@@ -40,8 +44,11 @@ export default function ProfileSettings(): ReactElement {
         username: "",
     });
 
-    const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files: File[] = Array.from(e.target.files as ArrayLike<File>);
+        if (!files.length) {
+            return;
+        }
 
         if (!SUPPORTED_PROFILE_IMAGE_TYPES.includes(files[0].type)) {
             toast.error("Unsupported file format");
@@ -53,13 +60,13 @@ export default function ProfileSettings(): ReactElement {
             return;
         }
 
-        setPreviewImage(URL.createObjectURL(files[0]));
-        if (files[0].type === "image/gif") {
-            setCroppedPreview(URL.createObjectURL(files[0]));
-            setAttachment(files[0]);
-        } else {
-            onOpen();
-        }
+        setPreviewImage({
+            url: URL.createObjectURL(files[0]),
+            mimetype: files[0].type
+        });
+        const arrBuf = await files[0].arrayBuffer();
+        setPreviewImageData(arrBuf);
+        onOpen();
     };
 
     const confirmCrop = (blob: Blob) => {
@@ -69,7 +76,10 @@ export default function ProfileSettings(): ReactElement {
     };
 
     const removeAttachment = () => {
-        setPreviewImage("");
+        setPreviewImage({
+            url: "",
+            mimetype: ""
+        });
         setCroppedPreview("");
         setAttachment(null);
     };
@@ -219,7 +229,15 @@ export default function ProfileSettings(): ReactElement {
             >
                 Save
             </Button>
-            <AvatarCropModal isOpen={isOpen} onClose={onClose} imageBlob={previewImage} onConfirmCrop={confirmCrop} />
+            {isOpen ? (
+                <AvatarCropModal
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    image={previewImage}
+                    imageBytes={previewImageData}
+                    onConfirmCrop={confirmCrop}
+                />
+            ) : null}
         </VStack>
     );
 }

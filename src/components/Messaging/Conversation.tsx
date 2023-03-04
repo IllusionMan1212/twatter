@@ -1,5 +1,5 @@
 import { Box, Button, Flex, HStack, Text } from "@chakra-ui/react";
-import { MouseEventHandler, ReactElement } from "react";
+import { MouseEventHandler, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
 import parse, { domToReact, Element } from "html-react-parser";
@@ -25,6 +25,8 @@ const parsingOptions = {
 };
 
 export default function Conversation(props: ConversationProps): ReactElement {
+    const [hovering, setHovering] = useState(false);
+
     return (
         <Flex
             as={Button}
@@ -46,6 +48,8 @@ export default function Conversation(props: ConversationProps): ReactElement {
             py={3}
             px={4}
             onClick={props.onClick}
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
         >
             <Box
                 display={props.isActive ? "initial" : "none"}
@@ -64,6 +68,7 @@ export default function Conversation(props: ConversationProps): ReactElement {
                         alt={`${props.recipientUsername}'s avatar`}
                         width="40px"
                         height="40px"
+                        pauseAnimation={!hovering}
                     />
                     <Text
                         color="text"

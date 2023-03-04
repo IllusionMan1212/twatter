@@ -1,6 +1,6 @@
 import { Button, Flex, Spinner, VStack, Text, Image as ChakraImage } from "@chakra-ui/react";
 import { ChannelCTATypeEnum, IMessage, useNotifications } from "@novu/notification-center";
-import { ReactElement, useEffect } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
 import HTMLToJSX, { Element, domToReact } from "html-react-parser";
@@ -36,6 +36,8 @@ function Notification({ notif }: NotificationProps): ReactElement {
     const content = HTMLToJSX(notif.content as string, contentParsingOptions);
     const body = HTMLToJSX(notif.payload["body"] as string, bodyParsingOptions);
 
+    const [hovering, setHovering] = useState(false);
+
     const handleClick = () => {
         (notif.cta.type === ChannelCTATypeEnum.REDIRECT) && Router.push(notif.cta.data.url ?? "");
     };
@@ -54,6 +56,8 @@ function Notification({ notif }: NotificationProps): ReactElement {
             p={3}
             gap={4}
             onClick={handleClick}
+            onMouseOver={() => setHovering(true)}
+            onMouseOut={() => setHovering(false)}
         >
             <div className="flex gap-2 w-full text-[color:var(--chakra-colors-text)]">
                 <Link href={`/@${notif.payload["username"]}`} passHref>
@@ -63,6 +67,7 @@ function Notification({ notif }: NotificationProps): ReactElement {
                             alt="Avatar"
                             width="30"
                             height="30"
+                            pauseAnimation={!hovering}
                         />
                     </a>
                 </Link>

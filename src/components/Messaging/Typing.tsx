@@ -17,6 +17,7 @@ export default function Typing({ recipientAvatarURL }: TypingProps): ReactElemen
                 alt="User avatar"
                 width="35px"
                 height="35px"
+                pauseAnimation
             />
             <VStack spacing={0.5} align="start">
                 <HStack
