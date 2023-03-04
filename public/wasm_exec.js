@@ -73,6 +73,7 @@
 		}
 	}
 
+  globalThis.crypto ??= require("crypto");
 	if (!globalThis.crypto) {
 		throw new Error("globalThis.crypto is not available, polyfill required (crypto.getRandomValues only)");
 	}

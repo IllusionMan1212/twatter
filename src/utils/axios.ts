@@ -5,7 +5,7 @@ const baseUrl = process.env.NODE_ENV === "production"
     : `http://${process.env.NEXT_PUBLIC_DOMAIN ?? "localhost"}:${process.env.NEXT_PUBLIC_PORT ?? "3000"}/api/`;
 export const axiosAuth = axios.create({
     baseURL: baseUrl,
-    timeout: 15000,
+    timeout: 60000,
     withCredentials: true,
 });
 
