@@ -248,7 +248,7 @@ export async function updateProfile(req: Request, res: Response) {
             format = "gif";
         }
 
-        const sh = sharp(file.data, { animated: true }).resize(400, 400, format === "gif" ? {} : { fit: sharp.fit.cover, position: sharp.strategy.entropy });
+        const sh = sharp(file.data, { animated: true }).resize(200, 200, format === "gif" ? {} : { fit: sharp.fit.cover, position: sharp.strategy.entropy });
         const { orientation } = await sh.metadata();
 
         const fileData = await sharp(await sh.toBuffer(), { animated: true }).toFormat(format).withMetadata({ orientation }).toBuffer();
