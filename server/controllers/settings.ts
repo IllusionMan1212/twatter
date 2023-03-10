@@ -170,9 +170,9 @@ export async function enable2FA(req: Request, res: Response) {
         return res.status(400).json({ message: "Passcode must be a 6 digit number" });
     }
 
-    const secret = req.session.user.totpSecret!;
+    const secret = (await getUserById(req.session.user.id))?.totpSecret;
 
-    if (!validateTOTPCode(secret, passcode)) {
+    if (!secret || !validateTOTPCode(secret, passcode)) {
         return res.status(403).json({ message: "Invalid passcode" });
     }
 
