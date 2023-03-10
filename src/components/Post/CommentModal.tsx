@@ -17,23 +17,7 @@ import CommentBox from "src/components/Post/CommentBox";
 import toast from "react-hot-toast";
 import HTMLToJSX from "html-react-parser";
 import { parsingOptions } from "src/components/Post/Post";
-
-interface DateProps {
-    postDate: string;
-}
-
-function PostDate({ postDate }: DateProps): ReactElement {
-    const date = new Date(postDate);
-
-    const finalDate = `${date.toLocaleDateString()} · ${date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-    })}`;
-
-    return (
-        <p className="text-sm text-[color:var(--chakra-colors-textMain)]">{finalDate}</p>
-    );
-}
+import FullDate from "src/components/FullDate";
 
 interface CommentModalProps {
     isOpen: boolean;
@@ -120,7 +104,7 @@ const CommentModal = memo(function CommentModal({
                                 </GridItem>
                             ) : null}
                             <GridItem colStart={1} colEnd={4}>
-                                <PostDate postDate={post.createdAt} />
+                                <FullDate ISODate={post.createdAt} />
                             </GridItem>
                         </Grid>
                     </div>

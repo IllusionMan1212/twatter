@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import path from "path";
-
 type DirType = "events" | "posts";
 
 export const Magic = {
@@ -28,4 +27,10 @@ function componentToHex(c: number) {
 
 export function rgbToHex(r: number, g: number, b: number) {
     return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+}
+
+export function tsEnumToPrismaEnum<T>(tsEnum: T, value: string): string {
+    const entry = Object.entries(tsEnum as ArrayLike<string>).filter(([_, _value]) => _value == value)[0];
+    if (typeof entry === "undefined") return "";
+    return entry[0];
 }

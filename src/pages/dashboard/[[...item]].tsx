@@ -22,6 +22,8 @@ const DashboardContentArea = dynamic(
 );
 import { DashboardItem } from "src/types/interfaces";
 import AddEventModal from "src/components/Event/AddEventModal";
+import Reports from "src/components/Dashboard/Reports";
+import { FlagIcon as Flag } from "@heroicons/react/outline";
 const Accounts = dynamic(() => import("src/components/Dashboard/Accounts"));
 const Events = dynamic(() => import("src/components/Dashboard/Events"));
 
@@ -40,6 +42,13 @@ const cards = [
         desc: "View and manage events",
         component: Events,
     },
+    {
+        id: "reports",
+        title: "Review Reports",
+        icon: FlagIcon,
+        desc: "Review submitted reports",
+        component: Reports,
+    }
 ];
 
 function UserListIcon(): ReactElement {
@@ -48,6 +57,10 @@ function UserListIcon(): ReactElement {
 
 function CalendarIcon(): ReactElement {
     return <Calendar weight="duotone" size="100" />;
+}
+
+function FlagIcon(): ReactElement {
+    return <Flag width="100" height="100" />;
 }
 
 interface SidebarProps {

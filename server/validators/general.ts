@@ -7,10 +7,10 @@ export const GetPagedData = z.object({
             if (isNaN(n)) return -1;
             return n;
         },
-        z.number().nonnegative("Invalid page number"),
+        z.number({ required_error: "Page cannot be empty" }).nonnegative("Invalid page number"),
     ),
 });
 
 export const GetDataById = z.object({
-    id: z.string().min(1, "ID cannot be empty"),
+    id: z.string({ required_error: "ID cannot be empty" }).min(1, "ID cannot be empty"),
 });

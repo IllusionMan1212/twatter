@@ -1,6 +1,19 @@
 import express from "express";
 import { limiter, sessionContext, sessionGuard } from "./utils/middleware";
-import { createPost, deletePost, getPost, getPosts, getComments, getUserPosts, likePost, unlikePost, getThread, mutePost, unmutePost } from "../controllers/posts";
+import {
+    createPost,
+    deletePost,
+    getPost,
+    getPosts,
+    getComments,
+    getUserPosts,
+    likePost,
+    unlikePost,
+    getThread,
+    mutePost,
+    unmutePost,
+    reportPost,
+} from "../controllers/posts";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
 const router = express.Router();
@@ -32,6 +45,7 @@ router.get("/get-thread/:id", limiter(getLimit), sessionContext, getThread);
 router.get("/get-comments/:id/:page", limiter(getLimit), sessionContext, getComments);
 
 router.post("/create-post", limiter(postLimit), sessionGuard, createPost);
+router.post("/report", limiter(postLimit), sessionGuard, reportPost);
 
 router.patch("/like/:postId", limiter(patchLimit), sessionGuard, likePost);
 router.patch("/unlike/:postId", limiter(patchLimit), sessionGuard, unlikePost);

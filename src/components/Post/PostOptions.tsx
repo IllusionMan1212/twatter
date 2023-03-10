@@ -1,109 +1,23 @@
 import {
     MenuItem,
-    Link as ChakraLink,
     MenuList,
     useDisclosure,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalBody,
-    ModalHeader,
 } from "@chakra-ui/react";
-import { LinkIcon, ShareIcon, TrashIcon } from "@heroicons/react/solid";
+import { FlagIcon, LinkIcon, ShareIcon, TrashIcon } from "@heroicons/react/solid";
 import { AxiosError } from "axios";
-import { FacebookLogo, RedditLogo, SpeakerSimpleNone, SpeakerSimpleSlash, TwitterLogo } from "phosphor-react";
-import { ComponentType, memo, ReactElement, useState } from "react";
+import { SpeakerSimpleNone, SpeakerSimpleSlash } from "phosphor-react";
+import { memo, ReactElement, useState } from "react";
 import toast from "react-hot-toast";
 import OptionsMenu from "src/components/Options";
 import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
-
-const facebookSharerPrefix = "https://facebook.com/sharer/sharer.php?u=";
-const redditSharerPrefix = "https://reddit.com/submit?title=";
-const twitterSharerPrefix = "https://twitter.com/share?text=";
-
-function FacebookIcon() {
-    return (
-        <FacebookLogo weight="fill" size="40" color="var(--chakra-colors-facebook-400)" />
-    );
-}
-
-function RedditIcon() {
-    return <RedditLogo weight="fill" size="40" color="var(--chakra-colors-orange-400)" />;
-}
-
-function TwitterIcon() {
-    return (
-        <TwitterLogo weight="fill" size="40" color="var(--chakra-colors-twitter-400)" />
-    );
-}
+import ShareModal from "src/components/ShareModal";
+import ReportModal from "src/components/ReportModal";
 
 function MuteIcon({ className, muted }: { className: string, muted: boolean }) {
     if (muted) return <SpeakerSimpleNone className={className} weight="fill" size="24" />;
     return <SpeakerSimpleSlash className={className} weight="fill" size="24" />;
 }
-
-interface ShareLinkProps {
-    title: string;
-    href: string;
-    Icon: ComponentType<Record<string, never>>;
-}
-
-function ShareLink({ title, href, Icon }: ShareLinkProps): ReactElement {
-    return (
-        <ChakraLink href={href} isExternal>
-            <div className="flex flex-col w-20 space-y-1 items-center">
-                <Icon />
-                <p className="text-sm">{title}</p>
-            </div>
-        </ChakraLink>
-    );
-}
-
-interface ShareModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    url: string;
-}
-
-const ShareModal = memo(function ShareModal({
-    isOpen,
-    onClose,
-    title,
-    url,
-}: ShareModalProps): ReactElement {
-    return (
-        <Modal isOpen={isOpen} size="xs" isCentered onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent bgColor="bgMain">
-                <ModalHeader>
-                    <p>Share On</p>
-                </ModalHeader>
-                <ModalBody>
-                    <div className="flex w-full justify-around">
-                        <ShareLink
-                            title="Facebook"
-                            href={facebookSharerPrefix + url}
-                            Icon={FacebookIcon}
-                        />
-                        <ShareLink
-                            title="Reddit"
-                            href={`${redditSharerPrefix}${title}&url=${url}`}
-                            Icon={RedditIcon}
-                        />
-                        <ShareLink
-                            title="Twitter"
-                            href={`${twitterSharerPrefix}${title}&url=${url}`}
-                            Icon={TwitterIcon}
-                        />
-                    </div>
-                </ModalBody>
-                <div className="py-2" />
-            </ModalContent>
-        </Modal>
-    );
-});
 
 interface OptionsProps {
     openDeleteDialog: () => void;
@@ -122,7 +36,17 @@ const Options = memo(function Options({
     postId,
     muted,
 }: OptionsProps): ReactElement {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const {
+        isOpen: isShareModalOpen,
+        onOpen: onOpenShareModal,
+        onClose: onCloseShareModal
+    } = useDisclosure();
+
+    const {
+        isOpen: isReportModalOpen,
+        onOpen: onOpenReportModal,
+        onClose: onCloseReportModal
+    } = useDisclosure();
 
     const [isMuted, setMuted] = useState(muted);
 
@@ -162,7 +86,7 @@ const Options = memo(function Options({
                     console.log("error while sharing");
                 });
         } else {
-            onOpen();
+            onOpenShareModal();
         }
     };
 
@@ -188,6 +112,10 @@ const Options = memo(function Options({
                         <LinkIcon className="mr-3" height="24px" width="24px" />
                         <span>Copy Link</span>
                     </MenuItem>
+                    <MenuItem onClick={onOpenReportModal}>
+                        <FlagIcon className="mr-3" height="24px" width="24px" />
+                        <span>Report Post</span>
+                    </MenuItem>
                     {authorId === userId ? (
                         <>
                             {isMuted !== undefined ? (
@@ -204,7 +132,8 @@ const Options = memo(function Options({
                     ) : null}
                 </MenuList>
             </OptionsMenu>
-            <ShareModal isOpen={isOpen} onClose={onClose} title={title} url={url} />
+            <ShareModal isOpen={isShareModalOpen} onClose={onCloseShareModal} title={title} url={url} />
+            <ReportModal isOpen={isReportModalOpen} onClose={onCloseReportModal} postId={postId} />
         </>
     );
 });

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { DeleteOrApproveData } from "../validators/admin";
 import { GetPagedData } from "../validators/general";
-import { deleteEventsDB, deleteUsersDB, queryAllEvents, queryAllUsers, toggleUserRestriction } from "../database/admin";
+import { deleteEventsDB, deleteUsersDB, queryAllEvents, queryAllUsers, queryPendingReports, queryResolvedReports, toggleUserRestriction } from "../database/admin";
 import { prisma } from "../database/client";
 import { DatabaseError } from "../database/utils";
 import { traversalSafeRm } from "../utils";
@@ -110,4 +110,28 @@ export async function deleteEvents(req: Request, res: Response) {
     }
 
     return res.status(200).json({ message: `Successfully deleted ${data.data.ids.length} events` });
+}
+
+export async function getPendingReports(req: Request, res: Response) {
+    const data = GetPagedData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const reports = await queryPendingReports(data.data.page);
+
+    return res.status(200).json({ message: "Successfully fetched pending reports", reports });
+}
+
+export async function getResolvedReports(req: Request, res: Response) {
+    const data = GetPagedData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const reports = await queryResolvedReports(data.data.page);
+
+    return res.status(200).json({ message: "Successfully fetched resolved reports", reports });
 }

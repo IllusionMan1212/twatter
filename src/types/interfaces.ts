@@ -106,3 +106,19 @@ export type DashboardItem = {
 export interface SearchResultsTabProps {
     query: string;
 }
+
+export interface IReportPost extends Pick<IPost, "id" | "content" | "attachments" | "createdAt"> {
+    author: Pick<IUser, "id" | "username" | "displayName" | "avatarURL">;
+}
+
+export interface IReport {
+    originalReportId: string;
+    reason: string;
+    reports: number;
+    firstReportedAt: string;
+    lastReportedAt: string;
+    resolvedAt: string;
+    resolved: boolean;
+    originalReportSubmitterUsername: string;
+    Post: IReportPost;
+}

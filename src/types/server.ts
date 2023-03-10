@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -87,4 +87,8 @@ export interface GetRecommendedMessagingPeopleRes extends GenericBackendRes {
 
 export interface GetThreadRes extends GenericBackendRes {
     thread: IThreadPost[];
+}
+
+export interface GetReportsRes extends GenericBackendRes {
+    reports: IReport[];
 }

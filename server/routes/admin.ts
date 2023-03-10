@@ -7,6 +7,8 @@ import {
     deleteEvents,
     restrictUsers,
     unrestrictUsers,
+    getPendingReports,
+    getResolvedReports,
 } from "../controllers/admin";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
@@ -24,6 +26,8 @@ const patchLimit = new RateLimiterMemory({
 
 router.get("/get-all-users", limiter(getLimit), adminGuard, getAllUsers);
 router.get("/get-all-events", limiter(getLimit), adminGuard, getAllEvents);
+router.get("/get-pending-reports/:page", limiter(getLimit), adminGuard, getPendingReports);
+router.get("/get-resolved-reports/:page", limiter(getLimit), adminGuard, getResolvedReports);
 
 router.patch("/unrestrict-users", limiter(patchLimit), adminGuard, unrestrictUsers);
 router.patch("/restrict-users", limiter(patchLimit), adminGuard, restrictUsers);

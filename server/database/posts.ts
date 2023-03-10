@@ -1,4 +1,4 @@
-import { Post, PostAttachment, Prisma } from "@prisma/client";
+import { Post, PostAttachment, Prisma, ReportReason } from "@prisma/client";
 import { Attachment } from "../controllers/utils/posts";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
@@ -275,7 +275,7 @@ export const likePostDB = async (postId: string, userId: string): Promise<[Datab
                 }
             });
 
-            if (post?.deleted) {
+            if (!post || post.deleted) {
                 return [DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND, null];
             }
 
@@ -310,7 +310,7 @@ export const unlikePostDB = async (postId: string, userId: string): Promise<Data
                 }
             });
 
-            if (post?.deleted) {
+            if (!post || post.deleted) {
                 return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
             }
 
@@ -324,6 +324,49 @@ export const unlikePostDB = async (postId: string, userId: string): Promise<Data
             }));
 
             if (!affected) return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+
+            return DatabaseError.SUCCESS;
+        });
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2003") {
+                return DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED;
+            }
+        }
+        console.error(e);
+        return DatabaseError.UNKNOWN;
+    }
+};
+
+export const submitPostReport = async (
+    postId: string,
+    submitterId: string,
+    reason: ReportReason,
+    comments: string | undefined,
+): Promise<DatabaseError> => {
+    try {
+        return await prisma.$transaction(async (tx) => {
+            const post = await tx.post.findUnique({
+                where: {
+                    id: postId,
+                },
+                select: {
+                    deleted: true,
+                }
+            });
+
+            if (!post || post.deleted) {
+                return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+            }
+
+            await tx.postReport.create({
+                data: {
+                    postId,
+                    submitterId,
+                    reason,
+                    comments
+                }
+            });
 
             return DatabaseError.SUCCESS;
         });

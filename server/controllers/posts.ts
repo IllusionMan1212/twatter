@@ -1,15 +1,35 @@
 import { Request, Response } from "express";
 import { DatabaseError } from "../database/utils";
-import { createPostDB, deletePostDB, likePostDB, queryPosts, queryPost, queryUserPosts, unlikePostDB, queryComments, queryThread } from "../database/posts";
-import { CreatePostData, DeletePostData, GetPostData, GetPostsData, LikePostData } from "../validators/posts";
+import {
+    createPostDB,
+    deletePostDB,
+    likePostDB,
+    queryPosts,
+    queryPost,
+    queryUserPosts,
+    unlikePostDB,
+    queryComments,
+    queryThread,
+    submitPostReport,
+} from "../database/posts";
+import {
+    CreatePostData,
+    DeletePostData,
+    GetPostData,
+    GetPostsData,
+    LikePostData,
+    ReportPostData,
+    ReportReasons,
+} from "../validators/posts";
 import { GetPagedData } from "../validators/general";
 import fs from "fs/promises";
 import { snowflake } from "../database/snowflake";
-import { traversalSafeRm } from "../utils";
+import { traversalSafeRm, tsEnumToPrismaEnum } from "../utils";
 import { processAttachments } from "./utils/posts";
 import novu from "../novu";
 import { TriggerRecipientsTypeEnum } from "@novu/shared";
 import { isAxiosError } from "axios";
+import { ReportReason } from "@prisma/client";
 
 export async function getUserPosts(req: Request, res: Response) {
     const data = GetPostsData.safeParse(req.params);
@@ -280,4 +300,26 @@ export async function unmutePost(req: Request, res: Response) {
     }
 
     return res.sendStatus(200);
+}
+
+export async function reportPost(req: Request, res: Response) {
+    const data = ReportPostData.safeParse(req.body);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    if (data.data.reason === ReportReasons.Other && !data.data.comments) {
+        return res.status(400).json({ message: "You must provide your reasoning when selecting \"Other\"" });
+    }
+
+    const error = await submitPostReport(data.data.postId, req.session.user.id, tsEnumToPrismaEnum(ReportReasons, data.data.reason) as ReportReason, data.data.comments);
+
+    if (error === DatabaseError.UNKNOWN) {
+        return res.status(500).json({ message: "An internal error occurred while submitting the report" });
+    } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND || error === DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED) {
+        return res.status(404).json({ message: "Post not found" });
+    }
+
+    return res.status(200).json({ message: "Report submitted. It will be reviewed ASAP" });
 }

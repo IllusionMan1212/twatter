@@ -3,6 +3,17 @@ import z from "zod";
 import { GetPagedData } from "./general";
 import { htmlEscape, extractMentions, extractUrlsWithIndices, extractHashtags } from "twitter-text";
 
+export enum ReportReasons {
+    NudityOrSex = "nudity-sex",
+    TerrorismOrViolence = "terrorism-violence",
+    Spam = "spam",
+    Other = "other",
+}
+
+const ReportReason = z.nativeEnum(ReportReasons, {
+    required_error: "Reason is required",
+});
+
 export const GetPostsData = GetPagedData.extend({
     id: z.string().min(1, "ID cannot be empty"),
 });
@@ -107,4 +118,10 @@ export const DeletePostData = z.object({
 
 export const LikePostData = z.object({
     postId: z.string().min(1, "Post ID cannot be empty"),
+});
+
+export const ReportPostData = z.object({
+    postId: z.string({ required_error: "Post ID cannot be empty" }).min(1, "Post ID cannot be empty"),
+    reason: ReportReason,
+    comments: z.string().optional()
 });

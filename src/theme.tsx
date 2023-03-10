@@ -73,6 +73,14 @@ const Checkbox: ComponentStyleConfig = {
     }
 };
 
+const Radio: ComponentStyleConfig = {
+    baseStyle: {
+        control: {
+            borderColor: "bgThird"
+        },
+    }
+};
+
 const theme = extendTheme({
     config,
     styles: {
@@ -99,6 +107,7 @@ const theme = extendTheme({
         Checkbox,
         MenuList,
         MenuItem,
+        Radio,
     },
     semanticTokens: {
         colors: {
