@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -91,4 +91,8 @@ export interface GetThreadRes extends GenericBackendRes {
 
 export interface GetReportsRes extends GenericBackendRes {
     reports: IReport[];
+}
+
+export interface GetReportersRes extends GenericBackendRes {
+    reporters: IReporter[];
 }

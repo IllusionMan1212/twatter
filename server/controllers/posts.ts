@@ -319,6 +319,8 @@ export async function reportPost(req: Request, res: Response) {
         return res.status(500).json({ message: "An internal error occurred while submitting the report" });
     } else if (error === DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND || error === DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED) {
         return res.status(404).json({ message: "Post not found" });
+    } else if (error === DatabaseError.DUPLICATE) {
+        return res.status(409).json({ message: "You already submitted a report for this, please wait until your report is reviewed" });
     }
 
     return res.status(200).json({ message: "Report submitted. It will be reviewed ASAP" });

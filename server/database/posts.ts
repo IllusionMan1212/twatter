@@ -374,6 +374,8 @@ export const submitPostReport = async (
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === "P2003") {
                 return DatabaseError.FOREIGN_KEY_CONSTRAINT_FAILED;
+            } else if (e.code === "P2002") {
+                return DatabaseError.DUPLICATE;
             }
         }
         console.error(e);

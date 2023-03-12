@@ -1,10 +1,29 @@
 import { ReactElement, useEffect, useState } from "react";
-import { Tab, TabList, TabPanels, Tabs, TabPanel, VStack, Spinner, Image, Select } from "@chakra-ui/react";
+import {
+    Tab,
+    TabList,
+    TabPanels,
+    Tabs,
+    TabPanel,
+    VStack,
+    Spinner,
+    Image,
+    Select,
+    ModalOverlay,
+    Modal,
+    ModalContent,
+    ModalBody,
+    useDisclosure,
+    ModalHeader,
+    ModalFooter,
+    Collapse,
+    IconButton as ChakraIconButton
+} from "@chakra-ui/react";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "src/utils/helpers";
 import { AxiosError } from "axios";
-import { GenericBackendRes, GetReportsRes } from "src/types/server";
-import { IReport, IReportPost } from "src/types/interfaces";
+import { GenericBackendRes, GetReportersRes, GetReportsRes } from "src/types/server";
+import { IReport, IReporter, IReportPost } from "src/types/interfaces";
 import { Virtuoso } from "react-virtuoso";
 import FullDate from "src/components/FullDate";
 import NextLink from "next/link";
@@ -14,13 +33,18 @@ import { parsingOptions } from "../Post/Post";
 import Attachments from "../Attachments/AttachmentsContainer";
 import RelativeTime from "../Post/RelativeTime";
 import HTMLToJSX from "html-react-parser";
-import { Flag } from "phosphor-react";
+import { Flag, Plus, Minus } from "phosphor-react";
+import { CheckIcon, TrashIcon } from "@heroicons/react/solid";
+import IconButton from "../IconButton";
+import { axiosAuth } from "src/utils/axios";
+import toast from "react-hot-toast";
+import { KeyedMutator } from "swr";
 
 interface EmbeddedPostProps {
     post: IReportPost;
 }
 
-function EmbeddedPost({ post }: EmbeddedPostProps) {
+function EmbeddedPost({ post }: EmbeddedPostProps): ReactElement {
     return (
         <>
             <div
@@ -84,7 +108,121 @@ function EmbeddedPost({ post }: EmbeddedPostProps) {
     );
 }
 
-type ReportProps = Omit<IReport, "originalReportId">;
+interface ListOfReportersModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    postId: string;
+    reason: string;
+}
+
+function ListOfReportersModal({
+    isOpen,
+    onClose,
+    postId,
+    reason,
+}: ListOfReportersModalProps): ReactElement {
+    const [reporters, setReporters] = useState<IReporter[]>([]);
+    const [reachedEnd, setReachedEnd] = useState(false);
+
+    const getKey = (pageIndex: number) => {
+        return `admin/reporters/${postId}/${reason}/${pageIndex}`;
+    };
+
+    const {
+        data,
+        error,
+        size: page,
+        setSize: setPage,
+    } = useSWRInfinite<GetReportersRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
+        revalidateOnFocus: false,
+    });
+
+    const Footer = (): ReactElement | null => {
+        if (!reachedEnd)
+            return (
+                <VStack py={4} width="full">
+                    <Spinner size="lg" />
+                </VStack>
+            );
+
+        return null;
+    };
+
+    const loadMoreReporters = async () => {
+        if (reachedEnd) {
+            return;
+        }
+
+        await setPage(page + 1);
+    };
+
+    useEffect(() => {
+        if (data) {
+            setReporters(
+                data.reduce(
+                    (prev, curr) => curr.reporters.concat(prev),
+                    [] as IReporter[],
+                ),
+            );
+
+            if (data[data.length - 1].reporters.length < 30) {
+                setReachedEnd(true);
+            }
+        }
+    }, [data]);
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
+            <ModalOverlay />
+            <ModalContent bgColor="bgMain">
+                <ModalHeader />
+                <ModalBody>
+                    {error ? (
+                        <div>
+                            <p className="font-bold">
+                                {error.response?.data.message ??
+                                    "An error occurred while fetching report submitters"}
+                            </p>
+                        </div>
+                    ) : (
+                        <Virtuoso
+                            data={reporters}
+                            totalCount={reporters.length}
+                            useWindowScroll
+                            endReached={loadMoreReporters}
+                            components={{
+                                Footer
+                            }}
+                            itemContent={(_, reporter) => (
+                                <div className="flex flex-col gap-1 mb-1">
+                                    <div className="flex items-center gap-2">
+                                        <Avatar
+                                            src={reporter.Submitter.avatarURL}
+                                            alt={`${reporter.Submitter.username}'s avatar`}
+                                            width="40px"
+                                            height="40px"
+                                            pauseAnimation
+                                        />
+                                        <div className="flex flex-col">
+                                            <p>@{reporter.Submitter.username}</p>
+                                            <FullDate ISODate={reporter.createdAt} />
+                                        </div>
+                                    </div>
+                                    <p className="text-sm">{reporter.comments}</p>
+                                </div>
+                            )}
+                        />
+                    )}
+                </ModalBody>
+                <ModalFooter />
+            </ModalContent>
+        </Modal>
+    );
+}
+
+interface ReportProps extends Omit<IReport, "originalReportId"> {
+    mutate?: KeyedMutator<GetReportsRes[]>;
+}
 
 function Report({
     reason,
@@ -92,48 +230,123 @@ function Report({
     lastReportedAt,
     originalReportSubmitterUsername,
     reports,
+    originalReportComments,
     resolved,
     resolvedAt,
+    resolveReason,
     Post,
+    mutate,
 }: ReportProps): ReactElement {
+    const { isOpen, onClose, onOpen } = useDisclosure();
+    const { isOpen: isPostOpen, onToggle } = useDisclosure();
+
+    const resolveReport = (deleted: boolean) => {
+        axiosAuth.patch<GenericBackendRes>("admin/resolve-report", { reason, postId: Post.id, deleted })
+            .then(async (res) => {
+                await mutate?.();
+                toast.success(res.data.message);
+            })
+            .catch((err) => {
+                toast.error(err.response?.data.message ?? "An error occurred while resolving report");
+            });
+    };
+
     return (
-        <div className="flex flex-col space-y-4 border-b-[color:var(--chakra-colors-bgPrimary)] border-b-[1px] py-3">
-            <div className="flex gap-2 wrap">
-                <div className="flex flex-col gap-1">
-                    First Reported At: <FullDate ISODate={firstReportedAt} />
-                </div>
-                <div className="flex flex-col gap-1">
-                    Last Reported At: <FullDate ISODate={lastReportedAt} />
-                </div>
-                {resolved && (<div className="flex flex-col gap-1">
-                    Resolved At: <FullDate ISODate={resolvedAt} />
-                </div>)}
-            </div>
-            <div className="flex flex-col">
-                <p className="text-lg">
-                    Reason: <span className="font-semibold">{reason}</span>
-                </p>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="flex justify-center items-center p-2 bg-[color:var(--chakra-colors-bgPrimary)] rounded-full">
-                    <Flag weight="fill" size={20} color="var(--chakra-colors-textMain)" />
-                </div>
-                <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
-                    {reports - 1 !== 0 ? (
-                        <span>@{originalReportSubmitterUsername} and {reports - 1} others</span>
-                    ) : (
-                        <NextLink href={`/@${originalReportSubmitterUsername}`} passHref>
-                            <a className="hover:underline usernameLink">
-                                <span className="font-semibold">
-                                    @{originalReportSubmitterUsername}
-                                </span>
-                            </a>
-                        </NextLink>
+        <div className="flex flex-col gap-3 border-b-[color:var(--chakra-colors-bgPrimary)] border-b-[1px] py-3">
+            <div className="flex gap-1 justify-between">
+                <div className="flex w-full flex-col space-y-4">
+                    <div className="flex gap-3 flex-wrap">
+                        <div className="flex flex-col gap-1">
+                            First Reported At: <FullDate ISODate={firstReportedAt} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            Last Reported At: <FullDate ISODate={lastReportedAt} />
+                        </div>
+                        {resolved && (
+                            <div className="flex flex-col gap-1">
+                                Resolved At: <FullDate ISODate={resolvedAt} />
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex flex-col">
+                        <p className="text-lg">
+                            Reason: <span className="font-semibold">{reason}</span>
+                        </p>
+                        {resolved && (
+                            <p className="text-lg">
+                                Resolve Reason: <span className="font-semibold">{resolveReason}</span>
+                            </p>
+                        )}
+                    </div>
+                    {originalReportComments && (
+                        <div className="flex flex-col">
+                            <p className="text-lg font-semibold">
+                                @{originalReportSubmitterUsername}&apos;s Comments:
+                            </p>
+                            <p>{originalReportComments}</p>
+                        </div>
                     )}
-                </p>
+                </div>
+                {!resolved && (
+                    <div className="flex flex-col gap-3">
+                        <IconButton
+                            className="rounded-full bg-red-400/30"
+                            ariaLabel="Delete"
+                            hoverColor="hover:bg-red-400/10"
+                            activeColor="active:bg-red-400/20"
+                            icon={<TrashIcon width="24" height="24" color="var(--chakra-colors-red-400)" />}
+                            onClick={() => resolveReport(true)}
+                        />
+                        <IconButton
+                            className="rounded-full bg-gray-400/30"
+                            ariaLabel="Approve"
+                            hoverColor="hover:bg-gray-400/10"
+                            activeColor="active:bg-gray-400/20"
+                            icon={<CheckIcon width="24" height="24" color="var(--chakra-colors-gray-400)" />}
+                            onClick={() => resolveReport(false)}
+                        />
+                    </div>
+                )}
             </div>
-            <EmbeddedPost post={Post} />
-            {/* <ListOfReportersModal isOpen={isOpen} onClose={onClose} postId={Post.id} reason={reason} /> */}
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                    <div className="flex justify-center items-center p-2 bg-[color:var(--chakra-colors-bgPrimary)] rounded-full">
+                        <Flag weight="fill" size={20} color="var(--chakra-colors-textMain)" />
+                    </div>
+                    <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
+                        {reports - 1 !== 0 ? (
+                            <span className="hover:underline hover:cursor-pointer" onClick={onOpen}>
+                                @{originalReportSubmitterUsername} and {reports - 1} others
+                            </span>
+                        ) : (
+                            <NextLink href={`/@${originalReportSubmitterUsername}`} passHref>
+                                <a className="hover:underline usernameLink">
+                                    <span className="font-semibold">
+                                        @{originalReportSubmitterUsername}
+                                    </span>
+                                </a>
+                            </NextLink>
+                        )}
+                    </p>
+                </div>
+                <ChakraIconButton
+                    aria-label="Expand Post"
+                    onClick={onToggle}
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="button"
+                    icon={isPostOpen ? <Minus size="20" weight="bold" /> : <Plus size="20" weight="bold" />}
+                />
+            </div>
+            <Collapse in={isPostOpen} animateOpacity>
+                <EmbeddedPost post={Post} />
+            </Collapse>
+            {isOpen && (<ListOfReportersModal
+                isOpen={isOpen}
+                onClose={onClose}
+                postId={Post.id}
+                reason={reason}
+            />)}
         </div>
     );
 }
@@ -150,6 +363,7 @@ function PendingReports(): ReactElement {
         data,
         isValidating,
         error,
+        mutate,
         size: page,
         setSize: setPage,
     } = useSWRInfinite<GetReportsRes, AxiosError<GenericBackendRes>>(getKey, fetcher, {
@@ -223,7 +437,7 @@ function PendingReports(): ReactElement {
                     borderColor="stroke"
                     size="sm"
                     rounded="md"
-                    isDisabled={isValidating}
+                    isDisabled
                     width="max-content"
                 >
                     <option value="nudity-sex">Nudity or Sex</option>
@@ -247,10 +461,13 @@ function PendingReports(): ReactElement {
                         originalReportSubmitterUsername={report.originalReportSubmitterUsername}
                         Post={report.Post}
                         reports={report.reports}
+                        originalReportComments={report.originalReportComments}
                         firstReportedAt={report.firstReportedAt}
                         lastReportedAt={report.lastReportedAt}
                         resolved={report.resolved}
                         resolvedAt={report.resolvedAt}
+                        resolveReason={report.resolveReason}
+                        mutate={mutate}
                     />
                 )}
             />
@@ -334,28 +551,49 @@ function ResolvedReports(): ReactElement {
     }
 
     return (
-        <Virtuoso
-            data={reports}
-            totalCount={reports.length}
-            endReached={loadMoreReports}
-            useWindowScroll
-            components={{
-                Footer,
-            }}
-            itemContent={(_, report) => (
-                <Report
-                    key={report.originalReportId}
-                    reason={report.reason}
-                    originalReportSubmitterUsername={report.originalReportSubmitterUsername}
-                    Post={report.Post}
-                    reports={report.reports}
-                    firstReportedAt={report.firstReportedAt}
-                    lastReportedAt={report.lastReportedAt}
-                    resolved={report.resolved}
-                    resolvedAt={report.resolvedAt}
-                />
-            )}
-        />
+        <>
+            <div className="flex items-center gap-3 mb-6">
+                <p className="text-xl font-bold">Filter:</p>
+                <Select
+                    placeholder="All"
+                    variant="outline"
+                    borderColor="stroke"
+                    size="sm"
+                    rounded="md"
+                    isDisabled
+                    width="max-content"
+                >
+                    <option value="nudity-sex">Nudity or Sex</option>
+                    <option value="terrorism-violence">Terrorism or Violence</option>
+                    <option value="spam">Spam</option>
+                    <option value="other">Other</option>
+                </Select>
+            </div>
+            <Virtuoso
+                data={reports}
+                totalCount={reports.length}
+                endReached={loadMoreReports}
+                useWindowScroll
+                components={{
+                    Footer,
+                }}
+                itemContent={(_, report) => (
+                    <Report
+                        key={report.originalReportId}
+                        reason={report.reason}
+                        originalReportSubmitterUsername={report.originalReportSubmitterUsername}
+                        Post={report.Post}
+                        reports={report.reports}
+                        originalReportComments={report.originalReportComments}
+                        firstReportedAt={report.firstReportedAt}
+                        lastReportedAt={report.lastReportedAt}
+                        resolved={report.resolved}
+                        resolvedAt={report.resolvedAt}
+                        resolveReason={report.resolveReason}
+                    />
+                )}
+            />
+        </>
     );
 }
 

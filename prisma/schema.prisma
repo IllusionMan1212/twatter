@@ -156,6 +156,11 @@ enum ReportReason {
   Other
 }
 
+enum ReportResolveReason {
+  Invalid
+  Deleted
+}
+
 model PostReport {
   id          String       @id @default(cuid())
   postId      String
@@ -163,9 +168,12 @@ model PostReport {
   reason      ReportReason
   comments    String?
   resolved    Boolean      @default(false)
+  resolveReason ReportResolveReason?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   Post      Post @relation(fields: [postId], references: [id])
   Submitter User @relation(fields: [submitterId], references: [id])
+
+  @@unique([postId, submitterId])
 }

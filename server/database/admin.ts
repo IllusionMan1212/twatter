@@ -1,4 +1,4 @@
-import { User, Event, PostReport } from "@prisma/client";
+import { User, Event, PostReport, ReportReason, ReportResolveReason } from "@prisma/client";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
 
@@ -102,19 +102,20 @@ export const queryPendingReports = async (page: number): Promise<PostReport[]> =
         group_stats.min AS "firstReportedAt",
         group_stats.max AS "lastReportedAt",
         group_stats.resolved,
-        "originalReport"."username" AS "originalReportSubmitterUsername"
+        "originalReport"."username" AS "originalReportSubmitterUsername",
+        "originalReport".comments AS "originalReportComments"
         FROM (
             SELECT reason, COUNT(*)::INTEGER, MIN("createdAt"), MAX("createdAt"), resolved
             FROM "PostReport"
             GROUP BY reason, resolved
         ) AS group_stats
         JOIN LATERAL (
-            SELECT pr.id, pr.reason, pr."submitterId", pr."postId", pr."createdAt", u.username
+            SELECT pr.id, pr.reason, pr."submitterId", pr."postId", pr."createdAt", u.username, pr.comments
             FROM "PostReport" pr
             INNER JOIN "User" u
             ON u.id = pr."submitterId"
-            WHERE reason = group_stats.reason
-            ORDER BY "createdAt"
+            WHERE reason = group_stats.reason AND resolved = false
+            ORDER by "createdAt"
             LIMIT 1
         ) AS "originalReport"
         ON group_stats.reason = "originalReport".reason
@@ -127,7 +128,7 @@ export const queryPendingReports = async (page: number): Promise<PostReport[]> =
     JSON_BUILD_OBJECT(
         'id', p.id,
         'content', p.content,
-        'attachments', JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")),
+        'attachments', JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL),
         'createdAt', p."createdAt",
         'author', JSON_BUILD_OBJECT('username', u.username, 'avatarURL', u."avatarURL", 'displayName', u."displayName")
     ) as "Post"
@@ -138,7 +139,7 @@ export const queryPendingReports = async (page: number): Promise<PostReport[]> =
     ON u.id = p."authorId"
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
-    GROUP BY r."originalReportId", r."postId", r.reason, r.resolved, r.reports, r."firstReportedAt", r."lastReportedAt", r."originalReportSubmitterUsername",
+    GROUP BY r."originalReportId", r."postId", r.reason, r.resolved, r.reports, r."firstReportedAt", r."lastReportedAt", r."originalReportSubmitterUsername", r."originalReportComments",
     p.id, u.username, u."displayName", u."avatarURL"
     `;
 };
@@ -154,24 +155,26 @@ export const queryResolvedReports = async (page: number): Promise<PostReport[]> 
         group_stats.min AS "firstReportedAt",
         group_stats.max AS "lastReportedAt",
         group_stats.resolved,
-        "originalReport"."username" AS "originalReportSubmitterUsername"
+        group_stats.max_update as "resolvedAt",
+        "originalReport"."username" AS "originalReportSubmitterUsername",
+        "originalReport".comments AS "originalReportComments",
+        "originalReport"."resolveReason"
         FROM (
-            SELECT reason, COUNT(*)::INTEGER, MIN("createdAt"), MAX("createdAt"), resolved
+            SELECT reason, COUNT(*)::INTEGER, MIN("createdAt"), MAX("createdAt"), resolved, MAX("updatedAt") as max_update
             FROM "PostReport"
             GROUP BY reason, resolved
         ) AS group_stats
         JOIN LATERAL (
-            SELECT pr.id, pr.reason, pr."submitterId", pr."postId", pr."createdAt", u.username
+            SELECT pr.id, pr.reason, pr."submitterId", pr."postId", pr."createdAt", u.username, pr.comments, pr."resolveReason"
             FROM "PostReport" pr
             INNER JOIN "User" u
             ON u.id = pr."submitterId"
-            WHERE reason = group_stats.reason
-            ORDER BY "createdAt"
+            WHERE reason = group_stats.reason AND resolved = true
+            ORDER by "createdAt"
             LIMIT 1
         ) AS "originalReport"
         ON group_stats.reason = "originalReport".reason
         WHERE resolved = true
-        ORDER BY reports DESC
         LIMIT 25
         OFFSET ${page * 25}
     )
@@ -179,7 +182,7 @@ export const queryResolvedReports = async (page: number): Promise<PostReport[]> 
     JSON_BUILD_OBJECT(
         'id', p.id,
         'content', p.content,
-        'attachments', JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")),
+        'attachments', JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL),
         'createdAt', p."createdAt",
         'author', JSON_BUILD_OBJECT('username', u.username, 'avatarURL', u."avatarURL", 'displayName', u."displayName")
     ) as "Post"
@@ -190,7 +193,64 @@ export const queryResolvedReports = async (page: number): Promise<PostReport[]> 
     ON u.id = p."authorId"
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
-    GROUP BY r."originalReportId", r."postId", r.reason, r.resolved, r.reports, r."firstReportedAt", r."lastReportedAt", r."originalReportSubmitterUsername",
+    GROUP BY r."originalReportId", r."postId", r.reason, r.resolved, r.reports, r."firstReportedAt", r."lastReportedAt", r."resolvedAt", r."originalReportSubmitterUsername", r."originalReportComments", r."resolveReason",
     p.id, u.username, u."displayName", u."avatarURL"
+    ORDER BY r."resolvedAt" DESC
     `;
+};
+
+export const queryReporters = async (postId: string, reason: ReportReason, page: number): Promise<Partial<PostReport>[]> => {
+    return await prisma.postReport.findMany({
+        where: {
+            postId,
+            reason,
+        },
+        select: {
+            comments: true,
+            createdAt: true,
+            Submitter: {
+                select: {
+                    username: true,
+                    avatarURL: true
+                }
+            }
+        },
+        take: 30,
+        skip: page * 30,
+        orderBy: {
+            createdAt: "desc"
+        }
+    });
+};
+
+export const resolveReportDB = async (reason: ReportReason, postId: string, deleted: boolean): Promise<DatabaseError> => {
+    try {
+        await prisma.$transaction(async (tx) => {
+            await tx.postReport.updateMany({
+                where: {
+                    reason,
+                    postId,
+                },
+                data: {
+                    resolved: true,
+                    resolveReason: deleted ? ReportResolveReason.Deleted : ReportResolveReason.Invalid,
+                }
+            });
+
+            if (deleted) {
+                await tx.post.update({
+                    where: {
+                        id: postId
+                    },
+                    data: {
+                        deleted: true
+                    }
+                });
+            }
+        });
+    } catch (err) {
+        return DatabaseError.UNKNOWN;
+    }
+
+    return DatabaseError.SUCCESS;
 };

@@ -9,6 +9,8 @@ import {
     unrestrictUsers,
     getPendingReports,
     getResolvedReports,
+    getReporters,
+    resolveReport,
 } from "../controllers/admin";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
@@ -28,11 +30,14 @@ router.get("/get-all-users", limiter(getLimit), adminGuard, getAllUsers);
 router.get("/get-all-events", limiter(getLimit), adminGuard, getAllEvents);
 router.get("/get-pending-reports/:page", limiter(getLimit), adminGuard, getPendingReports);
 router.get("/get-resolved-reports/:page", limiter(getLimit), adminGuard, getResolvedReports);
+router.get("/reporters/:postId/:reason/:page", limiter(getLimit), adminGuard, getReporters);
 
 router.patch("/unrestrict-users", limiter(patchLimit), adminGuard, unrestrictUsers);
 router.patch("/restrict-users", limiter(patchLimit), adminGuard, restrictUsers);
 
 router.patch("/delete-users", limiter(patchLimit), adminGuard, deleteUsers);
 router.patch("/delete-events", limiter(patchLimit), adminGuard, deleteEvents);
+
+router.patch("/resolve-report", limiter(patchLimit), adminGuard, resolveReport);
 
 export default router;

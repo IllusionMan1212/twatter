@@ -10,7 +10,7 @@ export enum ReportReasons {
     Other = "other",
 }
 
-const ReportReason = z.nativeEnum(ReportReasons, {
+export const ReportReason = z.nativeEnum(ReportReasons, {
     required_error: "Reason is required",
 });
 

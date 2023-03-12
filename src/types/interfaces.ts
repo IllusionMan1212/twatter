@@ -1,4 +1,4 @@
-import { MessageAttachment } from "@prisma/client";
+import { MessageAttachment, ReportResolveReason } from "@prisma/client";
 import { ComponentType } from "react";
 
 interface IUserSettings {
@@ -115,10 +115,18 @@ export interface IReport {
     originalReportId: string;
     reason: string;
     reports: number;
+    originalReportComments?: string;
     firstReportedAt: string;
     lastReportedAt: string;
     resolvedAt: string;
     resolved: boolean;
+    resolveReason: ReportResolveReason;
     originalReportSubmitterUsername: string;
     Post: IReportPost;
+}
+
+export interface IReporter {
+    Submitter: Pick<IUser, "username" | "avatarURL">;
+    comments?: string;
+    createdAt: string;
 }
