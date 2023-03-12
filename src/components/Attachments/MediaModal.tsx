@@ -6,12 +6,13 @@ import {
     ModalContent,
     ModalOverlay,
     Image as ChakraImage,
+    Spinner,
 } from "@chakra-ui/react";
 import styles from "src/styles/attachments.module.scss";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Keyboard, Navigation, Zoom } from "swiper";
 import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "@heroicons/react/solid";
-import { memo } from "react";
+import { memo, useState } from "react";
 
 const NavPrevBtn = () => {
     return (
@@ -85,6 +86,12 @@ const MediaModal = memo(function MediaModal({
     onClose,
     ...props
 }: MediaModalProps) {
+    const [isLoading, setLoading] = useState(true);
+
+    const handleLoad = () => {
+        setLoading(false);
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay bgColor="#000000D0" />
@@ -125,9 +132,15 @@ const MediaModal = memo(function MediaModal({
                                 maxWidth="100vw !important"
                                 objectFit="contain"
                                 color="white"
+                                onLoad={handleLoad}
                                 alt="Post's attached image expanded"
                                 onClick={(e) => e.stopPropagation()}
                             />
+                            {isLoading && (
+                                <div className="flex justify-content items-center absolute">
+                                    <Spinner color="white" size="lg" />
+                                </div>
+                            )}
                         </SwiperSlide>
                     ))}
                 </Swiper>
