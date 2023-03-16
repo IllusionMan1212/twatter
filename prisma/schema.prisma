@@ -140,7 +140,8 @@ model Message {
   content        String
   memberId       String
   conversationId String
-  wasRead        Boolean  @default(false)
+  wasRead        Boolean  @default(false) // for read indicator only
+  wasSeen        Boolean  @default(false) // for unread/unseen messages in a conversation to show an indicator/badge
   deleted        Boolean  @default(false)
   createdAt      DateTime @default(now())
 

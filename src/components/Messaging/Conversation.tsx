@@ -1,8 +1,9 @@
-import { Box, Button, Flex, HStack, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Text, useColorModeValue } from "@chakra-ui/react";
 import { MouseEventHandler, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
 import parse, { domToReact, Element } from "html-react-parser";
+import UnreadIndicator from "src/components/UnreadIndicator";
 
 interface ConversationProps {
     recipientName: string;
@@ -10,6 +11,7 @@ interface ConversationProps {
     recipientAvatarURL: string;
     updatedAt: string;
     lastMessage: string;
+    unreadMessages: number;
     isActive: boolean;
     onClick: MouseEventHandler<HTMLElement>;
 }
@@ -26,6 +28,7 @@ const parsingOptions = {
 
 export default function Conversation(props: ConversationProps): ReactElement {
     const [hovering, setHovering] = useState(false);
+    const bgColor = useColorModeValue("#ced6dd", "#3c3e44");
 
     return (
         <Flex
@@ -41,7 +44,7 @@ export default function Conversation(props: ConversationProps): ReactElement {
             height="full"
             align="start"
             position="relative"
-            bgColor="conversationItem"
+            bgColor={props.unreadMessages > 0 ? bgColor : "conversationItem"}
             colorScheme="conversationItem"
             textAlign="left"
             rounded={{ base: 0, md: "4px" }}
@@ -63,13 +66,16 @@ export default function Conversation(props: ConversationProps): ReactElement {
             />
             <Flex gap={3} width="full" minWidth={0} direction="column">
                 <HStack minWidth={0}>
-                    <Avatar
-                        src={props.recipientAvatarURL}
-                        alt={`${props.recipientUsername}'s avatar`}
-                        width="40px"
-                        height="40px"
-                        pauseAnimation={!hovering}
-                    />
+                    <div className="relative">
+                        <Avatar
+                            src={props.recipientAvatarURL}
+                            alt={`${props.recipientUsername}'s avatar`}
+                            width="40px"
+                            height="40px"
+                            pauseAnimation={!hovering}
+                        />
+                        <UnreadIndicator position="-bottom-1 -right-1" count={props.unreadMessages} />
+                    </div>
                     <Text
                         color="text"
                         fontWeight={props.isActive ? "bold" : "semibold"}

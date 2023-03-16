@@ -1,4 +1,4 @@
-import { checkConversationMembers, createMessage, markMessagesAsRead } from "../database/message";
+import { checkConversationMembers, createMessage, markMessagesAsRead, markMessagesAsSeen } from "../database/message";
 import { Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { ClientToServerEvents, ServerToClientEvents } from "./types";
@@ -177,6 +177,49 @@ export const handleMarkMessagesAsRead = (
 
         connectedSockets.get(data.recipientId)?.forEach((_socket) => {
             _socket.emit("markedMessagesAsRead", {
+                conversationId: data.conversationId,
+            });
+        });
+    });
+};
+
+export const handleMarkMessagesAsSeen = (
+    socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>,
+    connectedSockets: Map<string, Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, unknown>[]>
+) => {
+    socket.on("markMessagesAsSeen", async (data) => {
+        try {
+            await limit.consume(`markMessagesAsSeen|${socket.userId}`);
+        } catch (e) {
+            socket.emit("blocked", {
+                reason: "Rate limit reached",
+                additionalData: {
+                    "retry-ms": (e as RateLimiterRes).msBeforeNext,
+                    limit: limit.points,
+                }
+            });
+            return;
+        }
+
+        if (socket.userId === data.recipientId) return;
+
+        const convos = await checkConversationMembers([socket.userId, data.recipientId], data.conversationId);
+
+        if (!convos.length || !convos?.[0]) {
+            socket.emit("error", {
+                message: "Forbidden",
+            });
+            return;
+        }
+
+        const count = await markMessagesAsSeen(data.conversationId, data.recipientId);
+
+        if (!count) {
+            return;
+        }
+
+        connectedSockets.get(socket.userId)?.forEach((_socket) => {
+            _socket.emit("markedMessagesAsSeen", {
                 conversationId: data.conversationId,
             });
         });

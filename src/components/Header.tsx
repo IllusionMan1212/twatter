@@ -33,7 +33,7 @@ import {
     MoonIcon as MoonIconOutline,
     SunIcon as SunIconOutline,
 } from "@heroicons/react/outline";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { useUserContext } from "src/contexts/userContext";
 import { IUser } from "src/types/interfaces";
 import { axiosAuth } from "src/utils/axios";
@@ -41,7 +41,7 @@ import Avatar from "src/components/User/Avatar";
 import NavItem from "src/components/Nav/NavItem";
 import { BellIcon, ChatAlt2Icon } from "@heroicons/react/solid";
 import UnreadIndicator from "src/components/UnreadIndicator";
-import { NovuProvider } from "@novu/notification-center";
+import { useUnseenCount } from "@novu/notification-center";
 
 interface UserDropDownCardButtonProps {
     isOpen: boolean;
@@ -161,7 +161,7 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
     );
 }) as CustomBox;
 
-function LoggedOutHeader(): ReactElement {
+export function LoggedOutHeader(): ReactElement {
     return (
         <Stack
             bgColor="bgMain"
@@ -222,19 +222,21 @@ const routesTitles: Record<string, string> = {
     "/404": "Not Found",
 };
 
-function LoggedInHeader(): ReactElement {
-    const { user } = useUserContext();
+export function LoggedInHeader(): ReactElement {
+    const { user, unreadMessages } = useUserContext();
+    const { data: unreadNotifications } = useUnseenCount();
+    const router = useRouter();
 
     const handleSearchSubmit = (input: HTMLInputElement | null) => {
         if (input) {
-            if (Router.pathname === "/search") {
-                Router.push(
+            if (router.pathname === "/search") {
+                router.push(
                     `/search?q=${input.value}${
-                        Router.query.type ? `&type=${Router.query.type}` : ""
+                        router.query.type ? `&type=${router.query.type}` : ""
                     }`,
                 );
             } else {
-                Router.push(`/search?q=${input.value}`);
+                router.push(`/search?q=${input.value}`);
             }
         }
     };
@@ -285,19 +287,20 @@ function LoggedInHeader(): ReactElement {
                         align="center"
                     >
                         <Text fontSize="xl" fontWeight="bold">
-                            {routesTitles[Router.pathname]}
+                            {routesTitles[router.pathname]}
                         </Text>
                         <Flex>
                             <NavItem
                                 href="/messages"
                                 ariaLabel="Messages"
                                 icon={ChatAlt2Icon}
+                                indicator={<UnreadIndicator position="top-0 right-0" count={unreadMessages.size} />}
                             />
                             <NavItem
                                 href="/notifications"
                                 ariaLabel="Notifications"
                                 icon={BellIcon}
-                                indicator={<UnreadIndicator position="top-0 right-0" />}
+                                indicator={<UnreadIndicator position="top-0 right-0" count={unreadNotifications?.count ?? 0} />}
                             />
                         </Flex>
                     </Flex>
@@ -305,19 +308,4 @@ function LoggedInHeader(): ReactElement {
             </Container>
         </Stack>
     );
-}
-
-export default function Header(): ReactElement {
-    const { user } = useUserContext();
-
-    return user ? (
-        <NovuProvider
-            subscriberId={user.id}
-            subscriberHash={user.notificationSubHash}
-            applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
-            initialFetchingStrategy={{ fetchUnseenCount: true }}
-        >
-            <LoggedInHeader />
-        </NovuProvider>
-    ) : <LoggedOutHeader />;
 }

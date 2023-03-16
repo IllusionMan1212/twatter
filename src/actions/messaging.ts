@@ -5,6 +5,7 @@ export enum MessagingActions {
     FETCH_CONVERSATIONS = "FETCH_CONVERSATIONS",
     FETCH_MESSAGES = "FETCH_MESSAGES",
     RECEIVE_MESSAGE = "RECEIVE_MESSAGE",
+    RECEIVE_MESSAGE_WHEN_CONVO_NOT_OPEN = "RECEIVE_MESSAGE_WHEN_CONVO_NOT_OPEN",
     MARK_MESSAGES_AS_READ = "MARK_MESSAGES_AS_READ",
     DELETE_MESSAGE = "DELETE_MESSAGE",
 }
@@ -37,6 +38,13 @@ interface ReceiveMessageAction {
     };
 }
 
+interface ReceiveMessageWhenConvoNotOpenAction {
+    type: MessagingActions.RECEIVE_MESSAGE_WHEN_CONVO_NOT_OPEN;
+    payload: {
+        message: IMessage;
+    };
+}
+
 interface MarkMessagesAsReadAction {
     type: MessagingActions.MARK_MESSAGES_AS_READ;
 }
@@ -53,5 +61,6 @@ export type MessagingAction =
     | FetchConversationsAction
     | FetchMessagesAction
     | ReceiveMessageAction
+    | ReceiveMessageWhenConvoNotOpenAction
     | MarkMessagesAsReadAction
     | DeleteMessageAction;

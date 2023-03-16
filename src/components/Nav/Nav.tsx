@@ -22,7 +22,8 @@ import { useUserContext } from "src/contexts/userContext";
 import styles from "src/styles/nav.module.scss";
 import ComposePostModal from "src/components/Post/ComposePostModal";
 import UserDrawer from "src/components/User/UserDrawer";
-import UnreadIndicator from "../UnreadIndicator";
+import UnreadIndicator from "src/components/UnreadIndicator";
+import { useUnseenCount } from "@novu/notification-center";
 
 const DashboardIcon = () => {
     return <Gauge size="26" weight="fill" />;
@@ -58,7 +59,8 @@ const ComposePostItem = () => {
 };
 
 export default function Nav(): ReactElement {
-    const { user } = useUserContext();
+    const { user, unreadMessages } = useUserContext();
+    const { data: unreadNotifications } = useUnseenCount();
 
     return (
         <Box className={styles.nav}>
@@ -68,10 +70,10 @@ export default function Nav(): ReactElement {
                         <NavItem href="/home" icon={HomeIcon}>
                             Home
                         </NavItem>
-                        <NavItem href="/messages" icon={ChatAlt2Icon}>
+                        <NavItem href="/messages" icon={ChatAlt2Icon} indicator={<UnreadIndicator position="top-1 left-2" count={unreadMessages.size} />}>
                             Messages
                         </NavItem>
-                        <NavItem href="/notifications" icon={BellIcon} indicator={<UnreadIndicator position="top-1 left-2" />}>
+                        <NavItem href="/notifications" icon={BellIcon} indicator={<UnreadIndicator position="top-1 left-2" count={unreadNotifications?.count ?? 0} />}>
                             Notifications
                         </NavItem>
                     </>

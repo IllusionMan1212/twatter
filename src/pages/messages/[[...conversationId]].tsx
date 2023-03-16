@@ -20,7 +20,7 @@ import {
     ModalFooter,
 } from "@chakra-ui/react";
 import { PlusIcon } from "@heroicons/react/solid";
-import { ChangeEvent, ReactElement, useEffect, useReducer, useState } from "react";
+import { ChangeEvent, ReactElement, useCallback, useEffect, useReducer, useState } from "react";
 import { MessagingActions } from "src/actions/messaging";
 import Conversation from "src/components/Messaging/Conversation";
 import ConversationArea from "src/components/Messaging/ConversationArea";
@@ -42,7 +42,7 @@ import toast from "react-hot-toast";
 import { Virtuoso } from "react-virtuoso";
 const User = dynamic(() => import("src/components/User/User"));
 import styles from "src/styles/messages.module.scss";
-import { MarkMessagesAsReadData } from "server/sockets/types";
+import { MarkMessagesAsReadData, MarkMessagesAsSeenData, ServerMessageEventData } from "server/sockets/types";
 import { useUserContext } from "src/contexts/userContext";
 import useSWR, { KeyedMutator } from "swr";
 import { AxiosError } from "axios";
@@ -320,7 +320,7 @@ const getKey = (pageIndex: number) => {
 };
 
 export default function Messages(): ReactElement {
-    const { user, socket } = useUserContext();
+    const { user, socket, unreadMessages } = useUserContext();
     const [state, dispatch] = useReducer(messagingReducer, initialState);
     const [filteredConversations, setFilteredConversations] = useState<IConversation[]>(
         state.conversations,
@@ -415,6 +415,13 @@ export default function Messages(): ReactElement {
                 socket?.emit("markMessagesAsRead", payload);
             }
         }
+        if (conversation) {
+            const payload: MarkMessagesAsSeenData = {
+                conversationId: conversation.id,
+                recipientId: conversation.members[0].User.id,
+            };
+            socket?.emit("markMessagesAsSeen", payload);
+        }
 
         dispatch({
             type: MessagingActions.CHANGE_CONVERSATION,
@@ -448,6 +455,31 @@ export default function Messages(): ReactElement {
             );
         }
     }, [error, data]);
+
+    const handleMessage = useCallback((message: ServerMessageEventData) => {
+        if (state.activeConversation?.id === message.conversationId) return;
+
+        dispatch({
+            type: MessagingActions.RECEIVE_MESSAGE_WHEN_CONVO_NOT_OPEN,
+            payload: {
+                message: {
+                    ...message,
+                },
+            },
+        });
+    }, [state.activeConversation]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("message", handleMessage);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("message", handleMessage);
+            }
+        };
+    }, [socket, handleMessage]);
 
     useEffect(() => {
         setFilteredConversations(state.conversations);
@@ -537,6 +569,7 @@ export default function Messages(): ReactElement {
                                     lastMessage={convo.lastMessage}
                                     updatedAt={convo.updatedAt}
                                     isActive={convo.id === state.activeConversation?.id}
+                                    unreadMessages={unreadMessages.get(convo.id) ?? 0}
                                     onClick={() => {
                                         if (
                                             router.query?.conversationsId?.[0] !==

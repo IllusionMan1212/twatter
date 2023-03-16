@@ -96,3 +96,10 @@ export interface GetReportsRes extends GenericBackendRes {
 export interface GetReportersRes extends GenericBackendRes {
     reporters: IReporter[];
 }
+
+export interface GetUnreadMessagesRes extends GenericBackendRes {
+    convos: {
+        id: string;
+        messages: number;
+    }[]
+}

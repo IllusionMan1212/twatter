@@ -41,6 +41,18 @@ export function messagingReducer(
                 return convo;
             }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
         };
+    case MessagingActions.RECEIVE_MESSAGE_WHEN_CONVO_NOT_OPEN:
+        return {
+            ...state,
+            conversations: state.conversations.map((convo) => {
+                if (convo.id === action.payload.message.conversationId) {
+                    convo.lastMessage = action.payload.message.content;
+                    convo.updatedAt = new Date().toISOString();
+                }
+
+                return convo;
+            }).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+        };
     case MessagingActions.MARK_MESSAGES_AS_READ:
         return {
             ...state,

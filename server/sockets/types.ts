@@ -51,6 +51,15 @@ export interface MarkedMessagesAsReadData {
     conversationId: string;
 }
 
+export interface MarkMessagesAsSeenData {
+    conversationId: string;
+    recipientId: string;
+}
+
+export interface MarkedMessagesAsSeenData {
+    conversationId: string;
+}
+
 export interface DeleteMessageData {
     conversationId: string;
     recipientId: string;
@@ -66,6 +75,7 @@ export interface ClientToServerEvents {
     message: (data: ClientMessageEventData) => void;
     typing: (data: ClientTypingEventData) => void;
     markMessagesAsRead: (data: MarkMessagesAsReadData) => void;
+    markMessagesAsSeen: (data: MarkMessagesAsSeenData) => void;
     deleteMessage: (data: DeleteMessageData) => void;
 }
 
@@ -75,6 +85,7 @@ export interface ServerToClientEvents {
     error: (data: ErrorEventData) => void;
     typing: (data: ServerTypingEventData) => void;
     markedMessagesAsRead: (data: MarkedMessagesAsReadData) => void;
+    markedMessagesAsSeen: (data: MarkedMessagesAsSeenData) => void;
     deletedMessage: (data: DeletedMessageData) => void;
 }
 

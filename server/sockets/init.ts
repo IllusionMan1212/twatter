@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import http from "http";
 import { parse as parseCookies } from "cookie";
 import { validateSession } from "../controllers/utils/cookies";
-import { handleDeleteMessage, handleMarkMessagesAsRead, handleMessage, handleTyping } from "./message";
+import { handleDeleteMessage, handleMarkMessagesAsRead, handleMarkMessagesAsSeen, handleMessage, handleTyping } from "./message";
 import { ClientToServerEvents, ServerToClientEvents } from "./types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
@@ -56,6 +56,7 @@ export const initWebsocketServer = (server: http.Server) => {
         handleMessage(socket, connectedSockets);
         handleTyping(socket, connectedSockets);
         handleMarkMessagesAsRead(socket, connectedSockets);
+        handleMarkMessagesAsSeen(socket, connectedSockets);
         handleDeleteMessage(socket, connectedSockets);
     });
 };

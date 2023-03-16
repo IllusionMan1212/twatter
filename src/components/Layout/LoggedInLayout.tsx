@@ -6,6 +6,7 @@ import Nav from "src/components/Nav/Nav";
 import { useUserContext } from "src/contexts/userContext";
 import Sidebar from "src/components/Sidebar";
 import { NovuProvider } from "@novu/notification-center";
+import { LoggedInHeader } from "src/components/Header";
 const JoinReminder = dynamic(() => import("src/components/JoinReminder"));
 
 const adminRoutes = ["/dashboard/[[...item]]"];
@@ -52,17 +53,18 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
     }, [user]);
 
     return (
-        <Container
-            maxWidth={!isLargerThanMd ? "full" : "8xl"}
-            px={!isLargerThanMd ? 0 : "1rem"}
+        <NovuProvider
+            subscriberId={user?.id}
+            subscriberHash={user?.notificationSubHash}
+            applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
+            initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true, fetchUnseenCount: true }}
         >
-            <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
-                <NovuProvider
-                    subscriberId={user?.id}
-                    subscriberHash={user?.notificationSubHash}
-                    applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
-                    initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true }}
-                >
+            <LoggedInHeader />
+            <Container
+                maxWidth={!isLargerThanMd ? "full" : "8xl"}
+                px={!isLargerThanMd ? 0 : "1rem"}
+            >
+                <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
                     <Nav />
                     <Flex
                         gap={10}
@@ -83,8 +85,8 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
                         {hasSidebar ? <Sidebar withEvents={withEvents} /> : null}
                         {isGuest ? <JoinReminder /> : null}
                     </Flex>
-                </NovuProvider>
-            </Flex>
-        </Container>
+                </Flex>
+            </Container>
+        </NovuProvider>
     );
 }

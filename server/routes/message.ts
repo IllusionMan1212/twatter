@@ -1,6 +1,14 @@
 import express from "express";
 import { limiter, messagingGuard, sessionGuard } from "./utils/middleware";
-import { deleteMessage, getConversations, getMessages, getRecommendedPeople, leaveConversation, startConversation } from "../controllers/message";
+import {
+    deleteMessage,
+    getConversations,
+    getMessages,
+    getRecommendedPeople,
+    leaveConversation,
+    startConversation,
+    getUnreadMessages,
+} from "../controllers/message";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
 const router = express.Router();
@@ -23,6 +31,7 @@ const deleteLimit = new RateLimiterMemory({
 router.get("/get-conversations/:page", limiter(getLimit), sessionGuard, getConversations);
 router.get("/get-messages/:conversationId/:page", limiter(getLimit), sessionGuard, messagingGuard, getMessages);
 router.get("/get-recommended-people", limiter(getLimit), sessionGuard, getRecommendedPeople);
+router.get("/get-unread-messages", limiter(getLimit), sessionGuard, getUnreadMessages);
 
 router.post("/start-conversation", limiter(postLimit), sessionGuard, startConversation);
 

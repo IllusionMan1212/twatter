@@ -57,7 +57,7 @@ import {
     MarkedMessagesAsReadData,
     MarkMessagesAsReadData,
     ServerMessageEventData,
-} from "src/../server/sockets/types";
+} from "server/sockets/types";
 import styles from "src/styles/ConversationArea.module.scss";
 import Typing from "src/components/Messaging/Typing";
 import useTyping from "src/hooks/useTyping";
@@ -443,7 +443,7 @@ function ConversationBody({
     state,
     dispatch,
 }: ConversationBodyProps): ReactElement {
-    const { user } = useUserContext();
+    const { user, setActiveConversationId } = useUserContext();
 
     const [reachedStart, setReachedStart] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
@@ -509,6 +509,14 @@ function ConversationBody({
         setConvoWidth(document.getElementById("virtual-messages")?.clientWidth ?? 300);
     }, [windowSize.width]);
 
+    useEffect(() => {
+        setActiveConversationId(convo.id);
+
+        return () => {
+            setActiveConversationId(null);
+        };
+    }, [convo.id]);
+
     const Header = () => {
         return (
             <VStack width="full">
@@ -517,6 +525,7 @@ function ConversationBody({
                         color="textMain"
                         textAlign="center"
                         py={4}
+                        px={2}
                         fontWeight="semibold"
                     >
                         You reached the beginning of this conversation

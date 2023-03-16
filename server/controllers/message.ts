@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ConversationData, DeleteMessageData, GetMessagesData, StartConversationData } from "../validators/message";
-import { createOrUpdateConversation, deleteMessageDB, getConversationsDB, getMessagesDB, isValidUser, leaveConversationDB, queryRecommendedPeople } from "../database/message";
+import { createOrUpdateConversation, deleteMessageDB, getConversationsDB, getMessagesDB, isValidUser, leaveConversationDB, queryRecommendedPeople, queryUnreadMessages } from "../database/message";
 import { DatabaseError } from "../database/utils";
 import { GetPagedData } from "../validators/general";
 
@@ -91,4 +91,16 @@ export async function deleteMessage(req: Request, res: Response) {
     }
 
     return res.status(200).json({ message: "Successfully deleted message" });
+}
+
+export async function getUnreadMessages(req: Request, res: Response) {
+    const c = await queryUnreadMessages(req.session.user.id);
+    const convos = c.map((_c) => {
+        return {
+            id: _c.id,
+            messages: _c.messages.length
+        };
+    });
+
+    return res.status(200).json({ message: "Successfully fetched unread messages", convos });
 }

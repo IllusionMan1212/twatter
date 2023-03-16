@@ -245,6 +245,18 @@ export const createMessage = async (
                 data: {
                     updatedAt: new Date(),
                     lastMessage: message,
+                    messages: {
+                        updateMany: {
+                            where: {
+                                memberId: {
+                                    not: userId
+                                }
+                            },
+                            data: {
+                                wasSeen: true
+                            }
+                        }
+                    }
                 }
             });
 
@@ -368,4 +380,57 @@ export const deleteMessageDB = async (userId: string, messageId: string, convers
     }
 
     return DatabaseError.SUCCESS;
+};
+
+export const queryUnreadMessages = async (userId: string): Promise<({ id: string, messages: { id: string }[] })[]> => {
+    return await prisma.conversation.findMany({
+        where: {
+            AND: [
+                {
+                    members: {
+                        some: {
+                            AND: [{ userId }, { isParticipating: true }],
+                        },
+                    },
+                },
+                {
+                    messages: {
+                        some: {
+                            AND: [
+                                {
+                                    memberId: {
+                                        not: userId,
+                                    },
+                                },
+                                { wasSeen: false },
+                            ],
+                        },
+                    },
+                },
+            ],
+        },
+        select: {
+            id: true,
+            messages: {
+                where: {
+                    wasSeen: false
+                },
+                select: {
+                    id: true
+                }
+            }
+        }
+    });
+};
+
+export const markMessagesAsSeen = async (conversationId: string, recipientId: string): Promise<number> => {
+    const affected = await prisma.$executeRaw`
+    UPDATE "Message" m
+    SET "wasSeen" = true
+    WHERE m."conversationId" = ${conversationId}
+    AND m."memberId" = ${recipientId}
+    AND m."wasSeen" = false
+    ;`;
+
+    return affected;
 };
