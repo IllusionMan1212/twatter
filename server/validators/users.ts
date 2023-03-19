@@ -39,3 +39,7 @@ export const ResetPasswordData = z.object({
 export const GetUserData = z.object({
     username: z.string().min(1, "Username cannot be empty"),
 });
+
+export const FollowData = z.object({
+    userId: z.string({ required_error: "User ID is required" }).min(1, "User ID cannot be empty"),
+});

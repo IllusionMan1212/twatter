@@ -335,7 +335,8 @@ export const markMessagesAsRead = async (conversationId: string, recipientId: st
 export const queryRecommendedPeople = async (userId: string): Promise<User[]> => {
     return await prisma.$queryRaw`
     SELECT u.id, u.username, u."avatarURL", u."displayName",
-    s."allowAllDMs"
+    s."allowAllDMs",
+    EXISTS (SELECT * FROM "Follow" f WHERE f."followerId" = ${userId} AND f."followingId" = u.id) as "isFollowing"
     FROM "User" u
     LEFT JOIN "UserSettings" s
     ON u.id = s."userId"

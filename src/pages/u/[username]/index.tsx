@@ -15,7 +15,7 @@ import { ChatCenteredDots } from "phosphor-react";
 import { ReactElement, useEffect, useState } from "react";
 import Post from "src/components/Post/Post";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { IPost, IUser } from "src/types/interfaces";
+import { IPost, ProfilePageUser } from "src/types/interfaces";
 import {
     GenericBackendRes,
     GetPostsRes,
@@ -33,9 +33,10 @@ import { Virtuoso } from "react-virtuoso";
 import styles from "src/styles/userProfile.module.scss";
 import { NextSeo } from "next-seo";
 import BigNumber from "src/components/BigNumber";
+import FollowButton from "src/components/User/FollowButton";
 
 interface Props {
-    user: IUser & { _count: { posts: number } };
+    user: ProfilePageUser;
 }
 
 function Chat(): ReactElement {
@@ -62,6 +63,7 @@ function Tags({ user }: Props): ReactElement {
 
 function User({ user }: Props): ReactElement {
     const { user: currentUser } = useUserContext();
+    const isFollowing = !!user.followers.find((f) => f.followerId === currentUser?.id);
 
     const handleStartConversation = () => {
         axiosAuth
@@ -75,6 +77,10 @@ function User({ user }: Props): ReactElement {
                         "An error occurred while starting the conversation",
                 );
             });
+    };
+
+    const followCB = async () => {
+        await Router.replace(Router.asPath);
     };
 
     return (
@@ -111,11 +117,9 @@ function User({ user }: Props): ReactElement {
                         colorScheme="accent"
                         size="sm"
                     >
-                        {/*TODO: follow button user.id !== currentUser?.id ? (
-                            <Button variant="solid">
-                                Follow
-                            </Button>
-                        ) : null */}
+                        {user.id !== currentUser?.id ? (
+                            <FollowButton isFollowing={isFollowing} userId={user.id} iconSize="24" followCB={followCB} />
+                        ) : null}
                         {!user.settings?.allowAllDMs ||
                         user.id === currentUser?.id ||
                         user.restricted ? null : (
@@ -132,11 +136,11 @@ function User({ user }: Props): ReactElement {
             </Flex>
             <div className="flex gap-2">
                 <div>
-                    <BigNumber className="font-semibold" num={0} />{" "}
+                    <BigNumber className="font-semibold" num={user._count.followers} />{" "}
                     <span className="text-[color:var(--chakra-colors-textMain)]">Followers</span>
                 </div>
                 <div>
-                    <BigNumber className="font-semibold" num={0} />{" "}
+                    <BigNumber className="font-semibold" num={user._count.following} />{" "}
                     <span className="text-[color:var(--chakra-colors-textMain)]">Following</span>
                 </div>
                 <div>
@@ -296,7 +300,7 @@ export default function Profile({ user }: Props): ReactElement {
 export async function getServerSideProps(
     context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Props>> {
-    let user: (IUser & { _count: { posts: number } }) | null = null;
+    let user: ProfilePageUser | null = null;
 
     try {
         const res = await axiosNoAuth.get<GetUserRes>(

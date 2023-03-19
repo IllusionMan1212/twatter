@@ -3,8 +3,9 @@ import {
     LinkBox,
     LinkOverlay,
     Tooltip,
-    Button,
     Icon,
+    ButtonGroup,
+    IconButton,
 } from "@chakra-ui/react";
 import { ReactElement, useState } from "react";
 import NextLink from "next/link";
@@ -16,6 +17,11 @@ import { GenericBackendRes, StartConversationRes } from "src/types/server";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import Router from "next/router";
+import FollowButton from "src/components/User/FollowButton";
+
+function Chat(): ReactElement {
+    return <ChatAltIcon width="20" height="20" />;
+}
 
 interface UserProps {
     id: string;
@@ -24,6 +30,7 @@ interface UserProps {
     avatarURL: string | undefined;
     allowAllDMs: boolean;
     startConvoCB?: () => Promise<void>;
+    isFollowing: boolean;
 }
 
 export default function User(props: UserProps): ReactElement {
@@ -80,15 +87,14 @@ export default function User(props: UserProps): ReactElement {
                     </LinkOverlay>
                 </NextLink>
                 {props.allowAllDMs && props.id !== user?.id ? (
-                    <Button
-                        size="sm"
-                        colorScheme="accent"
-                        rightIcon={<Icon as={ChatAltIcon} />}
-                        onClick={handleStartConversation}
-                        minWidth="fit-content"
-                    >
-                        Message
-                    </Button>
+                    <ButtonGroup size="sm" colorScheme="accent">
+                        <FollowButton isFollowing={props.isFollowing} userId={props.id} iconOnly iconSize="20" />
+                        <IconButton
+                            aria-label="Message"
+                            icon={<Icon as={Chat} />}
+                            onClick={handleStartConversation}
+                        />
+                    </ButtonGroup>
                 ) : null}
             </HStack>
         </LinkBox>

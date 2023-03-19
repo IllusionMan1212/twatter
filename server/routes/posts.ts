@@ -4,7 +4,8 @@ import {
     createPost,
     deletePost,
     getPost,
-    getPosts,
+    getAllPosts,
+    getFeed,
     getComments,
     getUserPosts,
     likePost,
@@ -39,7 +40,8 @@ const deleteLimit = new RateLimiterMemory({
 });
 
 router.get("/get-user-posts/:id/:page", limiter(getLimit), sessionContext, getUserPosts);
-router.get("/get-all-posts/:page", limiter(getLimit), sessionGuard, getPosts);
+router.get("/get-all-posts/:page", limiter(getLimit), sessionGuard, getAllPosts);
+router.get("/get-feed/:page", limiter(getLimit), sessionGuard, getFeed);
 router.get("/get-post/:id", limiter(getLimit), sessionContext, getPost);
 router.get("/get-thread/:id", limiter(getLimit), sessionContext, getThread);
 router.get("/get-comments/:id/:page", limiter(getLimit), sessionContext, getComments);

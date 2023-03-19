@@ -34,7 +34,7 @@ interface NotificationProps {
 
 function Notification({ notif }: NotificationProps): ReactElement {
     const content = HTMLToJSX(notif.content as string, contentParsingOptions);
-    const body = HTMLToJSX(notif.payload["body"] as string, bodyParsingOptions);
+    const body = notif.payload?.["body"] ? HTMLToJSX(notif.payload["body"] as string, bodyParsingOptions) : null;
 
     const [hovering, setHovering] = useState(false);
 
@@ -73,7 +73,7 @@ function Notification({ notif }: NotificationProps): ReactElement {
                 </Link>
                 <div className="flex flex-col gap-2 whitespace-normal">
                     <p>{content}</p>
-                    <p className="text-sm text-[color:var(--chakra-colors-textMain)]">{body}</p>
+                    {body && (<p className="text-sm text-[color:var(--chakra-colors-textMain)]">{body}</p>)}
                 </div>
             </div>
             <div className="flex flex-col justify-between items-end">

@@ -6,7 +6,7 @@ import Nav from "src/components/Nav/Nav";
 import { useUserContext } from "src/contexts/userContext";
 import Sidebar from "src/components/Sidebar";
 import { NovuProvider } from "@novu/notification-center";
-import { LoggedInHeader } from "src/components/Header";
+import { LoggedInHeader, LoggedOutHeader } from "src/components/Header";
 const JoinReminder = dynamic(() => import("src/components/JoinReminder"));
 
 const adminRoutes = ["/dashboard/[[...item]]"];
@@ -59,7 +59,7 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
             applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID ?? ""}
             initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true, fetchUnseenCount: true }}
         >
-            <LoggedInHeader />
+            {isGuest ? <LoggedOutHeader /> : <LoggedInHeader />}
             <Container
                 maxWidth={!isLargerThanMd ? "full" : "8xl"}
                 px={!isLargerThanMd ? 0 : "1rem"}

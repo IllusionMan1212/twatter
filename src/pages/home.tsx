@@ -132,7 +132,7 @@ function Posts({ swr }: PostsProps): ReactElement {
 
 export default function Home(): ReactElement {
     const getKey = (pageIndex: number) => {
-        return `posts/get-all-posts/${pageIndex}`;
+        return `posts/get-feed/${pageIndex}`;
     };
 
     const swr = useSWRInfinite<GetFeedRes, AxiosError<GenericBackendRes>>(

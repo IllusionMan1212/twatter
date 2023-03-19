@@ -11,6 +11,7 @@ import {
     queryComments,
     queryThread,
     submitPostReport,
+    queryFeed,
 } from "../database/posts";
 import {
     CreatePostData,
@@ -43,7 +44,7 @@ export async function getUserPosts(req: Request, res: Response) {
     return res.status(200).json({ message: "Successfully fetched user posts", posts });
 }
 
-export async function getPosts(req: Request, res: Response) {
+export async function getAllPosts(req: Request, res: Response) {
     const data = GetPagedData.safeParse(req.params);
 
     if (!data.success) {
@@ -77,6 +78,18 @@ export async function getPost(req: Request, res: Response) {
     }
 
     return res.status(200).json({ message: "Successfully fetched post", post: posts[0] });
+}
+
+export async function getFeed(req: Request, res: Response) {
+    const data = GetPagedData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const posts = await queryFeed(req.session.user.id, data.data.page);
+
+    return res.status(200).json({ message: "Successfully fetched feed", posts });
 }
 
 export async function getThread(req: Request, res: Response) {

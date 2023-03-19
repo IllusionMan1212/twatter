@@ -25,6 +25,16 @@ export interface ISearchUser {
     username: string;
     avatarURL: string | undefined;
     allowAllDMs: boolean;
+    isFollowing: boolean;
+}
+
+export interface ProfilePageUser extends IUser {
+    _count: {
+        posts: number;
+        followers: number;
+        following: number;
+    },
+    followers: { followerId: string }[];
 }
 
 export interface IEvent {

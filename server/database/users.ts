@@ -155,12 +155,63 @@ export const getUserByUsername = async (username: string): Promise<Partial<User>
                             deleted: false,
                         }
                     },
+                    followers: true,
+                    following: true
                 }
             },
+            followers: {
+                select: {
+                    followerId: true
+                }
+            }
         },
     });
 
     if (!users.length) return null;
 
     return users[0];
+};
+
+export const followUser = async (userId: string, targetId: string): Promise<DatabaseError> => {
+    try {
+        await prisma.follow.create({
+            data: {
+                followerId: userId,
+                followingId: targetId
+            }
+        });
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2002") {
+                return DatabaseError.DUPLICATE;
+            }
+        }
+        console.error(e);
+        return DatabaseError.UNKNOWN;
+    }
+
+    return DatabaseError.SUCCESS;
+};
+
+export const unfollowUser = async (userId: string, targetId: string): Promise<DatabaseError> => {
+    try {
+        await prisma.follow.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: userId,
+                    followingId: targetId
+                }
+            }
+        });
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === "P2025") {
+                return DatabaseError.OPERATION_DEPENDS_ON_REQUIRED_RECORD_THAT_WAS_NOT_FOUND;
+            }
+        }
+        console.error(e);
+        return DatabaseError.UNKNOWN;
+    }
+
+    return DatabaseError.SUCCESS;
 };

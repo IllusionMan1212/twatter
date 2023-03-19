@@ -120,6 +120,7 @@ function Recommended({ onClose, mutateConvos }: RecommendedProps): ReactElement 
                             avatarURL={user.avatarURL}
                             allowAllDMs={user.allowAllDMs}
                             startConvoCB={startConvoCB}
+                            isFollowing={user.isFollowing}
                         />
                     ))}
                 </VStack>
@@ -195,6 +196,7 @@ function SearchResults({
                         avatarURL={user.avatarURL}
                         allowAllDMs={user.allowAllDMs}
                         startConvoCB={startConvoCB}
+                        isFollowing={user.isFollowing}
                     />
                 ))}
             </VStack>

@@ -91,6 +91,7 @@ export default function UsersResults({ query }: SearchResultsTabProps): ReactEle
                     username={user.username}
                     avatarURL={user.avatarURL}
                     allowAllDMs={user.allowAllDMs}
+                    isFollowing={user.isFollowing}
                 />
             )}
         />

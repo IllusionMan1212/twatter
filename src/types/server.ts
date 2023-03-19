@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -33,7 +33,7 @@ export interface AdminEventsRes {
 }
 
 export interface GetUserRes extends GenericBackendRes {
-    user: (IUser & { _count: { posts: number } }) | undefined;
+    user: ProfilePageUser | undefined;
 }
 
 export interface GetPostRes extends GenericBackendRes {

@@ -11,7 +11,7 @@ export async function doSearch(req: Request, res: Response) {
 
     switch (data.data.type) {
     case "user": {
-        const users = await searchUsers(data.data.query, data.data.page);
+        const users = await searchUsers(data.data.query, data.data.page, req.session.user.id);
         return res.status(200).json({ message: "Successfully fetched search results", users });
     }
     case "event": {
@@ -21,7 +21,7 @@ export async function doSearch(req: Request, res: Response) {
     case "all":
     default: {
         const [users, events] = await Promise.all([
-            searchUsers(data.data.query, 0, 5),
+            searchUsers(data.data.query, 0, req.session.user.id, 5),
             searchEvents(data.data.query, req.session.user.id, 0, 5),
         ]);
 

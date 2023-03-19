@@ -32,6 +32,8 @@ model User {
   eventInterests EventInterest[]
   likes          PostLike[]
   reports        PostReport[]
+  following      Follow[]             @relation("Follower")
+  followers      Follow[]             @relation("Following")
 }
 
 model UserSettings {
@@ -163,18 +165,29 @@ enum ReportResolveReason {
 }
 
 model PostReport {
-  id          String       @id @default(cuid())
-  postId      String
-  submitterId String
-  reason      ReportReason
-  comments    String?
-  resolved    Boolean      @default(false)
+  id            String               @id @default(cuid())
+  postId        String
+  submitterId   String
+  reason        ReportReason
+  comments      String?
+  resolved      Boolean              @default(false)
   resolveReason ReportResolveReason?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
 
   Post      Post @relation(fields: [postId], references: [id])
   Submitter User @relation(fields: [submitterId], references: [id])
 
   @@unique([postId, submitterId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  Follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  Following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
 }

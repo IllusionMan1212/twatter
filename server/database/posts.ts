@@ -57,6 +57,34 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
     ;`;
 };
 
+export const queryFeed = async (userId: string, page: number): Promise<Post[]> => {
+    return await prisma.$queryRaw`
+    SELECT p.id, p.content, p."createdAt",
+    u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
+    u."displayName" as "authorName",
+    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
+    EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
+    (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
+    parent_author.username as "parentAuthorUsername"
+    FROM "Post" p
+    LEFT JOIN "Post" parent
+    ON p."parentId" = parent.id
+    LEFT JOIN "User" parent_author
+    ON parent."authorId" = parent_author.id
+    INNER JOIN "User" u
+    ON u.id = p."authorId"
+    LEFT JOIN "PostAttachment" a
+    ON a."postId" = p.id
+    LEFT JOIN "Follow" f
+    ON f."followerId" = ${userId}
+    WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
+    GROUP BY p.id, u.id, parent_author.username
+    ORDER BY p."createdAt" DESC
+    LIMIT 30 OFFSET ${page * 30}
+    ;`;
+};
+
 export const queryPost = async (userId: string | undefined, postId: string): Promise<(Post & { muted: boolean })[]> => {
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
 

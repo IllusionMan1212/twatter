@@ -32,6 +32,7 @@ function Users({ users }: UsersResultsProps): ReactElement {
                     username={user.username}
                     avatarURL={user.avatarURL}
                     allowAllDMs={user.allowAllDMs}
+                    isFollowing={user.isFollowing}
                 />
             ))}
             {users.length === 5 ? (
