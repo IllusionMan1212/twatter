@@ -15,11 +15,11 @@ export const ReportReason = z.nativeEnum(ReportReasons, {
 });
 
 export const GetPostsData = GetPagedData.extend({
-    id: z.string().min(1, "ID cannot be empty"),
+    id: z.string({ required_error: "id is required" }).min(1, "ID cannot be empty"),
 });
 
 export const GetPostData = z.object({
-    id: z.string().min(1, "ID cannot be empty"),
+    id: z.string({ required_error: "id is required" }).min(1, "ID cannot be empty"),
 });
 
 export const linkAllTransformer = (schema: z.ZodSchema) => {
@@ -113,11 +113,11 @@ export const CreatePostData = z.object({
 });
 
 export const DeletePostData = z.object({
-    postId: z.string().min(1, "Post ID cannot be empty"),
+    postId: z.string({ required_error: "postId is required" }).min(1, "Post ID cannot be empty"),
 });
 
 export const LikePostData = z.object({
-    postId: z.string().min(1, "Post ID cannot be empty"),
+    postId: z.string({ required_error: "postId is required" }).min(1, "Post ID cannot be empty"),
 });
 
 export const ReportPostData = z.object({
