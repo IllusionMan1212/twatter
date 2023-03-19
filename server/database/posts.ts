@@ -59,6 +59,13 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
 
 export const queryFeed = async (userId: string, page: number): Promise<Post[]> => {
     return await prisma.$queryRaw`
+    WITH feed AS (
+        SELECT DISTINCT p.*
+        FROM "Post" p
+        LEFT JOIN "Follow" f
+        ON f."followerId" = ${userId}
+        WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
+    )
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
@@ -76,10 +83,7 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
     ON u.id = p."authorId"
     LEFT JOIN "PostAttachment" a
     ON a."postId" = p.id
-    LEFT JOIN "Follow" f
-    ON f."followerId" = ${userId}
-    WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
-    GROUP BY p.id, u.id, parent_author.username
+    GROUP BY p.id, u.id, parent_author.username, p.content, p."createdAt"
     ORDER BY p."createdAt" DESC
     LIMIT 30 OFFSET ${page * 30}
     ;`;
