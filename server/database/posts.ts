@@ -65,6 +65,7 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
         LEFT JOIN "Follow" f
         ON f."followerId" = ${userId}
         WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
+        ORDER BY "createdAt" DESC
     )
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
@@ -74,7 +75,7 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
     parent_author.username as "parentAuthorUsername"
-    FROM "Post" p
+    FROM feed p
     LEFT JOIN "Post" parent
     ON p."parentId" = parent.id
     LEFT JOIN "User" parent_author
