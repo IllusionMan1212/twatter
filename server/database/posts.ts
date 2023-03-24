@@ -60,17 +60,19 @@ export const queryPosts = async (userId: string, page: number): Promise<Post[]> 
 export const queryFeed = async (userId: string, page: number): Promise<Post[]> => {
     return await prisma.$queryRaw`
     WITH feed AS (
-        SELECT DISTINCT p.*
+        SELECT DISTINCT p.*, a.*
         FROM "Post" p
         LEFT JOIN "Follow" f
         ON f."followerId" = ${userId}
+        LEFT JOIN "PostAttachment" a
+        ON a."postId" = p.id
         WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
-        ORDER BY "createdAt" DESC
+        ORDER BY "createdAt" ASC
     )
     SELECT p.id, p.content, p."createdAt",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
-    JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
+    JSON_AGG(JSON_BUILD_OBJECT('url', p.url, 'thumbUrl', p."thumbUrl", 'bgColor', p."bgColor")) FILTER (WHERE p.url IS NOT NULL) as attachments,
     (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) as likes,
     EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked,
     (SELECT COUNT(comments)::INTEGER FROM "Post" comments WHERE comments.deleted = false AND comments."parentId" = p.id) as comments,
@@ -82,8 +84,6 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    LEFT JOIN "PostAttachment" a
-    ON a."postId" = p.id
     GROUP BY p.id, u.id, parent_author.username, p.content, p."createdAt"
     ORDER BY p."createdAt" DESC
     LIMIT 30 OFFSET ${page * 30}
