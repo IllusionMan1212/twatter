@@ -28,6 +28,11 @@ export interface ISearchUser {
     isFollowing: boolean;
 }
 
+export interface IFollowUser extends Exclude<ISearchUser, "allowAllDMs" | "isFollowing"> {
+    settings: IUserSettings;
+    followers: { followerId: string }[];
+}
+
 export interface ProfilePageUser extends IUser {
     _count: {
         posts: number;

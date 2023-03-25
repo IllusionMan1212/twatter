@@ -215,3 +215,63 @@ export const unfollowUser = async (userId: string, targetId: string): Promise<Da
 
     return DatabaseError.SUCCESS;
 };
+
+export const queryFollowers = async (userId: string, page: number): Promise<{ Follower: Partial<User> }[]> => {
+    return await prisma.follow.findMany({
+        where: {
+            followingId: userId,
+        },
+        select: {
+            Follower: {
+                select: {
+                    id: true,
+                    username: true,
+                    displayName: true,
+                    avatarURL: true,
+                    settings: {
+                        select: {
+                            allowAllDMs: true
+                        }
+                    },
+                    followers: {
+                        select: {
+                            followerId: true
+                        }
+                    }
+                }
+            }
+        },
+        take: 30,
+        skip: 30 * page
+    });
+};
+
+export const queryFollowing = async (userId: string, page: number): Promise<{ Following: Partial<User> }[]> => {
+    return await prisma.follow.findMany({
+        where: {
+            followerId: userId,
+        },
+        select: {
+            Following: {
+                select: {
+                    id: true,
+                    username: true,
+                    displayName: true,
+                    avatarURL: true,
+                    settings: {
+                        select: {
+                            allowAllDMs: true
+                        }
+                    },
+                    followers: {
+                        select: {
+                            followerId: true
+                        }
+                    }
+                }
+            }
+        },
+        take: 30,
+        skip: 30 * page
+    });
+};

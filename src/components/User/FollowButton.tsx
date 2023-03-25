@@ -1,8 +1,9 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Button, Icon, IconButton } from "@chakra-ui/react";
 import toast from "react-hot-toast";
 import { UserCircleMinus, UserCirclePlus } from "phosphor-react";
 import { axiosAuth } from "src/utils/axios";
+import { useUserContext } from "src/contexts/userContext";
 
 interface UserFollowProps {
     isFollowing: boolean;
@@ -22,9 +23,11 @@ interface FollowButtonProps {
     followCB?: () => Promise<void>;
 }
 
-export default function FollowButton({ userId, iconOnly, iconSize, followCB, ...props }: FollowButtonProps): ReactElement {
+export default function FollowButton({ userId, iconOnly, iconSize, followCB, ...props }: FollowButtonProps): ReactElement | null {
     const [isSubmittingFollow, setSubmittingFollow] = useState(false);
     const [isFollowing, setFollowing] = useState(props.isFollowing);
+
+    const { user: currentUser } = useUserContext();
 
     const handleFollow = (followOrUnfollow: string) => {
         setSubmittingFollow(true);
@@ -39,6 +42,12 @@ export default function FollowButton({ userId, iconOnly, iconSize, followCB, ...
                 toast.error(err.response?.data.message ?? `Failed to ${followOrUnfollow} user`);
             });
     };
+
+    useEffect(() => {
+        setFollowing(props.isFollowing);
+    }, [props.isFollowing]);
+
+    if (!currentUser || userId === currentUser?.id) return null;
 
     if (iconOnly) {
         return (

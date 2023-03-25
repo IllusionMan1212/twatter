@@ -11,6 +11,8 @@ import {
     validateToken,
     follow,
     unfollow,
+    getFollowers,
+    getFollowing,
 } from "../controllers/users";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
@@ -40,6 +42,8 @@ const followLimit = new RateLimiterMemory({
 router.get("/validate-reset-password-token", limiter(postLimit), validateResetPasswordToken);
 router.get("/validate-token", limiter(getLimit), sessionGuard, validateToken);
 router.get("/get-user/:username", limiter(getLimit), getUser);
+router.get("/get-followers/:userId/:page", limiter(getLimit), getFollowers);
+router.get("/get-following/:userId/:page", limiter(getLimit), getFollowing);
 
 router.post("/register", limiter(registerLimit), register);
 router.post("/login", limiter(postLimit), login);

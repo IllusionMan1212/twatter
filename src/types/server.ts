@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser, IFollowUser } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -102,4 +102,12 @@ export interface GetUnreadMessagesRes extends GenericBackendRes {
         id: string;
         messages: number;
     }[]
+}
+
+export interface GetFollowersRes extends GenericBackendRes {
+    followers: { Follower: IFollowUser }[];
+}
+
+export interface GetFollowingRes extends GenericBackendRes {
+    following: { Following: IFollowUser }[];
 }

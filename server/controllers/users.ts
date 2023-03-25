@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { createUser, followUser, getUserByEmailOrUsername, getUserByResetToken, getUserByUsername, setUserResetToken, unfollowUser, updateUserPassword } from "../database/users";
-import { FollowData, ForgotPasswordData, GetUserData, LoginUserData, RegisterUserData, ResetPasswordData, ValidateResetPasswordTokenData } from "../validators/users";
+import { createUser, followUser, getUserByEmailOrUsername, getUserByResetToken, getUserByUsername, queryFollowers, queryFollowing, setUserResetToken, unfollowUser, updateUserPassword } from "../database/users";
+import { FollowData, ForgotPasswordData, GetFollowersData, GetUserData, LoginUserData, RegisterUserData, ResetPasswordData, ValidateResetPasswordTokenData } from "../validators/users";
 import * as Cookies from "./utils/cookies";
 import bcrypt from "bcrypt";
 import { DatabaseError, exclude } from "../database/utils";
@@ -262,4 +262,28 @@ export async function unfollow(req: Request, res: Response) {
     }
 
     return res.status(200).json({ message: "Successfully unfollowed user" });
+}
+
+export async function getFollowers(req: Request, res: Response) {
+    const data = GetFollowersData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const followers = await queryFollowers(data.data.userId, data.data.page);
+
+    return res.status(200).json({ followers });
+}
+
+export async function getFollowing(req: Request, res: Response) {
+    const data = GetFollowersData.safeParse(req.params);
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const following = await queryFollowing(data.data.userId, data.data.page);
+
+    return res.status(200).json({ following });
 }

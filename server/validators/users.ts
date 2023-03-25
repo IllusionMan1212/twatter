@@ -1,4 +1,5 @@
 import z from "zod";
+import { GetPagedData } from "./general";
 
 export const USERNAME_REGEX = /^[a-z0-9_]+$/gi;
 
@@ -41,5 +42,9 @@ export const GetUserData = z.object({
 });
 
 export const FollowData = z.object({
+    userId: z.string({ required_error: "User ID is required" }).min(1, "User ID cannot be empty"),
+});
+
+export const GetFollowersData = GetPagedData.extend({
     userId: z.string({ required_error: "User ID is required" }).min(1, "User ID cannot be empty"),
 });

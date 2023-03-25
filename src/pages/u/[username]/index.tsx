@@ -1,26 +1,22 @@
 import {
     Flex,
     HStack,
-    Button,
     Text,
     Image,
     Tag,
-    Icon,
     VStack,
     Box,
     Spinner,
     ButtonGroup,
+    useDisclosure,
 } from "@chakra-ui/react";
-import { ChatCenteredDots } from "phosphor-react";
 import { ReactElement, useEffect, useState } from "react";
 import Post from "src/components/Post/Post";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { IPost, ProfilePageUser } from "src/types/interfaces";
 import {
-    GenericBackendRes,
     GetPostsRes,
     GetUserRes,
-    StartConversationRes,
 } from "src/types/server";
 import { axiosAuth, axiosNoAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
@@ -34,13 +30,11 @@ import styles from "src/styles/userProfile.module.scss";
 import { NextSeo } from "next-seo";
 import BigNumber from "src/components/BigNumber";
 import FollowButton from "src/components/User/FollowButton";
+import { FollowersModal, FollowingModal } from "src/components/User/FollowersModal";
+import MessageButton from "src/components/User/MessageButton";
 
 interface Props {
     user: ProfilePageUser;
-}
-
-function Chat(): ReactElement {
-    return <ChatCenteredDots size="24" />;
 }
 
 function Tags({ user }: Props): ReactElement {
@@ -65,23 +59,19 @@ function User({ user }: Props): ReactElement {
     const { user: currentUser } = useUserContext();
     const isFollowing = !!user.followers.find((f) => f.followerId === currentUser?.id);
 
-    const handleStartConversation = () => {
-        axiosAuth
-            .post<StartConversationRes>("message/start-conversation", { userId: user.id })
-            .then((res) => {
-                Router.push(`/messages/${res.data.conversationId}`);
-            })
-            .catch((e: AxiosError<GenericBackendRes>) => {
-                toast.error(
-                    e.response?.data.message ??
-                        "An error occurred while starting the conversation",
-                );
-            });
-    };
+    const { isOpen: isFollowerOpen, onOpen: onOpenFollower, onClose: onCloseFollower } = useDisclosure();
+    const { isOpen: isFollowingOpen, onOpen: onOpenFollowing, onClose: onCloseFollowing } = useDisclosure();
 
     const followCB = async () => {
         await Router.replace(Router.asPath);
     };
+
+    useEffect(() => {
+        return () => {
+            onCloseFollowing();
+            onCloseFollower();
+        };
+    }, [user.id]);
 
     return (
         <div className="flex flex-col gap-2 pt-6 md:pt-0 w-full items-center md:items-start">
@@ -112,34 +102,20 @@ function User({ user }: Props): ReactElement {
                         <Tags user={user} />
                     </Flex>
                 </HStack>
-                {currentUser ? (
-                    <ButtonGroup
-                        colorScheme="accent"
-                        size="sm"
-                    >
-                        {user.id !== currentUser?.id ? (
-                            <FollowButton isFollowing={isFollowing} userId={user.id} iconSize="24" followCB={followCB} />
-                        ) : null}
-                        {!user.settings?.allowAllDMs ||
-                        user.id === currentUser?.id ||
-                        user.restricted ? null : (
-                                <Button
-                                    variant="outline"
-                                    leftIcon={<Icon as={Chat} />}
-                                    onClick={handleStartConversation}
-                                >
-                                    Message
-                                </Button>
-                            )}
-                    </ButtonGroup>
-                ) : null}
+                <ButtonGroup
+                    colorScheme="accent"
+                    size="sm"
+                >
+                    <FollowButton isFollowing={isFollowing} userId={user.id} iconSize="24" followCB={followCB} />
+                    <MessageButton userId={user.id} allowAllDMs={user.settings?.allowAllDMs ?? false} iconSize="24" />
+                </ButtonGroup>
             </Flex>
             <div className="flex gap-2">
-                <div>
+                <div className="hover:underline cursor-pointer" onClick={onOpenFollower}>
                     <BigNumber className="font-semibold" num={user._count.followers} />{" "}
                     <span className="text-[color:var(--chakra-colors-textMain)]">Followers</span>
                 </div>
-                <div>
+                <div className="hover:underline cursor-pointer" onClick={onOpenFollowing}>
                     <BigNumber className="font-semibold" num={user._count.following} />{" "}
                     <span className="text-[color:var(--chakra-colors-textMain)]">Following</span>
                 </div>
@@ -148,6 +124,8 @@ function User({ user }: Props): ReactElement {
                     <span className="text-[color:var(--chakra-colors-textMain)]">Posts</span>
                 </div>
             </div>
+            <FollowersModal isOpen={isFollowerOpen} onClose={onCloseFollower} userId={user.id} />
+            <FollowingModal isOpen={isFollowingOpen} onClose={onCloseFollowing} userId={user.id} />
         </div>
     );
 }
