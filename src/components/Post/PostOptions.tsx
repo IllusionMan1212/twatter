@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import OptionsMenu from "src/components/Options";
 import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
+import { useUserContext } from "src/contexts/userContext";
 import ShareModal from "src/components/ShareModal";
 import ReportModal from "src/components/ReportModal";
 
@@ -47,6 +48,8 @@ const Options = memo(function Options({
         onOpen: onOpenReportModal,
         onClose: onCloseReportModal
     } = useDisclosure();
+
+    const { user } = useUserContext();
 
     const [isMuted, setMuted] = useState(muted);
 
@@ -112,10 +115,12 @@ const Options = memo(function Options({
                         <LinkIcon className="mr-3" height="24px" width="24px" />
                         <span>Copy Link</span>
                     </MenuItem>
-                    <MenuItem onClick={onOpenReportModal}>
-                        <FlagIcon className="mr-3" height="24px" width="24px" />
-                        <span>Report Post</span>
-                    </MenuItem>
+                    {user && (
+                        <MenuItem onClick={onOpenReportModal}>
+                            <FlagIcon className="mr-3" height="24px" width="24px" />
+                            <span>Report Post</span>
+                        </MenuItem>
+                    )}
                     {authorId === userId ? (
                         <>
                             {isMuted !== undefined ? (
