@@ -64,7 +64,7 @@ export async function getPost(req: Request, res: Response) {
     }
 
     const posts = await queryPost(req.session?.user.id, data.data.id);
-    if (posts.length && posts[0].authorId === req.session.user.id) {
+    if (posts.length && posts[0].authorId === req.session?.user.id) {
         try {
             const r = await novu.topics.get(posts[0].id);
             posts[0].muted = !r.data.data.subscribers.includes(req.session.user.id);
