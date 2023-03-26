@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { DatabaseError } from "../database/utils";
-import { removeUserProfileImage, setTOTPSecret, toggle2FA, updateAllowAllDMsSetting, updatePassword, updateReadReceiptsSetting, updateUserDisplayName, updateUserProfileImage, updateUserUsername } from "../database/settings";
-import { ChangePasswordData, Enable2FAData, ToggleAllowAllDMsData, ToggleReadReceiptsData, UpdateProfileData, VerifyTOTPCodeData } from "../validators/settings";
+import { generateBackupCodesDB, queryBackupCodes, removeUserProfileImage, setTOTPSecret, toggle2FA, updateAllowAllDMsSetting, updatePassword, updateReadReceiptsSetting, updateUserDisplayName, updateUserProfileImage, updateUserUsername, validateRecoveryCode } from "../database/settings";
+import { ChangePasswordData, Enable2FAData, ToggleAllowAllDMsData, ToggleReadReceiptsData, UpdateProfileData, VerifyRecoveryCodeData, VerifyTOTPCodeData } from "../validators/settings";
 import * as Cookies from "./utils/cookies";
 import bcrypt from "bcrypt";
 import { getUserById } from "../database/users";
@@ -177,6 +177,7 @@ export async function enable2FA(req: Request, res: Response) {
     }
 
     const error = await toggle2FA(req.session.user.id, true);
+    await generateBackupCodesDB(req.session.user.id);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An error occurred while enabling 2FA" });
@@ -294,4 +295,69 @@ export async function removeProfileImage(req: Request, res: Response) {
     await fs.rm(oldAvatar, { recursive: true, force: true });
 
     return res.status(200).json({ message: "Successfully removed profile image" });
+}
+
+export async function getBackupCodes(req: Request, res: Response) {
+    if (!req.session.user.twoFactorAuth) {
+        return res.status(403).json({ message: "Two factor authentication is not enabled" });
+    }
+
+    const codes = await queryBackupCodes(req.session.user.id);
+    return res.status(200).json({ message: "Successfully fetched backup codes", codes });
+}
+
+export async function generateBackupCodes(req: Request, res: Response) {
+    const codes = await generateBackupCodesDB(req.session.user.id);
+
+    if (!Array.isArray(codes)) {
+        return res.status(500).json({ message: "An error occurred while generating backup codes" });
+    }
+
+    return res.status(200).json({ message: "Successfully generated backup codes", codes });
+}
+
+export async function downloadBackupCodes(req: Request, res: Response) {
+    if (!req.session.user.twoFactorAuth) {
+        return res
+            .status(403)
+            .json({ message: "Two factor authentication is not enabled" });
+    }
+
+    const codes = await queryBackupCodes(req.session.user.id);
+    res.setHeader("Content-Disposition", "attachment; filename=\"twatter-recovery-codes.txt\"");
+    res.setHeader("Content-Type", "text/plain");
+    return res
+        .send(
+            `These are the recovery codes for your "${req.session.user.email}" Twatter account. Keep them safe!\n\n\n` +
+                codes.map((c) => (c.hasBeenUsed ? `X ${c.code}` : `* ${c.code}`)).join("\n\n")
+        );
+}
+
+export async function verifyRecoveryCode(req: Request, res: Response) {
+    const data = VerifyRecoveryCodeData.safeParse(req.body);
+    const twoFASession = await Cookies.get2FASession(req);
+
+    if (!twoFASession) {
+        return res.status(401).json({ message: "Invalid authentication token, please log in" });
+    }
+
+    if (!data.success) {
+        return res.status(400).json({ message: data.error.errors[0].message });
+    }
+
+    const user = await getUserById(twoFASession.userId);
+
+    if (!user) {
+        return res.status(401).json({ message: "Invalid authentication token, please log in" });
+    }
+
+    const recoveryCode = data.data.passcode;
+    const codeExists = await validateRecoveryCode(user.id, recoveryCode);
+    if (!codeExists) {
+        return res.status(401).json({ message: "Invalid or used recovery code" });
+    }
+
+    await Cookies.setLoginSession(res, user);
+
+    return res.status(200).json({ message: "Logged in successfully" });
 }

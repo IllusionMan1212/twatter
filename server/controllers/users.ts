@@ -69,7 +69,6 @@ export async function login(req: Request, res: Response) {
         return res.status(423).json({ message: "Your account is restricted" });
     }
 
-
     if (user.twoFactorAuth) {
         await Cookies.setLoginSession(res, user, true);
         return res.status(200).json({ message: "Please input your 2FA passcode", requiresTwoFactorAuth: true });

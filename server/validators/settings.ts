@@ -22,6 +22,10 @@ export const VerifyTOTPCodeData = z.object({
     passcode: z.string({ required_error: "passcode is required" }).length(6, "Passcode must be 6 digits"),
 });
 
+export const VerifyRecoveryCodeData = z.object({
+    passcode: z.string({ required_error: "recovery code is required" }).length(13, "Recovery code must be 13 characters"),
+});
+
 export const UpdateProfileData = z.object({
     displayName: z.string(),
     username: z.string()

@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser, IFollowUser } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser, IFollowUser, IBackupCode } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -110,4 +110,8 @@ export interface GetFollowersRes extends GenericBackendRes {
 
 export interface GetFollowingRes extends GenericBackendRes {
     following: { Following: IFollowUser }[];
+}
+
+export interface GetBackupCodes extends GenericBackendRes {
+    codes: IBackupCode[];
 }

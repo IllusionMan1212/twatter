@@ -1,5 +1,9 @@
 import {
+    Alert,
+    AlertIcon,
+    ButtonGroup,
     HStack,
+    Wrap,
     VStack,
     Text,
     Button,
@@ -8,12 +12,15 @@ import {
     Modal,
     ModalOverlay,
     ModalHeader,
+    ModalFooter,
     ModalBody,
     ModalCloseButton,
     ModalContent,
     Spinner,
     Divider,
     Code,
+    Grid,
+    GridItem,
 } from "@chakra-ui/react";
 import { AxiosError } from "axios";
 import { ReactElement, useEffect, useState } from "react";
@@ -21,9 +28,11 @@ import toast from "react-hot-toast";
 import Input from "src/components/Controls/Input";
 import Switch from "src/components/Controls/Switch";
 import { useUserContext } from "src/contexts/userContext";
-import { GenericBackendRes, TwoFASecretRes } from "src/types/server";
+import { GenericBackendRes, GetBackupCodes, TwoFASecretRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
 import { Dialog } from "src/components/Dialog";
+import { IBackupCode } from "src/types/interfaces";
+import * as clipboard from "clipboard-polyfill";
 
 interface ChangePasswordData {
     currentPassword: string;
@@ -179,6 +188,115 @@ const Disable2FADialog = ({ isOpen, onClose }: TwoFADialogProps): ReactElement =
     );
 };
 
+const BackupCodes = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
+    const [isLoading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [codes, setCodes] = useState<IBackupCode[]>([]);
+
+    const regenerateCodes = () => {
+        axiosAuth.post<GetBackupCodes>("settings/generate-backup-codes")
+            .then((res) => {
+                setCodes(res.data.codes);
+                toast.success(res.data.message);
+            })
+            .catch((err) => {
+                toast.error(err.response?.data.message ?? "An error occurred while generating backup codes");
+            });
+    };
+
+    const copyCodes = async () => {
+        clipboard.writeText(codes.map((c) => c.hasBeenUsed ? `X ${c.code} (USED)` : `* ${c.code}`).join("\n\n"))
+            .then(() => {
+                toast.success("Copied Successfully");
+            })
+            .catch(() => {
+                toast.error("Error while copying codes");
+            });
+    };
+
+    const downloadCodes = () => {
+        axiosAuth.get("settings/backup-codes/download", { responseType: "blob" })
+            .then((res) => {
+                const downloadedCodes = URL.createObjectURL(res.data);
+                const link = document.createElement("a");
+                link.href = downloadedCodes;
+                link.setAttribute("download", "twatter-recovery-codes.txt");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch((err) => {
+                toast.error(err.response?.data.message ?? "An error occurred while downloading backup codes");
+            });
+    };
+
+    const Loading = () => {
+        return (
+            <VStack width="full" justifyContent="center">
+                <Spinner />
+            </VStack>
+        );
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            axiosAuth.get("settings/backup-codes")
+                .then((res) => {
+                    setCodes(res.data.codes);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    setError(err.response?.data.message ?? "An error occurred while fetching the backup codes");
+                    setLoading(false);
+                });
+        }
+    }, [isOpen]);
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
+            <ModalOverlay />
+            <ModalContent bgColor="bgMain">
+                <ModalHeader>
+                    <p>Backup Codes</p>
+                </ModalHeader>
+                <ModalCloseButton size="lg" />
+                <ModalBody px={0}>
+                    <VStack width="full" spacing={4}>
+                        <Alert status="info">
+                            <AlertIcon />
+                            Save your backup codes in a safe place. These codes will allow you to access your account in case you cannot use your second factor one-time code. If you cannot find these codes, you will lose access to your account!
+                        </Alert>
+                        {isLoading && (<Loading />)}
+                        {error}
+                        <Grid templateColumns="repeat(2, 1fr)" gap={6} alignSelf="center" px={4}>
+                            <>
+                                {codes.map((code) => (
+                                    <GridItem key={code.code}>
+                                        <p className={code.hasBeenUsed ? "line-through" : ""}>{code.code}</p>
+                                    </GridItem>
+                                ))}
+                            </>
+                        </Grid>
+                    </VStack>
+                </ModalBody>
+                <ModalFooter justifyContent="start">
+                    <ButtonGroup as={Wrap} colorScheme="button">
+                        <Button variant="outline" onClick={downloadCodes}>
+                            Download
+                        </Button>
+                        <Button variant="outline" onClick={copyCodes}>
+                            Copy
+                        </Button>
+                        <Button variant="outline" onClick={regenerateCodes}>
+                            Regenerate backup codes
+                        </Button>
+                    </ButtonGroup>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
+    );
+};
+
 export default function SecuritySettings(): ReactElement {
     const { user, logout } = useUserContext();
 
@@ -198,6 +316,11 @@ export default function SecuritySettings(): ReactElement {
         newPassword: "",
         newPasswordConfirm: "",
     });
+    const {
+        isOpen: isBackupCodesOpen,
+        onOpen: onOpenBackupCodes,
+        onClose: onCloseBackupCodes
+    } = useDisclosure();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const name = e.target.name;
@@ -254,6 +377,15 @@ export default function SecuritySettings(): ReactElement {
                     onChange={user?.twoFactorAuth ? onDisable2FA : onEnable2FA}
                 />
             </HStack>
+            {user?.twoFactorAuth && (
+                <>
+                    <p>We recommend viewing and saving your backup codes somewhere safe in the case you lose access to your 2FA generating device</p>
+                    <Button colorScheme="button" onClick={onOpenBackupCodes}>
+                        View 2FA Backup Codes
+                    </Button>
+                </>
+            )}
+            <Divider height="1px" bgColor="bgSecondary" />
             <Input
                 placeholder="Current Password"
                 name="currentPassword"
@@ -285,6 +417,7 @@ export default function SecuritySettings(): ReactElement {
             </Button>
             <TwoFAModal isOpen={isEnable2FAOpen} onClose={onCloseEnable2FA} />
             <Disable2FADialog isOpen={isDisable2FAOpen} onClose={onCloseDisable2FA} />
+            {isBackupCodesOpen && (<BackupCodes isOpen={isBackupCodesOpen} onClose={onCloseBackupCodes} />)}
         </VStack>
     );
 }

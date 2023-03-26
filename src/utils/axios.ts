@@ -23,5 +23,5 @@ axiosAuth.interceptors.request.use(
 
 export const axiosNoAuth = axios.create({
     baseURL: baseUrl,
-    timeout: 15000,
+    timeout: 25000,
 });

@@ -145,3 +145,8 @@ export interface IReporter {
     comments?: string;
     createdAt: string;
 }
+
+export interface IBackupCode {
+    code: string;
+    hasBeenUsed: boolean;
+}

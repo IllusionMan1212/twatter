@@ -39,13 +39,14 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
     const [passcode, setPasscode] = useState("");
     const [isSubmitting, setSubmitting] = useState(false);
     const [isDisabled, setDisabled] = useState(false);
+    const [usingRecovery, setUsingRecovery] = useState(false);
 
     const handleSubmit = () => {
         setSubmitting(true);
         setDisabled(true);
 
         axiosNoAuth
-            .post<GenericBackendRes>("settings/verify-totp-code", { passcode })
+            .post<GenericBackendRes>(`settings/${usingRecovery ? "verify-recovery-code" : "verify-totp-code"}`, { passcode })
             .then((res) => {
                 toast.success(res.data.message);
                 setSubmitting(false);
@@ -63,16 +64,19 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
             <ModalOverlay />
             <ModalContent bgColor="bgMain" pb={5}>
                 <ModalHeader>
-                    <Text fontSize="lg">Two-factor authentication</Text>
+                    <Text fontSize="lg">{usingRecovery ? "Recovery code" : "Two-factor authentication"}</Text>
                 </ModalHeader>
                 <ModalCloseButton size="lg" />
                 <ModalBody>
                     <VStack width="full" alignItems="start" spacing={4}>
-                        <Text>Input your 2FA code below</Text>
+                        <Text>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</Text>
                         <Input
-                            placeholder="6-digit two-factor authentication code"
+                            placeholder={usingRecovery ? "XXXXXX-XXXXXX" : "6-digit two-factor authentication code"}
                             onChange={(e) => setPasscode(e.target.value)}
                         />
+                        <p className="text-sm hover:cursor-pointer hover:underline usernameLink" onClick={() => setUsingRecovery(!usingRecovery)}>
+                            {usingRecovery ? "Have access to your authenticator app again?. Click here" : "Lost access to your authenticator app? Log in with a recovery code"}
+                        </p>
                         <Button
                             colorScheme="accent"
                             disabled={isDisabled}

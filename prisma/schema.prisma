@@ -34,6 +34,7 @@ model User {
   reports        PostReport[]
   following      Follow[]             @relation("Follower")
   followers      Follow[]             @relation("Following")
+  backupCodes    BackupCode[]
 }
 
 model UserSettings {
@@ -190,4 +191,14 @@ model Follow {
   Following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@id([followerId, followingId])
+}
+
+model BackupCode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  hasBeenUsed Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

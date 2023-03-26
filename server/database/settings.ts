@@ -1,6 +1,7 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, BackupCode } from "@prisma/client";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
+import crypto from "crypto";
 
 export const updateAllowAllDMsSetting = async (userId: string, allowAllDMs: boolean): Promise<DatabaseError> => {
     try {
@@ -169,4 +170,60 @@ export const removeUserProfileImage = async (userId: string): Promise<DatabaseEr
     }
 
     return DatabaseError.SUCCESS;
+};
+
+export const queryBackupCodes = async (userId: string): Promise<BackupCode[]> => {
+    return await prisma.backupCode.findMany({
+        where: {
+            userId
+        }
+    });
+};
+
+export const generateBackupCodesDB = async (userId: string): Promise<DatabaseError | Pick<BackupCode, "code" | "hasBeenUsed">[]> => {
+    const pattern = "xxxxxx-xxxxxx";
+    const patternLength = Math.ceil((pattern.split("x").length - 1) / 2);
+    const codes: Pick<BackupCode, "code" | "hasBeenUsed">[] = [];
+
+    try {
+        const deleteCodes = prisma.backupCode.deleteMany({
+            where: {
+                userId
+            }
+        });
+        const createCodes = new Array(10).fill(0).map(() => {
+            let code = "";
+            const bytes = crypto.randomBytes(patternLength).toString("hex");
+            code = `${bytes.slice(0, bytes.length / 2)}-${bytes.slice(bytes.length / 2)}`;
+            codes.push({ code: code, hasBeenUsed: false });
+            return prisma.backupCode.create({
+                data: {
+                    userId,
+                    code,
+                }
+            });
+        });
+        await prisma.$transaction([deleteCodes, ...createCodes]);
+    } catch (e) {
+        console.error(e);
+        return DatabaseError.UNKNOWN;
+    }
+
+    return codes;
+};
+
+export const validateRecoveryCode = async (userId: string, code: string): Promise<number> => {
+    const payload = await prisma.backupCode.updateMany({
+        where: {
+            AND: [
+                { userId },
+                { code },
+                { hasBeenUsed: false }
+            ]
+        },
+        data: {
+            hasBeenUsed: true
+        }
+    });
+    return payload.count;
 };

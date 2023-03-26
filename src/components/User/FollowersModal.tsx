@@ -4,14 +4,15 @@ import { Virtuoso } from "react-virtuoso";
 import { IFollowUser } from "src/types/interfaces";
 import Avatar from "./Avatar";
 import useSWRInfinite from "swr/infinite";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { GenericBackendRes, GetFollowersRes, GetFollowingRes } from "src/types/server";
 import { useUserContext } from "src/contexts/userContext";
 import FollowButton from "./FollowButton";
 import NextLink from "next/link";
 import MessageButton from "./MessageButton";
+import { axiosNoAuth } from "src/utils/axios";
 
-export const fetcher = <T,>(url: string) => axios.get<T>(`api/${url}`).then(res => res.data);
+export const fetcher = <T,>(url: string) => axiosNoAuth.get<T>(url).then(res => res.data);
 
 interface UserProps {
     user: IFollowUser;
