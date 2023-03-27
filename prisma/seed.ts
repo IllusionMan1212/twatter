@@ -1,7 +1,9 @@
 import { prisma } from "../server/database/client";
+import users from "./users";
+import posts from "./posts";
 
 const run = async () => {
-    await prepareDb();
+    await Promise.all([seedUsers(), seedPosts()]);
 };
 
 run()
@@ -13,21 +15,45 @@ run()
         await prisma.$disconnect();
     });
 
-async function prepareDb() {
-    const user = await prisma.user.findUnique({ where: { id: "1" } });
-    if (!user) {
-        await prisma.user.create({
-            data: {
-                id: "1",
-                displayName: "name",
-                username: "username",
-                email: "email",
-                password: "password",
+function seedUsers() {
+    return Promise.all(users.map((user) => {
+        return prisma.user.upsert({
+            where: {
+                id: user.id
+            },
+            update: {},
+            create: {
+                id: user.id,
+                displayName: user.displayName,
+                username: user.username,
+                email: user.email,
+                password: user.password,
+                isAdmin: user.isAdmin,
                 settings: {
                     create: {}
+                },
+                following: {
+                    createMany: {
+                        data: user.following
+                    }
                 }
             }
         });
-    }
+    }));
 }
 
+function seedPosts() {
+    return Promise.all(posts.map((post) => {
+        return prisma.post.upsert({
+            where: {
+                id: post.id
+            },
+            update: {},
+            create: {
+                id: post.id,
+                content: post.content,
+                authorId: post.authorId
+            }
+        });
+    }));
+}
