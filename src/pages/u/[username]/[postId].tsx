@@ -21,7 +21,7 @@ import NextLink from "next/link";
 import Avatar from "src/components/User/Avatar";
 import Attachments from "src/components/Attachments/AttachmentsContainer";
 import { useUserContext } from "src/contexts/userContext";
-import { Chat, Heart } from "phosphor-react";
+import { Chat, Heart } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
 import { Dialog } from "src/components/Dialog";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";

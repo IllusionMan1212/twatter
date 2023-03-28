@@ -15,7 +15,7 @@ import { GenericBackendRes } from "src/types/server";
 import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
 import { MAX_ATTACHMENT_SIZE, POST_MAX_CHARS, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
-import { Camera, NotePencil } from "phosphor-react";
+import { Camera, NotePencil } from "@phosphor-icons/react";
 import CharsRemaining from "../CharsRemaining";
 
 interface CommentBoxProps {

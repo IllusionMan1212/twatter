@@ -2121,6 +2121,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@phosphor-icons/react@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "@phosphor-icons/react@npm:2.0.6"
+  peerDependencies:
+    react: ">= 16.8"
+    react-dom: ">= 16.8"
+  checksum: 36a29e759055f3949bdf28744fe99e3270520ea94b33d99f292a5e49773b8cf1f698ba48e7c52899afc7ae56ead92dd98569d8df7cf6e54a47baea0984a14c46
+  languageName: node
+  linkType: hard
+
 "@polka/url@npm:^1.0.0-next.20":
   version: 1.0.0-next.21
   resolution: "@polka/url@npm:1.0.0-next.21"
@@ -3001,6 +3011,7 @@ __metadata:
     "@next/bundle-analyzer": ^12.3.4
     "@novu/node": ^0.12.0
     "@novu/notification-center": ^0.12.0
+    "@phosphor-icons/react": ^2.0.6
     "@prisma/client": ^4.8.1
     "@types/bcrypt": ^5.0.0
     "@types/compression": ^1.7.2
@@ -3047,7 +3058,6 @@ __metadata:
     nodejs-snowflake: ^2.0.1
     nodemailer: ^6.9.1
     nodemon: ^2.0.21
-    phosphor-react: ^1.4.1
     postcss: ^8.4.21
     prettier: ^2.8.4
     prettier-eslint: ^15.0.1
@@ -7286,15 +7296,6 @@ __metadata:
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
   checksum: 5b1e2daa247062061325b8fdbfd1fb56dde0a448fb1455453276ea18c60685bdad23a445dc148cf87bc216be1573357509b7d4060494a6fd768c7efad833ee45
-  languageName: node
-  linkType: hard
-
-"phosphor-react@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "phosphor-react@npm:1.4.1"
-  peerDependencies:
-    react: ">=16"
-  checksum: 94aa316eca7bc64b09f146f7d3578d8bd66bc7dbec8f92b6407a5ab6e86a5f42ef97eeb5ec678f355037a0eaa08a9a5303f26fe5d7491f102e0af3a4686acf2d
   languageName: node
   linkType: hard
 

@@ -1,5 +1,5 @@
 import { ButtonGroup, useDisclosure } from "@chakra-ui/react";
-import { Chat, DotsThree, Heart } from "phosphor-react";
+import { Chat, DotsThree, Heart } from "@phosphor-icons/react";
 import { memo, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import NextLink from "next/link";

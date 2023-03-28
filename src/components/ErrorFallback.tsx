@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { SmileyXEyes } from "phosphor-react";
+import { SmileyXEyes } from "@phosphor-icons/react";
 import React, { ErrorInfo, ReactElement, ReactNode } from "react";
 
 interface ErrorFallbackProps {

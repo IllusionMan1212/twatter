@@ -5,7 +5,7 @@ import {
 } from "@chakra-ui/react";
 import { FlagIcon, LinkIcon, ShareIcon, TrashIcon } from "@heroicons/react/solid";
 import { AxiosError } from "axios";
-import { SpeakerSimpleNone, SpeakerSimpleSlash } from "phosphor-react";
+import { SpeakerSimpleNone, SpeakerSimpleSlash } from "@phosphor-icons/react";
 import { memo, ReactElement, useState } from "react";
 import toast from "react-hot-toast";
 import OptionsMenu from "src/components/Options";

@@ -1,7 +1,6 @@
-import { ClockCounterClockwise, MagnifyingGlass } from "phosphor-react";
+import { ClockCounterClockwise, MagnifyingGlass } from "@phosphor-icons/react";
 import {
     Box,
-    Text,
     HStack,
     IconButton,
     Input,

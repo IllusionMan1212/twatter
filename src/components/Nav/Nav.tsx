@@ -15,7 +15,7 @@ import {
     SearchIcon,
     TrendingUpIcon,
 } from "@heroicons/react/solid";
-import { Gauge, NotePencil } from "phosphor-react";
+import { Gauge, NotePencil } from "@phosphor-icons/react";
 import { ReactElement } from "react";
 import NavItem from "src/components/Nav/NavItem";
 import { useUserContext } from "src/contexts/userContext";

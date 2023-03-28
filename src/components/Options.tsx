@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { DotsThree, DotsThreeVertical } from "phosphor-react";
+import { DotsThree, DotsThreeVertical } from "@phosphor-icons/react";
 import {
     Menu,
     Icon,

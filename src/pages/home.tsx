@@ -21,7 +21,7 @@ import { GenericBackendRes, GetFeedRes } from "src/types/server";
 import { IPost } from "src/types/interfaces";
 import styles from "src/styles/userProfile.module.scss";
 import ComposePost from "src/components/Post/ComposePost";
-import { NotePencil } from "phosphor-react";
+import { NotePencil } from "@phosphor-icons/react";
 import ComposePostModal from "src/components/Post/ComposePostModal";
 import { homeSEO } from "next-seo.config";
 import { NextSeo } from "next-seo";

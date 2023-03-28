@@ -33,7 +33,7 @@ import { parsingOptions } from "../Post/Post";
 import Attachments from "../Attachments/AttachmentsContainer";
 import RelativeTime from "../Post/RelativeTime";
 import HTMLToJSX from "html-react-parser";
-import { Flag, Plus, Minus } from "phosphor-react";
+import { Flag, Plus, Minus } from "@phosphor-icons/react";
 import { CheckIcon, TrashIcon } from "@heroicons/react/solid";
 import IconButton from "../IconButton";
 import { axiosAuth } from "src/utils/axios";

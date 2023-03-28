@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { Divider, Flex, VStack, Text, HStack } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { BellSimple, ShieldCheck, UserGear } from "phosphor-react";
+import { BellSimple, ShieldCheck, UserGear } from "@phosphor-icons/react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { SettingItem } from "src/types/interfaces";
 import SettingsItem from "src/components/Settings/SettingsItem";
