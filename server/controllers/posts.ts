@@ -151,10 +151,6 @@ export async function createPost(req: Request, res: Response) {
 
     if (post?.parent && req.session.user.id !== post.parent.authorId) {
         try {
-            await novu.topics.create({
-                key: post?.id,
-                name: post?.id,
-            });
             await novu.topics.addSubscribers(post?.id ?? "", {
                 subscribers: [req.session.user.id]
             });
@@ -179,10 +175,6 @@ export async function createPost(req: Request, res: Response) {
         }
     } else if (!post?.parent) {
         try {
-            await novu.topics.create({
-                key: post?.id,
-                name: post?.id,
-            });
             await novu.topics.addSubscribers(post?.id ?? "", {
                 subscribers: [req.session.user.id]
             });

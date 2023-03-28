@@ -115,3 +115,14 @@
     }
 }
 
+.chakra-checkbox__control {
+    .chakra-icon {
+        display: none;
+    }
+
+    &[data-checked], &[data-indeterminate] {
+        .chakra-icon {
+            display: block;
+        }
+    }
+}
