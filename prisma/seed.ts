@@ -1,9 +1,9 @@
 import { prisma } from "../server/database/client";
-import users from "./users";
+import { users, follows } from "./users";
 import posts from "./posts";
 
 const run = async () => {
-    await Promise.all([seedUsers(), seedPosts()]);
+    await Promise.all([await seedUsers(), seedFollows(), seedPosts()]);
 };
 
 run()
@@ -15,8 +15,8 @@ run()
         await prisma.$disconnect();
     });
 
-function seedUsers() {
-    return Promise.all(users.map((user) => {
+async function seedUsers() {
+    return await Promise.all(users.map((user) => {
         return prisma.user.upsert({
             where: {
                 id: user.id
@@ -32,18 +32,31 @@ function seedUsers() {
                 settings: {
                     create: {}
                 },
-                following: {
-                    createMany: {
-                        data: user.following
-                    }
-                }
             }
         });
     }));
 }
 
-function seedPosts() {
-    return Promise.all(posts.map((post) => {
+async function seedFollows() {
+    return await Promise.all(follows.map((follow) => {
+        return prisma.follow.upsert({
+            where: {
+                followerId_followingId: {
+                    followerId: follow.followerId,
+                    followingId: follow.followingId
+                }
+            },
+            update: {},
+            create: {
+                followerId: follow.followerId,
+                followingId: follow.followingId
+            }
+        });
+    }));
+}
+
+async function seedPosts() {
+    return await Promise.all(posts.map((post) => {
         return prisma.post.upsert({
             where: {
                 id: post.id
