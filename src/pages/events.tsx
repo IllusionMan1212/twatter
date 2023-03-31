@@ -12,7 +12,7 @@ import { ReactElement, useEffect, useState } from "react";
 import Event from "src/components/Event/Event";
 import { useUserContext } from "src/contexts/userContext";
 import AddEventModal from "src/components/Event/AddEventModal";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
 import { IEvent } from "src/types/interfaces";
 import toast from "react-hot-toast";

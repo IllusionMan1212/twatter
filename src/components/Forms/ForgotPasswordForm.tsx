@@ -9,10 +9,9 @@ import {
 import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
-import { axiosNoAuth } from "src/utils/axios";
 import { GenericBackendRes } from "src/types/server";
 import toast from "react-hot-toast";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 export default function ResetPasswordForm(): ReactElement {
     const [email, setEmail] = useState("");
@@ -23,8 +22,8 @@ export default function ResetPasswordForm(): ReactElement {
 
         setSubmitting(true);
 
-        axiosNoAuth
-            .post<GenericBackendRes>("users/forgot-password", { email })
+        axios
+            .post<GenericBackendRes>("auth/forgot-password", { email })
             .then((res) => {
                 toast.success(res.data.message, { duration: 5000 });
                 setSubmitting(false);

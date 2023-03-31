@@ -85,7 +85,7 @@ export async function toggleInterest(req: Request, res: Response) {
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal error has occurred" });
     } else if (error === DatabaseError.EXPIRED) {
-        return res.status(401).json({ message: "Cannot change interest on an expired event" });
+        return res.status(403).json({ message: "Cannot change interest on an expired event" });
     }
 
     return res.status(200).json({ message: "Successfully toggled interest in event" });

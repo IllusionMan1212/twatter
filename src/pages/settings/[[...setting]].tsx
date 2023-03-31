@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { Divider, Flex, VStack, Text, HStack } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { BellSimple, ShieldCheck, UserGear } from "@phosphor-icons/react";
+import { BellSimple, ShieldCheck, UserGear, Devices } from "@phosphor-icons/react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { SettingItem } from "src/types/interfaces";
 import SettingsItem from "src/components/Settings/SettingsItem";
@@ -13,6 +13,7 @@ const PrivacySettings = dynamic(() => import("src/components/Settings/PrivacySet
 const SecuritySettings = dynamic(
     () => import("src/components/Settings/SecuritySettings"),
 );
+const DevicesSettings = dynamic(() => import("src/components/Settings/DevicesSettings"));
 
 const UserGearIcon = () => {
     return <UserGear weight="fill" size="24" />;
@@ -24,6 +25,10 @@ const ShieldCheckIcon = () => {
 
 const BellIcon = () => {
     return <BellSimple weight="fill" size="24" />;
+};
+
+const DevicesIcon = () => {
+    return <Devices weight="fill" size="24" />;
 };
 
 const settings = [
@@ -55,6 +60,13 @@ const settings = [
         desc: "Strengthen your account's security with additional measures",
         settings: SecuritySettings,
     },
+    {
+        id: "devices",
+        title: "Devices",
+        icon: DevicesIcon,
+        desc: "Manage and monitor the active sessions of your logged in devices",
+        settings: DevicesSettings,
+    }
 ];
 
 export default function Settings(): ReactElement {

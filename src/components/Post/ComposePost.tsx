@@ -5,7 +5,6 @@ import { ReactElement, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import { MAX_ATTACHMENT_SIZE, SUPPORTED_ATTACHMENTS, POST_MAX_CHARS } from "src/utils/constants";
 const AttachmentPreview = dynamic(
     () => import("src/components/Attachments/AttachmentPreview"),
@@ -13,6 +12,7 @@ const AttachmentPreview = dynamic(
 import Avatar from "src/components/User/Avatar";
 import { FileUpload } from "src/components/Controls/FileUpload";
 import CharsRemaining from "src/components/CharsRemaining";
+import { axiosInstance } from "src/utils/axios";
 
 interface ComposePostProps {
     cb: () => Promise<void>;
@@ -148,7 +148,7 @@ export default function ComposePost({
             setHasText(false);
             setCharsLeft(POST_MAX_CHARS);
 
-            axiosAuth
+            axiosInstance
                 .post<GenericBackendRes>(apiRoute, payload)
                 .then(async () => {
                     setSubmitting(false);

@@ -10,10 +10,11 @@ import { memo, ReactElement, useState } from "react";
 import toast from "react-hot-toast";
 import OptionsMenu from "src/components/Options";
 import { GenericBackendRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import { useUserContext } from "src/contexts/userContext";
 import ShareModal from "src/components/ShareModal";
 import ReportModal from "src/components/ReportModal";
+import * as clipboard from "clipboard-polyfill";
+import { axiosInstance } from "src/utils/axios";
 
 function MuteIcon({ className, muted }: { className: string, muted: boolean }) {
     if (muted) return <SpeakerSimpleNone className={className} weight="fill" size="24" />;
@@ -57,22 +58,13 @@ const Options = memo(function Options({
     const title = `${authorUsername}'s post - Twatter`;
 
     const copyLink = () => {
-        const tempInput = document.createElement("input");
-        tempInput.value = url;
-        tempInput.style.position = "fixed";
-        tempInput.style.top = "0";
-        document.body.appendChild(tempInput);
-        tempInput.focus();
-        tempInput.select();
-        tempInput.setSelectionRange(0, 99999);
-        try {
-            document.execCommand("copy");
-            toast.success("Copied Successfully");
-        } catch (err) {
-            toast.error("Error while copying link");
-        } finally {
-            document.body.removeChild(tempInput);
-        }
+        clipboard.writeText(url)
+            .then(() => {
+                toast.success("Copied Successfully");
+            })
+            .catch(() => {
+                toast.error("Error while copying link");
+            });
     };
 
     const sharePost = () => {
@@ -94,7 +86,7 @@ const Options = memo(function Options({
     };
 
     const mutePost = () => {
-        axiosAuth.patch(`posts/${isMuted ? "unmute" : "mute"}/${postId}`)
+        axiosInstance.patch(`posts/${isMuted ? "unmute" : "mute"}/${postId}`)
             .then(() => {
                 toast.success(`Notifications ${isMuted ? "unmuted" : "muted"} for this post`);
                 setMuted(!isMuted);

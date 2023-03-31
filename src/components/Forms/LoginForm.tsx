@@ -19,8 +19,7 @@ import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import toast from "react-hot-toast";
 import { GenericBackendRes, LoginRes } from "src/types/server";
-import { axiosNoAuth } from "src/utils/axios";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useUserContext } from "src/contexts/userContext";
 
 interface LoginData {
@@ -31,9 +30,10 @@ interface LoginData {
 interface TwoFAModalProps {
     isOpen: boolean;
     onClose: () => void;
+    twoFAToken: string;
 }
 
-const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
+const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElement => {
     const { login } = useUserContext();
 
     const [passcode, setPasscode] = useState("");
@@ -41,16 +41,20 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
     const [isDisabled, setDisabled] = useState(false);
     const [usingRecovery, setUsingRecovery] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
         setSubmitting(true);
         setDisabled(true);
 
-        axiosNoAuth
-            .post<GenericBackendRes>(`settings/${usingRecovery ? "verify-recovery-code" : "verify-totp-code"}`, { passcode })
+        axios.post<LoginRes>(
+            `settings/${usingRecovery ? "verify-recovery-code" : "verify-totp-code"}`,
+            { passcode },
+            { headers: { Authorization: `Bearer ${twoFAToken}` } },
+        )
             .then((res) => {
                 toast.success(res.data.message);
                 setSubmitting(false);
-                login();
+                login(res.data.user, res.data.deviceId);
             })
             .catch((e: AxiosError<GenericBackendRes>) => {
                 toast.error(e.response?.data?.message ?? "An error has occurred");
@@ -68,25 +72,27 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
                 </ModalHeader>
                 <ModalCloseButton size="lg" />
                 <ModalBody>
-                    <VStack width="full" alignItems="start" spacing={4}>
-                        <Text>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</Text>
-                        <Input
-                            placeholder={usingRecovery ? "XXXXXX-XXXXXX" : "6-digit two-factor authentication code"}
-                            onChange={(e) => setPasscode(e.target.value)}
-                        />
-                        <p className="text-sm hover:cursor-pointer hover:underline usernameLink" onClick={() => setUsingRecovery(!usingRecovery)}>
-                            {usingRecovery ? "Have access to your authenticator app again?. Click here" : "Lost access to your authenticator app? Log in with a recovery code"}
-                        </p>
-                        <Button
-                            colorScheme="accent"
-                            disabled={isDisabled}
-                            isLoading={isSubmitting}
-                            loadingText="Verifying"
-                            onClick={handleSubmit}
-                        >
-                            Verify
-                        </Button>
-                    </VStack>
+                    <form onSubmit={handleSubmit}>
+                        <VStack width="full" alignItems="start" spacing={4}>
+                            <Text>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</Text>
+                            <Input
+                                placeholder={usingRecovery ? "XXXXXX-XXXXXX" : "6-digit two-factor authentication code"}
+                                onChange={(e) => setPasscode(e.target.value)}
+                            />
+                            <p className="text-sm hover:cursor-pointer hover:underline usernameLink" onClick={() => setUsingRecovery(!usingRecovery)}>
+                                {usingRecovery ? "Have access to your authenticator app again?. Click here" : "Lost access to your authenticator app? Log in with a recovery code"}
+                            </p>
+                            <Button
+                                colorScheme="accent"
+                                disabled={isDisabled}
+                                isLoading={isSubmitting}
+                                loadingText="Verifying"
+                                onClick={handleSubmit}
+                            >
+                                Verify
+                            </Button>
+                        </VStack>
+                    </form>
                 </ModalBody>
             </ModalContent>
         </Modal>
@@ -104,6 +110,7 @@ export default function LoginForm(): ReactElement {
     const [passwordHidden, setPasswordHidden] = useState(true);
     const [isSubmitting, setSubmitting] = useState(false);
     const [isDisabled, setDisabled] = useState(false);
+    const [twoFAToken, setTwoFaToken] = useState("");
     const { isOpen, onOpen: onOpen2FAModal, onClose } = useDisclosure();
 
     const togglePassword = () => setPasswordHidden((hidden) => !hidden);
@@ -128,17 +135,18 @@ export default function LoginForm(): ReactElement {
         setSubmitting(true);
         setDisabled(true);
 
-        axiosNoAuth
-            .post<LoginRes>("users/login", form)
+        axios
+            .post<LoginRes>("auth/login", form)
             .then((res) => {
                 if (res.data.requiresTwoFactorAuth) {
+                    setTwoFaToken(res.data.twoFactorToken);
                     onOpen2FAModal();
                     setSubmitting(false);
                     setDisabled(false);
                 } else {
                     toast.success(res.data.message);
                     setSubmitting(false);
-                    login();
+                    login(res.data.user, res.data.deviceId);
                 }
             })
             .catch((err: AxiosError<GenericBackendRes>) => {
@@ -201,7 +209,7 @@ export default function LoginForm(): ReactElement {
                     </Button>
                 </VStack>
             </form>
-            <TwoFAModal isOpen={isOpen} onClose={onClose} />
+            <TwoFAModal isOpen={isOpen} onClose={onClose} twoFAToken={twoFAToken} />
         </Stack>
     );
 }

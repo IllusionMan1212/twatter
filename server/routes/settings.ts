@@ -20,7 +20,7 @@ import { RateLimiterMemory } from "rate-limiter-flexible";
 const router = express.Router();
 
 const totpLimit = new RateLimiterMemory({
-    points: 1,
+    points: 2,
     duration: 5,
 });
 

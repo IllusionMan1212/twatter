@@ -1,4 +1,4 @@
-import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser, IFollowUser, IBackupCode } from "./interfaces";
+import { IUser, IEvent, IConversation, IMessage, ISearchUser, IPost, IThreadPost, IReport, IReporter, ProfilePageUser, IFollowUser, IBackupCode, ISession } from "./interfaces";
 
 export interface GenericBackendRes {
     message: string;
@@ -6,15 +6,18 @@ export interface GenericBackendRes {
 
 export interface LoginRes extends GenericBackendRes {
     user: IUser;
+    deviceId: string;
+    twoFactorToken: string;
     requiresTwoFactorAuth: boolean;
 }
 
-export interface ValidateResetPasswordTokenRes extends GenericBackendRes {
+export interface VerifyResetPasswordTokenRes extends GenericBackendRes {
     user: IUser;
 }
 
-export interface ValidateTokenRes {
+export interface GetMeRes {
     user: IUser;
+    deviceId: string;
 }
 
 export interface TwoFASecretRes extends GenericBackendRes {
@@ -114,4 +117,8 @@ export interface GetFollowingRes extends GenericBackendRes {
 
 export interface GetBackupCodes extends GenericBackendRes {
     codes: IBackupCode[];
+}
+
+export interface GetSessionsRes {
+    sessions: ISession[];
 }

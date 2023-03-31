@@ -6,7 +6,7 @@ import { ReactElement } from "react";
 import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes, StartConversationRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
+import { axiosInstance } from "src/utils/axios";
 
 interface ChatIconProps {
     size: string;
@@ -28,7 +28,7 @@ export default function MessageButton({ userId, iconOnly, iconSize, messageCB, .
     const { user: currentUser } = useUserContext();
 
     const handleStartConversation = async () => {
-        axiosAuth
+        axiosInstance
             .post<StartConversationRes>("message/start-conversation", {
                 userId
             })

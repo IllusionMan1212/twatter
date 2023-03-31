@@ -40,11 +40,10 @@ import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import Avatar from "src/components/User/Avatar";
 import { Dialog } from "src/components/Dialog";
-import { axiosAuth } from "src/utils/axios";
 import { GenericBackendRes, GetConversationsRes, GetMessagesRes } from "src/types/server";
 import { AxiosError } from "axios";
 import { MessagingState } from "src/reducers/messaging";
-import { fetcher } from "src/utils/helpers";
+import { fetcher, axiosInstance } from "src/utils/axios";
 import useSWRInfinite from "swr/infinite";
 import { MessagingAction, MessagingActions } from "src/actions/messaging";
 import { Virtuoso } from "react-virtuoso";
@@ -203,7 +202,7 @@ function LeaveConversationDialog({
     mutateConvos,
 }: LeaveConversationDialogProps): ReactElement {
     const handleConfirmation = () => {
-        axiosAuth
+        axiosInstance
             .delete<GenericBackendRes>(`message/leave-conversation/${conversationId}`)
             .then(async (res) => {
                 await Router.replace("/messages");

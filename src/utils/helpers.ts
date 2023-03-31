@@ -1,5 +1,3 @@
-import { axiosAuth } from "./axios";
-
 export function formatAnnouncementDate(_date: string): string {
     const date = new Date(_date);
 
@@ -36,5 +34,3 @@ export function formatEventDate(_date: string): string {
         month: "long",
     })}, ${date.getFullYear()} · ${date.toLocaleString("en-US", { timeStyle: "short" })}`;
 }
-
-export const fetcher = <T>(url: string) => axiosAuth.get<T>(url).then(res => res.data);

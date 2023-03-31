@@ -4,9 +4,8 @@ import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import toast from "react-hot-toast";
-import { axiosNoAuth } from "src/utils/axios";
 import { GenericBackendRes } from "src/types/server";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/router";
 
 interface RegisterData {
@@ -67,8 +66,8 @@ export default function RegisterForm(): ReactElement {
         }
 
         setSubmitting(true);
-        axiosNoAuth
-            .post<GenericBackendRes>("users/register", form)
+        axios
+            .post<GenericBackendRes>("auth/register", form)
             .then((res) => {
                 toast.success(res.data.message, { duration: 7000 });
                 router.push("/login");

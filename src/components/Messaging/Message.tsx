@@ -9,10 +9,10 @@ import { parsingOptions } from "src/components/Post/Post";
 import OptionsMenu from "../Options";
 import { TrashIcon } from "@heroicons/react/solid";
 import { GenericBackendRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { MessageAttachment } from "@prisma/client";
+import { axiosInstance } from "src/utils/axios";
 
 interface AttachmentProps {
     attachment: MessageAttachment | null;
@@ -168,7 +168,7 @@ interface DeletedMessageProps extends Omit<MessageProps,
 | "conversationId"
 | "isScrolling"
 | "convoWidth"> {
-    ownerAvatarURL: string;
+    ownerAvatarURL: string | undefined | null;
 }
 
 export function DeletedMessage(props: DeletedMessageProps): ReactElement {
@@ -240,7 +240,7 @@ function MessageOptions({ messageId, conversationId, recipientId, className }: M
     const { socket } = useUserContext();
 
     const handleDelete = () => {
-        axiosAuth.delete(`message/delete-message/${conversationId}/${messageId}`)
+        axiosInstance.delete(`message/delete-message/${conversationId}/${messageId}`)
             .then(async () => {
                 socket?.emit("deleteMessage", {
                     messageId,
@@ -272,7 +272,7 @@ interface MessageProps {
     content: string;
     attachment: MessageAttachment | null;
     recipientId: string;
-    recipientAvatarURL: string | undefined;
+    recipientAvatarURL: string | undefined | null;
     ownerUsername: string;
     isScrolling: boolean;
     wasRead: boolean;

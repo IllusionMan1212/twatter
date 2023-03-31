@@ -13,10 +13,10 @@ import {
     ButtonGroup,
 } from "@chakra-ui/react";
 import Textarea from "./Controls/Textarea";
-import { axiosAuth } from "src/utils/axios";
 import { toast } from "react-hot-toast";
 import { GenericBackendRes } from "src/types/server";
 import { AxiosError, isAxiosError } from "axios";
+import { axiosInstance } from "src/utils/axios";
 
 interface ReportModalProps {
     isOpen: boolean;
@@ -31,7 +31,7 @@ export default function ReportModal({ isOpen, onClose, postId }: ReportModalProp
 
     const submitReport = () => {
         setSubmitting(true);
-        axiosAuth.post<GenericBackendRes>("posts/report", { postId, reason, comments })
+        axiosInstance.post<GenericBackendRes>("posts/report", { postId, reason, comments })
             .then((res) => {
                 onClose();
                 setSubmitting(false);

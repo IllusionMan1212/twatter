@@ -2,7 +2,7 @@ import { Spinner, VStack, Text } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { SearchUsersRes } from "src/types/server";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import useSWRInfinite from "swr/infinite";
 import User from "src/components/User/User";
 import { ISearchUser, SearchResultsTabProps } from "src/types/interfaces";

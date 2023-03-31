@@ -11,7 +11,7 @@ export interface IUser {
     displayName: string;
     username: string;
     email?: string;
-    avatarURL: string;
+    avatarURL: string | undefined | null;
     settings?: IUserSettings;
     twoFactorAuth: boolean;
     isAdmin: boolean;
@@ -23,7 +23,7 @@ export interface ISearchUser {
     id: string;
     displayName: string;
     username: string;
-    avatarURL: string | undefined;
+    avatarURL: string | undefined | null;
     allowAllDMs: boolean;
     isFollowing: boolean;
 }
@@ -85,7 +85,7 @@ export interface IPost {
     authorId: string;
     authorName: string;
     authorUsername: string;
-    authorAvatarURL: string;
+    authorAvatarURL: string | undefined | null;
     attachments: IAttachment[] | null;
     likes: number;
     liked: boolean;
@@ -103,7 +103,7 @@ export interface IPostAuthor {
     id: string;
     displayName: string;
     username: string;
-    avatarURL: string;
+    avatarURL: string | undefined | null;
 }
 
 export type SettingItem = {
@@ -149,4 +149,14 @@ export interface IReporter {
 export interface IBackupCode {
     code: string;
     hasBeenUsed: boolean;
+}
+
+export interface ISession {
+    os: string;
+    browser: string;
+    isMobile: boolean;
+    ip: string;
+    lastLoginTime: string;
+    deviceId: string;
+    userAgent: string;
 }

@@ -17,9 +17,9 @@ import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";
 import { AxiosError } from "axios";
 import { GenericBackendRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
 import AvatarCropModal from "./AvatarCropModal";
+import { axiosInstance } from "src/utils/axios";
 
 interface UpdateProfileData {
     displayName: string;
@@ -27,7 +27,7 @@ interface UpdateProfileData {
 }
 
 export default function ProfileSettings(): ReactElement {
-    const { user, mutate } = useUserContext();
+    const { user, mutate, deviceId } = useUserContext();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -87,8 +87,8 @@ export default function ProfileSettings(): ReactElement {
     const removeProfileImage = async () => {
         removeAttachment();
         try {
-            await mutate(axiosAuth.delete("settings/remove-profile-image"), {
-                optimisticData: { user: { ...user, avatarURL: null } },
+            await mutate(axiosInstance.delete("settings/remove-profile-image"), {
+                optimisticData: { user: { ...user!, avatarURL: null }, deviceId },
                 populateCache: false,
                 revalidate: false,
                 rollbackOnError: true,
@@ -122,7 +122,7 @@ export default function ProfileSettings(): ReactElement {
         payload.append("displayName", form.displayName);
         payload.append("username", form.username);
 
-        axiosAuth
+        axiosInstance
             .patch<GenericBackendRes>("settings/update-profile", payload)
             .then((res) => {
                 setSubmitting(false);

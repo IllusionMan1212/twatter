@@ -12,9 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import Post from "src/components/Post/Post";
-import toast from "react-hot-toast";
 import useSWRInfinite, { SWRInfiniteResponse } from "swr/infinite";
-import { fetcher } from "src/utils/helpers";
 import { Virtuoso } from "react-virtuoso";
 import { AxiosError } from "axios";
 import { GenericBackendRes, GetFeedRes } from "src/types/server";
@@ -25,6 +23,7 @@ import { NotePencil } from "@phosphor-icons/react";
 import ComposePostModal from "src/components/Post/ComposePostModal";
 import { homeSEO } from "next-seo.config";
 import { NextSeo } from "next-seo";
+import { fetcher } from "src/utils/axios";
 
 function NotePencilIcon() {
     return <NotePencil weight="bold" size="25" />;
@@ -68,14 +67,13 @@ function Posts({ swr }: PostsProps): ReactElement {
                 setReachedEnd(true);
             }
         }
+    }, [data]);
 
-        if (error) {
-            toast.error(
-                error.response?.data.message ??
-                    "An error occurred while fetching the posts",
-            );
-        }
-    }, [data, error]);
+    if (error) return (
+        <VStack width="full" textAlign="center">
+            <p className="font-bold">{error.message}</p>
+        </VStack>
+    );
 
     if (!isValidating && data?.[0]?.posts.length === 0)
         return (

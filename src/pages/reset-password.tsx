@@ -6,8 +6,8 @@ import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ResetPasswordForm from "src/components/Forms/ResetPasswordForm";
 import { IUser } from "src/types/interfaces";
-import { ValidateResetPasswordTokenRes } from "src/types/server";
-import { axiosNoAuth } from "src/utils/axios";
+import { VerifyResetPasswordTokenRes } from "src/types/server";
+import { axiosInstance } from "src/utils/axios";
 
 export default function ResetPassword(): ReactElement {
     const router = useRouter();
@@ -19,9 +19,9 @@ export default function ResetPassword(): ReactElement {
         if (router.query.token) {
             setToken(router.query.token as string);
 
-            axiosNoAuth
-                .get<ValidateResetPasswordTokenRes>(
-                    `users/validate-reset-password-token?token=${router.query.token}`,
+            axiosInstance
+                .get<VerifyResetPasswordTokenRes>(
+                    `auth/verify-reset-password-token?token=${router.query.token}`,
                 )
                 .then((res) => {
                     setUser(res.data.user);

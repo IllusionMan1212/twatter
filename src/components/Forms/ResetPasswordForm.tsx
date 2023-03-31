@@ -13,11 +13,10 @@ import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import { IUser } from "src/types/interfaces";
-import { axiosNoAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { GenericBackendRes } from "src/types/server";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import Avatar from "src/components/User/Avatar";
 
 interface ResetPasswordFormProps {
@@ -62,8 +61,8 @@ export default function ResetPasswordForm({
 
         setSubmitting(true);
 
-        axiosNoAuth
-            .post<GenericBackendRes>("users/reset-password", {
+        axios
+            .post<GenericBackendRes>("auth/reset-password", {
                 ...form,
                 token: props.token,
             })

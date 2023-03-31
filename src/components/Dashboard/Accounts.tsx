@@ -21,10 +21,9 @@ import CheckBox from "src/components/Controls/Checkbox";
 import { Dialog } from "src/components/Dialog";
 import { IUser } from "src/types/interfaces";
 import useSWR from "swr";
-import { axiosAuth } from "src/utils/axios";
 import { AdminAccountsRes } from "src/types/server";
 import toast from "react-hot-toast";
-import { fetcher } from "src/utils/helpers";
+import { fetcher, axiosInstance } from "src/utils/axios";
 
 export default function Accounts(): ReactElement {
     const [page, setPage] = useState(0);
@@ -60,7 +59,7 @@ export default function Accounts(): ReactElement {
         }, [] as string[]);
 
         try {
-            await mutate(axiosAuth.patch("admin/unrestrict-users", { ids }), {
+            await mutate(axiosInstance.patch("admin/unrestrict-users", { ids }), {
                 optimisticData: {
                     accounts: accounts.map((a) =>
                         ids.includes(a.id) ? { ...a, restricted: false } : a,
@@ -83,7 +82,7 @@ export default function Accounts(): ReactElement {
         }, [] as string[]);
 
         try {
-            await mutate(axiosAuth.patch("admin/restrict-users", { ids }), {
+            await mutate(axiosInstance.patch("admin/restrict-users", { ids }), {
                 optimisticData: {
                     accounts: accounts.map((a) =>
                         ids.includes(a.id) ? { ...a, restricted: true } : a,
@@ -106,7 +105,7 @@ export default function Accounts(): ReactElement {
         }, [] as string[]);
 
         try {
-            await mutate(axiosAuth.patch("admin/delete-users", { ids }), {
+            await mutate(axiosInstance.patch("admin/delete-users", { ids }), {
                 optimisticData: {
                     accounts: accounts.filter((a) => !ids.includes(a.id)),
                     accountCount: accountCount - ids.length,

@@ -18,9 +18,8 @@ import {
     GetPostsRes,
     GetUserRes,
 } from "src/types/server";
-import { axiosAuth, axiosNoAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useUserContext } from "src/contexts/userContext";
 import toast from "react-hot-toast";
 import useSWRInfinite from "swr/infinite";
@@ -32,6 +31,7 @@ import BigNumber from "src/components/BigNumber";
 import FollowButton from "src/components/User/FollowButton";
 import { FollowersModal, FollowingModal } from "src/components/User/FollowersModal";
 import MessageButton from "src/components/User/MessageButton";
+import { fetcher } from "src/utils/axios";
 
 interface Props {
     user: ProfilePageUser;
@@ -131,14 +131,8 @@ function User({ user }: Props): ReactElement {
 }
 
 function Posts({ user }: Props): ReactElement {
-    const { user: currentUser } = useUserContext();
-
     const getKey = (pageIndex: number) => {
         return `posts/get-user-posts/${user.id}/${pageIndex}`;
-    };
-
-    const fetcher = <T,>(url: string) => {
-        return currentUser ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
     };
 
     const [reachedEnd, setReachedEnd] = useState(false);
@@ -262,7 +256,7 @@ export default function Profile({ user }: Props): ReactElement {
                     },
                     images: [
                         {
-                            url: user.avatarURL,
+                            url: user.avatarURL ?? "",
                         },
                     ],
                 }}
@@ -281,16 +275,8 @@ export async function getServerSideProps(
     let user: ProfilePageUser | null = null;
 
     try {
-        const res = await axiosNoAuth.get<GetUserRes>(
+        const res = await axios.get<GetUserRes>(
             `users/get-user/${context.params?.username}`,
-            context.req.cookies.session
-                ? {
-                    withCredentials: true,
-                    headers: {
-                        Cookie: `session=${context.req.cookies.session}`,
-                    },
-                }
-                : {},
         );
         user = res.data.user ?? null;
     } catch (e) {

@@ -1,28 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { isMemberOfConvo } from "../../database/message";
 import { ConversationData } from "../../validators/message";
-import { getUserById } from "../../database/users";
-import * as Cookies from "../../controllers/utils/cookies";
+import * as Tokens from "../../controllers/utils/tokens";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
-import { exclude } from "../../database/utils";
-import { excludedUserProps } from "../../controllers/utils/users";
 import crypto from "crypto";
 
 export const adminGuard = async (req: Request, res: Response, next: NextFunction) => {
-    const session = await Cookies.getLoginSession(req);
+    const session = await Tokens.getLoginSession(req, res);
 
     if (!session) {
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    const user = await getUserById(session.user.id);
-
-    if (!user) {
-        return res.status(401).json({ message: "Authentication token is invalid, please log in" });
-    }
+    const user = session.user;
 
     if (!user.isAdmin) {
-        return res.status(401).json({ message: req.method === "GET" ? "You're not authorized to access this resource": "You're not authorized to perform this action" });
+        return res.status(403).json({ message: req.method === "GET" ? "You're not authorized to access this resource": "You're not authorized to perform this action" });
     }
 
     const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
@@ -35,59 +28,43 @@ export const adminGuard = async (req: Request, res: Response, next: NextFunction
 };
 
 export const sessionGuard = async (req: Request, res: Response, next: NextFunction) => {
-    const session = await Cookies.getLoginSession(req);
+    const session = await Tokens.getLoginSession(req, res);
 
     if (!session) {
         return res.status(401).json({ message: "Authentication token is invalid, please log in" });
     }
 
-    const user = await getUserById(session.user.id);
+    const user = session.user;
 
-    if (!user) {
-        return res.status(401).json({ message: "Authentication token is invalid, please log in" });
-    }
-
-    const u = exclude(user, ...(excludedUserProps.filter(p => p !== "email")));
-
-    if (u.restricted) {
-        Cookies.removeTokenCookie(res);
+    if (user.restricted) {
         return res.status(403).json({ message: "Restricted account" });
     }
 
     const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
     user.notificationSubHash = hmacHash;
 
-    session.user = u;
     req.session = session;
 
     next();
 };
 
 export const sessionContext = async (req: Request, res: Response, next: NextFunction) => {
-    const session = await Cookies.getLoginSession(req);
+    const session = await Tokens.getLoginSession(req, res);
 
     if (!session) {
         next();
         return;
     }
 
-    const user = await getUserById(session.user.id);
+    const user = session.user;
 
-    if (!user) {
-        return res.status(401).json({ message: "Authentication token is invalid, please log in" });
-    }
-
-    const u = exclude(user, ...(excludedUserProps.filter(p => p !== "email")));
-
-    if (u.restricted) {
-        Cookies.removeTokenCookie(res);
+    if (user.restricted) {
         return res.status(403).json({ message: "Restricted account" });
     }
 
     const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
     user.notificationSubHash = hmacHash;
 
-    session.user = u;
     req.session = session;
 
     next();
@@ -103,7 +80,7 @@ export const messagingGuard = async (req: Request, res: Response, next: NextFunc
     const isMember = await isMemberOfConvo(data.data.conversationId, req.session.user.id);
 
     if (!isMember) {
-        return res.status(401).json({ message: "Unauthorized to perform this action" });
+        return res.status(403).json({ message: "Unauthorized to perform this action" });
     }
 
     next();
@@ -159,9 +136,13 @@ const loggedOutRoutes = [
 ];
 
 export const authGuard = async (req: Request, res: Response, next: NextFunction) => {
-    const session = await Cookies.getLoginSession(req);
+    if (req.originalUrl.startsWith("/cdn") || req.originalUrl.startsWith("/default") || req.originalUrl.startsWith("/_next")) {
+        return next();
+    }
 
-    const user = await getUserById(session?.user.id ?? "");
+    const session = await Tokens.getLoginSession(req, res);
+
+    const user = session?.user;
 
     if (user && loggedOutRoutes.find(r => r === "/" ? r === req.originalUrl : req.originalUrl.startsWith(r))) {
         return res.redirect(307, "/home");

@@ -12,16 +12,18 @@ import {
 import { IUser } from "src/types/interfaces";
 import useSWR, { KeyedMutator } from "swr";
 import { io, Socket } from "socket.io-client";
-import { axiosAuth } from "src/utils/axios";
-import { GetUnreadMessagesRes } from "src/types/server";
+import { GetUnreadMessagesRes, GetMeRes } from "src/types/server";
 import { MarkedMessagesAsSeenData, ServerMessageEventData } from "server/sockets/types";
+import { axiosInstance, fetcher } from "src/utils/axios";
+import { toast } from "react-hot-toast";
 
 interface UserContextType {
     user: IUser | null | undefined;
-    login: () => void;
-    logout: () => void;
-    mutate: KeyedMutator<{ user: any }>;
+    login: (user: IUser, deviceId: string) => Promise<void>;
+    logout: () => Promise<void>;
+    mutate: KeyedMutator<GetMeRes>;
     socket: Socket | null;
+    deviceId: string;
     unreadMessages: Map<string, number>;
     setUnreadMessages: Dispatch<SetStateAction<Map<string, number>>>;
     activeConversationId: string | null;
@@ -30,14 +32,15 @@ interface UserContextType {
 
 const UserContextDefaultValues: UserContextType = {
     user: undefined,
-    login: () => {
+    login: async () => {
         void 0;
     },
-    logout: () => {
+    logout: async () => {
         void 0;
     },
     mutate: async () => undefined,
     socket: null,
+    deviceId: "",
     unreadMessages: new Map<string, number>(),
     setUnreadMessages: () => {
         void 0;
@@ -50,21 +53,35 @@ const UserContextDefaultValues: UserContextType = {
 
 const UserContext = createContext<UserContextType>(UserContextDefaultValues);
 
-const fetcher = (url: string) =>
-    fetch(url, { credentials: "include" })
-        .then((r) => r.json())
-        .then((data) => {
-            return { user: data?.user };
-        });
-
 export function UserWrapper({ children }: PropsWithChildren): ReactElement {
     const [user, setUser] = useState<IUser | null | undefined>(undefined);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [deviceId, setDeviceId] = useState("");
     const [loading, setLoading] = useState(true);
     const [unreadMessages, setUnreadMessages] = useState(new Map<string, number>());
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-    const { data, mutate, isValidating } = useSWR("/api/users/validate-token", fetcher);
+    const { data, mutate, isValidating, error } = useSWR("auth/me", fetcher<GetMeRes>, {
+        revalidateOnFocus: false
+    });
+
+    useEffect(() => {
+        const resInter = axiosInstance.interceptors.response.use(
+            (response) => response,
+            async (error) => {
+                if (user && error.response.status === 401) {
+                    toast.error("Your session has expired. Please log in again.");
+                    await logout(false);
+                    return Promise.reject(error);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axiosInstance.interceptors.response.eject(resInter);
+        };
+    }, [user]);
 
     const openSocket = () => {
         const _socket = io();
@@ -112,10 +129,11 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
 
         if (data && data.user) {
             setUser(data.user);
+            setDeviceId(data.deviceId);
             openSocket();
             setLoading(false);
             (async () => {
-                const res = await axiosAuth.get<GetUnreadMessagesRes>("message/get-unread-messages");
+                const res = await axiosInstance.get<GetUnreadMessagesRes>("message/get-unread-messages");
                 setUnreadMessages(new Map<string, number>(res.data.convos.map(c => [c.id, c.messages])));
             })();
         } else {
@@ -123,6 +141,12 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
             setLoading(false);
         }
     }, [data]);
+
+    useEffect(() => {
+        if (error) {
+            setLoading(false);
+        }
+    }, [error]);
 
     useEffect(() => {
         if (socket) {
@@ -138,19 +162,36 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         };
     }, [socket, handleMessage, handleMarkedMessagesAsSeen]);
 
-    const login = () => {
-        mutate();
+    const login = async (user: IUser, deviceId: string) => {
+        setUser(user);
+        setDeviceId(deviceId);
         openSocket();
     };
 
-    const logout = () => {
+    const logout = async (sendRequest = true) => {
+        try {
+            sendRequest && await axiosInstance.delete("auth/logout");
+        } catch (e) { void 0; }
+        setUser(null);
         socket?.close();
         setSocket(null);
-        mutate();
     };
 
     return (
-        <UserContext.Provider value={{ user, socket, login, logout, mutate, unreadMessages, setUnreadMessages, activeConversationId, setActiveConversationId }}>
+        <UserContext.Provider
+            value={{
+                user,
+                socket,
+                login,
+                logout,
+                deviceId,
+                mutate,
+                unreadMessages,
+                setUnreadMessages,
+                activeConversationId,
+                setActiveConversationId
+            }}
+        >
             <div className={loading ? "invisible" : ""}>
                 {children}
             </div>
