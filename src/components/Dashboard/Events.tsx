@@ -16,11 +16,11 @@ import {
 } from "@chakra-ui/react";
 import { memo, ReactElement, useEffect, useState } from "react";
 import CheckBox from "src/components/Controls/Checkbox";
-import { fetcher, formatEventDate } from "src/utils/helpers";
+import { formatEventDate } from "src/utils/helpers";
+import { axiosInstance, fetcher } from "src/utils/axios";
 import { Dialog } from "src/components/Dialog";
 import { IEvent } from "src/types/interfaces";
 import useSWR from "swr";
-import { axiosAuth } from "src/utils/axios";
 import { AdminEventsRes } from "src/types/server";
 import toast from "react-hot-toast";
 import CreationDate from "src/components/Dashboard/CreationDate";
@@ -65,7 +65,7 @@ export default function Events(): ReactElement {
         }, [] as string[]);
 
         try {
-            await mutate(axiosAuth.patch("admin/delete-events", { ids }), {
+            await mutate(axiosInstance.patch("admin/delete-events", { ids }), {
                 optimisticData: {
                     events: events.filter((a) => !ids.includes(a.id)),
                     eventCount: eventCount - ids.length,

@@ -1,4 +1,4 @@
-const prepareHTMLTemplate = (content: string) => {
+const prepareHTMLTemplate = (content: string): string => {
     return `
     <!DOCTYPE html>
     <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -20,6 +20,7 @@ const prepareHTMLTemplate = (content: string) => {
         table, td, div, h1, p {font-family: Arial, sans-serif;}
         .btn {padding: 12px 16px; background-color: #577291; text-decoration: none; color: white; border: 1px solid; border-radius: 4px;}
         .btn:hover {background-color: #4A6480;}
+        .btn:visited {color: white;}
         .extra-text {color: #595959;}
         td {padding: 0 50px;}
         p, h1, h2, h3, h4, h5, h6 {padding: 0; margin: 1em 0;}
@@ -37,7 +38,7 @@ const prepareHTMLTemplate = (content: string) => {
     `;
 };
 
-export const prepareResetPasswordEmailHTML = (link: string) => {
+export const prepareResetPasswordEmailHTML = (link: string): string => {
     return prepareHTMLTemplate(`
       <tr>
         <td align="center" style="padding:0;">
@@ -72,9 +73,49 @@ export const prepareResetPasswordEmailHTML = (link: string) => {
     `);
 };
 
-export const prepareResetPasswordEmailText = (link: string) => {
+export const prepareResetPasswordEmailText = (link: string): string => {
     return `TWATTER\n\n\
     The password link you requested is ready\n\n\
     Link: (${link})\nThis link expires in 1 hour\n\n\
     You're receiving this email because you recently requested a password. If this wasn't you, please ignore this email.`;
+};
+
+export const prepareUnrecognizedIPEmailHTML = (ip: string, os: string | undefined, browser: string | undefined): string => {
+    return prepareHTMLTemplate(`
+      <tr>
+        <td align="center" style="padding:0;">
+          <table role="presentation" style="width:100%;max-width:602px;border-collapse:collapse;border-spacing:0;text-align:left;">
+            <tr>
+              <td>
+                <h1 style="font-family:'Courier New'">TWATTER</h1>
+                <h3>New login from ${ip}</h3>
+                <h4>On: ${os} - ${browser}</h4>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>We detected a login to your account from a new device. As part of our security measures, we wanted to let you know about this login.</p>
+                <p>If you did not attempt to log in to your account from this IP address, we advise you to take the following steps:</p>
+                <ul>
+                  <li>Immediately change your password to a strong and unique one that you have not used before.</li>
+                  <li>Enable two-factor authentication on your account if you haven't already.</li>
+                </ul>
+                <p>If you did authorize this login attempt, then you can ignore this email.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    `);
+};
+
+export const prepareUnrecognizedIPEmailText = (ip: string, os: string | undefined, browser: string | undefined): string => {
+    return `TWATTER\n\n\
+        New login from ${ip}\n
+        On: ${os} - ${browser}\n\n\
+        We detected a login to your account from a new device. As part of our security measures, we wanted to let you know about this login.\n\n\
+        If you did not attempt to log in to your account from this IP address, we advise you to take the following steps:\n\n
+        - Immediately change your password to a strong and unique one that you have not used before.\n
+        - Enable two-factor authentication on your account if you haven't already.\n\n
+        If you did authorize this login attempt, then you can ignore this email.`;
 };

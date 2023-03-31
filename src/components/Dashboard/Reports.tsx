@@ -20,7 +20,7 @@ import {
     IconButton as ChakraIconButton
 } from "@chakra-ui/react";
 import useSWRInfinite from "swr/infinite";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import { AxiosError } from "axios";
 import { GenericBackendRes, GetReportersRes, GetReportsRes } from "src/types/server";
 import { IReport, IReporter, IReportPost } from "src/types/interfaces";
@@ -36,9 +36,9 @@ import HTMLToJSX from "html-react-parser";
 import { Flag, Plus, Minus } from "@phosphor-icons/react";
 import { CheckIcon, TrashIcon } from "@heroicons/react/solid";
 import IconButton from "../IconButton";
-import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
 import { KeyedMutator } from "swr";
+import { axiosInstance } from "src/utils/axios";
 
 interface EmbeddedPostProps {
     post: IReportPost;
@@ -241,7 +241,7 @@ function Report({
     const { isOpen: isPostOpen, onToggle } = useDisclosure();
 
     const resolveReport = (deleted: boolean) => {
-        axiosAuth.patch<GenericBackendRes>("admin/resolve-report", { reason, postId: Post.id, deleted })
+        axiosInstance.patch<GenericBackendRes>("admin/resolve-report", { reason, postId: Post.id, deleted })
             .then(async (res) => {
                 await mutate?.();
                 toast.success(res.data.message);

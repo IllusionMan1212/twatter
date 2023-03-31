@@ -4,7 +4,6 @@ import { memo, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import NextLink from "next/link";
 import { Dialog } from "src/components/Dialog";
-import { axiosAuth } from "src/utils/axios";
 import { AxiosError } from "axios";
 import {
     GenericBackendRes,
@@ -26,6 +25,7 @@ import HTMLToJSX, { domToReact, Element } from "html-react-parser";
 import Link from "next/link";
 import BigNumber from "src/components/BigNumber";
 import IconButton from "src/components/IconButton";
+import { axiosInstance } from "src/utils/axios";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -82,7 +82,7 @@ const DeleteDialog = memo(function DeleteDialog({
     mutate,
 }: DeleteDialogProps): ReactElement {
     const handleDelete = () => {
-        axiosAuth
+        axiosInstance
             .delete<GenericBackendRes>(`posts/delete-post?postId=${postId}`)
             .then((res) => {
                 toast.success(res.data.message);
@@ -153,7 +153,7 @@ export default function Post(props: PostProps): ReactElement {
 
         setLikeDisabled(true);
 
-        axiosAuth
+        axiosInstance
             .patch(`posts/${props.liked ? "unlike" : "like"}/${props.id}`)
             .then(async () => {
                 await props.mutate();

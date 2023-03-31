@@ -15,7 +15,7 @@ interface UserProps {
     id: string;
     displayName: string;
     username: string;
-    avatarURL: string | undefined;
+    avatarURL: string | undefined | null;
     allowAllDMs: boolean;
     startConvoCB?: () => Promise<void>;
     isFollowing: boolean;

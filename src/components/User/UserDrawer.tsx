@@ -25,7 +25,6 @@ import {
     UserCircleIcon,
 } from "@heroicons/react/solid";
 import { Gauge } from "@phosphor-icons/react";
-import { axiosAuth } from "src/utils/axios";
 import { useUserContext } from "src/contexts/userContext";
 import Avatar from "src/components/User/Avatar";
 
@@ -98,11 +97,7 @@ const DrawerProfileItems = ({ username, logout, onClose }: DrawerProfileItemsPro
             <DrawerNavItem
                 href={null}
                 icon={LogoutIconSolid}
-                onClick={async () => {
-                    await axiosAuth.delete("users/logout");
-                    logout();
-                    onClose();
-                }}
+                onClick={logout}
             >
                 Logout
             </DrawerNavItem>

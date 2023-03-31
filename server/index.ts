@@ -11,6 +11,7 @@ import Debug from "debug";
 import fileupload from "express-fileupload";
 const debug = Debug("twatter");
 
+import authRouter from "./routes/auth";
 import usersRouter from "./routes/users";
 import settingsRouter from "./routes/settings";
 import adminRouter from "./routes/admin";
@@ -28,6 +29,8 @@ const app = next({ dev, hostname: process.env.NEXT_PUBLIC_DOMAIN ?? "localhost",
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
+    checkEnv();
+
     const expressApp = express();
     if (process.env.NODE_ENV === "production") {
         expressApp.set("trust proxy", 1);
@@ -55,6 +58,7 @@ app.prepare().then(() => {
         next();
     });
 
+    expressApp.use("/api/auth", authRouter);
     expressApp.use("/api/users", usersRouter);
     expressApp.use("/api/settings", settingsRouter);
     expressApp.use("/api/admin", adminRouter);
@@ -104,3 +108,17 @@ app.prepare().then(() => {
             }
         });
 });
+
+function checkEnv() {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT secret not set in env");
+    }
+
+    if (!process.env.JWT_ENCRYPTION_KEY) {
+        throw new Error("JWT encryption key not set in env");
+    }
+
+    if (!process.env.DEVICE_IDENTIFIER_SECRET) {
+        throw new Error("Device identifier secret not set in env");
+    }
+}

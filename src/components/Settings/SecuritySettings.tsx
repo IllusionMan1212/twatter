@@ -29,10 +29,10 @@ import Input from "src/components/Controls/Input";
 import Switch from "src/components/Controls/Switch";
 import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes, GetBackupCodes, TwoFASecretRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import { Dialog } from "src/components/Dialog";
 import { IBackupCode } from "src/types/interfaces";
 import * as clipboard from "clipboard-polyfill";
+import { axiosInstance } from "src/utils/axios";
 
 interface ChangePasswordData {
     currentPassword: string;
@@ -48,7 +48,7 @@ interface TwoFAModalProps {
 type TwoFADialogProps = TwoFAModalProps;
 
 const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
-    const { mutate, user } = useUserContext();
+    const { mutate, user, deviceId } = useUserContext();
 
     const [isLoading, setLoading] = useState(false);
     const [isSubmitting, setSubmitting] = useState(false);
@@ -65,8 +65,8 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
         setSubmitting(true);
 
         try {
-            await mutate(axiosAuth.patch("settings/enable-2fa", { passcode }), {
-                optimisticData: { user: { ...user, twoFactorAuth: true } },
+            await mutate(axiosInstance.patch("settings/enable-2fa", { passcode }), {
+                optimisticData: { user: { ...user!, twoFactorAuth: true }, deviceId },
                 populateCache: false,
                 revalidate: false,
                 rollbackOnError: true,
@@ -88,7 +88,7 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
         if (isOpen) {
             setLoading(true);
 
-            axiosAuth
+            axiosInstance
                 .get<TwoFASecretRes>("settings/generate-totp-secret")
                 .then((res) => {
                     setSecret(res.data.secret);
@@ -160,12 +160,12 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
 };
 
 const Disable2FADialog = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
-    const { mutate, user } = useUserContext();
+    const { mutate, user, deviceId } = useUserContext();
 
     const handleDisable2FA = async () => {
         try {
-            await mutate(axiosAuth.patch("settings/disable-2fa"), {
-                optimisticData: { user: { ...user, twoFactorAuth: false } },
+            await mutate(axiosInstance.patch("settings/disable-2fa"), {
+                optimisticData: { user: { ...user!, twoFactorAuth: false }, deviceId },
                 populateCache: false,
                 revalidate: false,
                 rollbackOnError: true,
@@ -194,7 +194,7 @@ const BackupCodes = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
     const [codes, setCodes] = useState<IBackupCode[]>([]);
 
     const regenerateCodes = () => {
-        axiosAuth.post<GetBackupCodes>("settings/generate-backup-codes")
+        axiosInstance.post<GetBackupCodes>("settings/generate-backup-codes")
             .then((res) => {
                 setCodes(res.data.codes);
                 toast.success(res.data.message);
@@ -215,7 +215,7 @@ const BackupCodes = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
     };
 
     const downloadCodes = () => {
-        axiosAuth.get("settings/backup-codes/download", { responseType: "blob" })
+        axiosInstance.get("settings/backup-codes/download", { responseType: "blob" })
             .then((res) => {
                 const downloadedCodes = URL.createObjectURL(res.data);
                 const link = document.createElement("a");
@@ -240,7 +240,7 @@ const BackupCodes = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
 
     useEffect(() => {
         if (isOpen) {
-            axiosAuth.get("settings/backup-codes")
+            axiosInstance.get("settings/backup-codes")
                 .then((res) => {
                     setCodes(res.data.codes);
                     setLoading(false);
@@ -298,7 +298,7 @@ const BackupCodes = ({ isOpen, onClose }: TwoFADialogProps): ReactElement => {
 };
 
 export default function SecuritySettings(): ReactElement {
-    const { user, logout } = useUserContext();
+    const { user } = useUserContext();
 
     const [isSubmitting, setSubmitting] = useState(false);
     const {
@@ -349,11 +349,10 @@ export default function SecuritySettings(): ReactElement {
 
         setSubmitting(true);
 
-        axiosAuth
+        axiosInstance
             .post<GenericBackendRes>("settings/change-password", form)
             .then((res) => {
                 toast.success(res.data.message);
-                logout();
                 setSubmitting(false);
             })
             .catch((err: AxiosError<GenericBackendRes>) => {
@@ -371,6 +370,9 @@ export default function SecuritySettings(): ReactElement {
                         Protect your account from unauthorized access by requiring a
                         second authentication method in addition to your password.
                     </Text>
+                    <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
+                        Toggling 2FA will log you out of all other devices for security reasons
+                    </p>
                 </VStack>
                 <Switch
                     isChecked={user?.twoFactorAuth}
@@ -386,6 +388,9 @@ export default function SecuritySettings(): ReactElement {
                 </>
             )}
             <Divider height="1px" bgColor="bgSecondary" />
+            <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
+                Changing your password will automatically log you out of all your other devices for security reasons
+            </p>
             <Input
                 placeholder="Current Password"
                 name="currentPassword"

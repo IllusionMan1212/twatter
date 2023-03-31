@@ -8,7 +8,7 @@ import UnreadIndicator from "src/components/UnreadIndicator";
 interface ConversationProps {
     recipientName: string;
     recipientUsername: string;
-    recipientAvatarURL: string;
+    recipientAvatarURL: string | undefined | null;
     updatedAt: string;
     lastMessage: string;
     unreadMessages: number;

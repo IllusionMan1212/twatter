@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import http from "http";
 import { parse as parseCookies } from "cookie";
-import { validateSession } from "../controllers/utils/cookies";
+import * as Tokens from "../controllers/utils/tokens";
 import { handleDeleteMessage, handleMarkMessagesAsRead, handleMarkMessagesAsSeen, handleMessage, handleTyping } from "./message";
 import { ClientToServerEvents, ServerToClientEvents } from "./types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
@@ -21,7 +21,7 @@ export const initWebsocketServer = (server: http.Server) => {
 
     io.use(async (socket, next) => {
         const cookies = parseCookies(socket.handshake.headers.cookie ?? "");
-        const session = await validateSession(cookies["session"]);
+        const session = await Tokens.validateSocketToken(cookies);
 
         if (!session) {
             socket.emit("blocked", {
@@ -31,7 +31,7 @@ export const initWebsocketServer = (server: http.Server) => {
             return;
         }
 
-        socket.userId = session.user.id;
+        socket.userId = session.userId;
 
         next();
     });

@@ -23,11 +23,11 @@ import { FileUpload } from "src/components/Controls/FileUpload";
 import "react-datepicker/dist/react-datepicker.css";
 import { MAX_ATTACHMENT_SIZE, SUPPORTED_PROFILE_IMAGE_TYPES } from "src/utils/constants";
 import toast from "react-hot-toast";
-import { axiosAuth } from "src/utils/axios";
 import { GenericBackendRes, GetEventsRes } from "src/types/server";
 import { AxiosError } from "axios";
 import { XIcon } from "@heroicons/react/outline";
 import { KeyedMutator } from "swr";
+import { axiosInstance } from "src/utils/axios";
 
 interface AddEventModalProps {
     isOpen: boolean;
@@ -99,7 +99,7 @@ export default function AddEventModal({
         payload.append("location", form.location);
         payload.append("time", eventDate.toISOString());
 
-        axiosAuth
+        axiosInstance
             .post<GenericBackendRes>("events/add-event", payload)
             .then(async (res) => {
                 toast.success(res.data.message);

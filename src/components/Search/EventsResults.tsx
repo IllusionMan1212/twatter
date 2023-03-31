@@ -3,7 +3,7 @@ import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { IEvent, SearchResultsTabProps } from "src/types/interfaces";
 import { SearchEventsRes } from "src/types/server";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import useSWRInfinite from "swr/infinite";
 import Event from "src/components/Event/Event";
 import styles from "src/styles/SearchResults.module.scss";

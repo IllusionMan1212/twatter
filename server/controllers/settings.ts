@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { DatabaseError } from "../database/utils";
 import { generateBackupCodesDB, queryBackupCodes, removeUserProfileImage, setTOTPSecret, toggle2FA, updateAllowAllDMsSetting, updatePassword, updateReadReceiptsSetting, updateUserDisplayName, updateUserProfileImage, updateUserUsername, validateRecoveryCode } from "../database/settings";
 import { ChangePasswordData, Enable2FAData, ToggleAllowAllDMsData, ToggleReadReceiptsData, UpdateProfileData, VerifyRecoveryCodeData, VerifyTOTPCodeData } from "../validators/settings";
-import * as Cookies from "./utils/cookies";
+import * as Tokens from "./utils/tokens";
 import bcrypt from "bcrypt";
 import { getUserById } from "../database/users";
 import crypto from "crypto";
@@ -12,10 +12,11 @@ import Qrcode from "qrcode";
 import fileUpload from "express-fileupload";
 import fs from "fs/promises";
 import z from "zod";
-import { USERNAME_REGEX } from "../validators/users";
+import { USERNAME_REGEX } from "../validators/auth";
 import sharp, { AvailableFormatInfo, FormatEnum } from "sharp";
 import novu from "../novu";
 import { Magic } from "../utils";
+import { doLogin } from "./utils/auth";
 
 export async function toggleAllowAllDMs(req: Request, res: Response) {
     const data = ToggleAllowAllDMsData.safeParse(req.body);
@@ -56,14 +57,8 @@ export async function changePassword(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const user = await getUserById(req.session.user.id);
-
-    if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    if (!(await bcrypt.compare(data.data.currentPassword, user.password))) {
-        return res.status(401).json({ message: "Incorrect password" });
+    if (!(await bcrypt.compare(data.data.currentPassword, req.session.user.password))) {
+        return res.status(400).json({ message: "Incorrect password" });
     }
 
     if (data.data.newPassword !== data.data.newPasswordConfirm) {
@@ -72,7 +67,7 @@ export async function changePassword(req: Request, res: Response) {
 
     const hash = await bcrypt.hash(data.data.newPassword, 10);
 
-    const error = await updatePassword(req.session.user.id, hash);
+    const error = await updatePassword(req.session.user.id, req.session.deviceId, hash);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An internal server error has occurred" });
@@ -129,9 +124,9 @@ function validateTOTPCode(secret: string, passcode: number): boolean {
 
 export async function verifyTOTPCode(req: Request, res: Response) {
     const data = VerifyTOTPCodeData.safeParse(req.body);
-    const twoFASession = await Cookies.get2FASession(req);
+    const twoFAToken = Tokens.get2FAToken(req.headers.authorization);
 
-    if (!twoFASession) {
+    if (!twoFAToken) {
         return res.status(401).json({ message: "Invalid authentication token, please log in" });
     }
 
@@ -144,19 +139,17 @@ export async function verifyTOTPCode(req: Request, res: Response) {
         return res.status(400).json({ message: "Passcode must be a 6 digit number" });
     }
 
-    const user = await getUserById(twoFASession.userId);
+    const user = await getUserById(twoFAToken.userId);
 
     if (!user) {
         return res.status(401).json({ message: "Invalid authentication token, please log in" });
     }
 
     if (!validateTOTPCode(user.totpSecret!, passcode)) {
-        return res.status(401).json({ message: "Invalid passcode" });
+        return res.status(400).json({ message: "Invalid passcode" });
     }
 
-    await Cookies.setLoginSession(res, user);
-
-    return res.status(200).json({ message: "Logged in successfully" });
+    return await doLogin(req, res, user);
 }
 
 export async function enable2FA(req: Request, res: Response) {
@@ -170,26 +163,24 @@ export async function enable2FA(req: Request, res: Response) {
         return res.status(400).json({ message: "Passcode must be a 6 digit number" });
     }
 
-    const secret = (await getUserById(req.session.user.id))?.totpSecret;
+    const secret = req.session.user.totpSecret;
 
     if (!secret || !validateTOTPCode(secret, passcode)) {
         return res.status(403).json({ message: "Invalid passcode" });
     }
 
-    const error = await toggle2FA(req.session.user.id, true);
+    const error = await toggle2FA(req.session.user.id, req.session.deviceId, true);
     await generateBackupCodesDB(req.session.user.id);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An error occurred while enabling 2FA" });
     }
 
-    await Cookies.setLoginSession(res, req.session.user);
-
     return res.status(200).json({ message: "Successfully enabled 2FA" });
 }
 
 export async function disable2FA(req: Request, res: Response) {
-    const error = await toggle2FA(req.session.user.id, false);
+    const error = await toggle2FA(req.session.user.id, req.session.deviceId, false);
 
     if (error === DatabaseError.UNKNOWN) {
         return res.status(500).json({ message: "An error occurred while disabling 2FA" });
@@ -335,9 +326,9 @@ export async function downloadBackupCodes(req: Request, res: Response) {
 
 export async function verifyRecoveryCode(req: Request, res: Response) {
     const data = VerifyRecoveryCodeData.safeParse(req.body);
-    const twoFASession = await Cookies.get2FASession(req);
+    const twoFAToken = Tokens.get2FAToken(req.headers.authorization);
 
-    if (!twoFASession) {
+    if (!twoFAToken) {
         return res.status(401).json({ message: "Invalid authentication token, please log in" });
     }
 
@@ -345,7 +336,7 @@ export async function verifyRecoveryCode(req: Request, res: Response) {
         return res.status(400).json({ message: data.error.errors[0].message });
     }
 
-    const user = await getUserById(twoFASession.userId);
+    const user = await getUserById(twoFAToken.userId);
 
     if (!user) {
         return res.status(401).json({ message: "Invalid authentication token, please log in" });
@@ -354,10 +345,8 @@ export async function verifyRecoveryCode(req: Request, res: Response) {
     const recoveryCode = data.data.passcode;
     const codeExists = await validateRecoveryCode(user.id, recoveryCode);
     if (!codeExists) {
-        return res.status(401).json({ message: "Invalid or used recovery code" });
+        return res.status(400).json({ message: "Invalid or used recovery code" });
     }
 
-    await Cookies.setLoginSession(res, user);
-
-    return res.status(200).json({ message: "Logged in successfully" });
+    return doLogin(req, res, user);
 }

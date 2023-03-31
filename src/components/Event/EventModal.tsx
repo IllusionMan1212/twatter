@@ -21,10 +21,10 @@ import { EventType } from "src/components/Event/Event";
 import { formatEventDate } from "src/utils/helpers";
 import CalendarDaysIcon from "src/components/Icons/CalendarDaysIcon";
 import { BellIcon, CheckIcon } from "@heroicons/react/solid";
-import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
 import { parsingOptions } from "../Post/Post";
 import HTMLToJSX from "html-react-parser";
+import { axiosInstance } from "src/utils/axios";
 
 function ModalLocationIcon(): ReactElement {
     return <MapPinLine size="22" />;
@@ -63,7 +63,7 @@ export default function EventModal({
 
     const toggleInterest = () => {
         setSubmitting(true);
-        axiosAuth
+        axiosInstance
             .patch(`events/toggle-interest/${props.event?.id}`, {
                 interest: !props.event?.isInterested,
             })

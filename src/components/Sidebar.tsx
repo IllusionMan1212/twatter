@@ -4,7 +4,7 @@ import Event from "src/components/Event/Event";
 import NextLink from "next/link";
 import styles from "src/styles/sidebar.module.scss";
 import useSWR, { KeyedMutator } from "swr";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import { GenericBackendRes, GetEventsRes } from "src/types/server";
 import { AxiosError } from "axios";
 import { IEvent } from "src/types/interfaces";

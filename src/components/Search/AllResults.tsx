@@ -3,7 +3,7 @@ import { ReactElement, useEffect } from "react";
 import toast from "react-hot-toast";
 import { IEvent, ISearchUser, SearchResultsTabProps } from "src/types/interfaces";
 import { SearchAllRes } from "src/types/server";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import useSWR, { KeyedMutator } from "swr";
 import User from "src/components/User/User";
 import Event from "src/components/Event/Event";

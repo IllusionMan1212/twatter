@@ -12,11 +12,11 @@ import Avatar from "src/components/User/Avatar";
 import { IconFileUpload } from "src/components/Controls/FileUpload";
 import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes } from "src/types/server";
-import { axiosAuth } from "src/utils/axios";
 import toast from "react-hot-toast";
 import { MAX_ATTACHMENT_SIZE, POST_MAX_CHARS, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
 import { Camera, NotePencil } from "@phosphor-icons/react";
 import CharsRemaining from "../CharsRemaining";
+import { axiosInstance } from "src/utils/axios";
 
 interface CommentBoxProps {
     parentPostId: string;
@@ -54,7 +54,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
             setHasText(false);
             setCharsLeft(POST_MAX_CHARS);
 
-            axiosAuth
+            axiosInstance
                 .post<GenericBackendRes>("posts/create-post", payload)
                 .then(async () => {
                     setSubmitting(false);

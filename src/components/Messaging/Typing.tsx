@@ -4,7 +4,7 @@ import styles from "src/styles/Typing.module.scss";
 import Avatar from "src/components/User/Avatar";
 
 interface TypingProps {
-    recipientAvatarURL: string;
+    recipientAvatarURL: string | undefined | null;
 }
 
 export default function Typing({ recipientAvatarURL }: TypingProps): ReactElement {

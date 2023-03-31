@@ -11,12 +11,11 @@ import {
     IconButton,
     Spinner,
 } from "@chakra-ui/react";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { MutableRefObject, ReactElement, useEffect, useRef, useState } from "react";
 import { IPost } from "src/types/interfaces";
 import { GenericBackendRes, GetCommentsRes, GetPostRes, GetThreadRes } from "src/types/server";
-import { axiosAuth, axiosNoAuth } from "src/utils/axios";
 import NextLink from "next/link";
 import Avatar from "src/components/User/Avatar";
 import Attachments from "src/components/Attachments/AttachmentsContainer";
@@ -35,6 +34,7 @@ import CommentBox from "src/components/Post/CommentBox";
 import HTMLToJSX from "html-react-parser";
 import BigNumber from "src/components/BigNumber";
 import useSWR from "swr";
+import { axiosInstance, fetcher } from "src/utils/axios";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -62,7 +62,7 @@ interface DeleteDialogProps {
 
 function DeleteDialog({ postId, isOpen, onClose }: DeleteDialogProps): ReactElement {
     const handleDelete = () => {
-        axiosAuth
+        axiosInstance
             .delete<GenericBackendRes>(`posts/delete-post?postId=${postId}`)
             .then((res) => {
                 toast.success(res.data.message);
@@ -123,7 +123,7 @@ function ParentsThreadError({ error }: ParentsThreadErrorProps): ReactElement {
 interface DeletedParentPostProps {
     authorName: string;
     authorUsername: string;
-    authorAvatarURL: string;
+    authorAvatarURL: string | undefined | null;
 }
 
 function DeletedParentPost({ authorName, authorUsername, authorAvatarURL }: DeletedParentPostProps): ReactElement {
@@ -164,12 +164,6 @@ interface ParentsThreadsProps {
 }
 
 function ParentsThreads({ originalPostId }: ParentsThreadsProps): ReactElement {
-    const { user } = useUserContext();
-
-    const fetcher = <T,>(url: string) => {
-        return user ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
-    };
-
     const {
         data,
         error,
@@ -248,7 +242,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
 
         setLikeDisabled(true);
 
-        axiosAuth
+        axiosInstance
             .patch(`posts/${liked ? "unlike" : "like"}/${post.id}`)
             .then(() => {
                 liked ? setLikes(likes - 1) : setLikes(likes + 1);
@@ -511,10 +505,6 @@ export default function PostPage({ post }: Props): ReactElement {
         return `posts/get-comments/${post.id}/${pageIndex}`;
     };
 
-    const fetcher = <T,>(url: string) => {
-        return user ? axiosAuth.get<T>(url).then(res => res.data) : axiosNoAuth.get<T>(url).then(res => res.data);
-    };
-
     const swr = useSWRInfinite<GetCommentsRes, AxiosError<GenericBackendRes>>(
         getKey,
         fetcher,
@@ -592,16 +582,8 @@ export async function getServerSideProps(
     let post: IPost | null = null;
 
     try {
-        const res = await axiosNoAuth.get<GetPostRes>(
+        const res = await axios.get<GetPostRes>(
             `posts/get-post/${context.params?.postId}`,
-            context.req.cookies.session
-                ? {
-                    withCredentials: true,
-                    headers: {
-                        Cookie: `session=${context.req.cookies.session}`,
-                    },
-                }
-                : {},
         );
         post = res.data.post ?? null;
     } catch (e) {

@@ -36,7 +36,7 @@ import {
     GetRecommendedMessagingPeopleRes,
     SearchUsersRes,
 } from "src/types/server";
-import { fetcher } from "src/utils/helpers";
+import { fetcher } from "src/utils/axios";
 import useSWRInfinite from "swr/infinite";
 import toast from "react-hot-toast";
 import { Virtuoso } from "react-virtuoso";

@@ -39,7 +39,7 @@ export const updateReadReceiptsSetting = async (userId: string, readReceipts: bo
     return DatabaseError.SUCCESS;
 };
 
-export const updatePassword = async (userId: string, password: string): Promise<DatabaseError> => {
+export const updatePassword = async (userId: string, deviceId: string, password: string): Promise<DatabaseError> => {
     try {
         await prisma.user.update({
             where: {
@@ -47,6 +47,13 @@ export const updatePassword = async (userId: string, password: string): Promise<
             },
             data: {
                 password,
+                sessions: {
+                    deleteMany: {
+                        deviceId: {
+                            not: deviceId
+                        }
+                    }
+                }
             }
         });
     } catch (e) {
@@ -75,7 +82,7 @@ export const setTOTPSecret = async (userId: string, secret: string): Promise<Dat
     return DatabaseError.SUCCESS;
 };
 
-export const toggle2FA = async (userId: string, twoFA: boolean): Promise<DatabaseError> => {
+export const toggle2FA = async (userId: string, deviceId: string, twoFA: boolean): Promise<DatabaseError> => {
     try {
         await prisma.user.update({
             where: {
@@ -83,6 +90,13 @@ export const toggle2FA = async (userId: string, twoFA: boolean): Promise<Databas
             },
             data: {
                 twoFactorAuth: twoFA,
+                sessions: !twoFA ? {} : {
+                    deleteMany: {
+                        deviceId: {
+                            not: deviceId
+                        }
+                    }
+                }
             }
         });
     } catch (e) {

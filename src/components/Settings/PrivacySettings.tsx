@@ -3,23 +3,24 @@ import { ReactElement } from "react";
 import toast from "react-hot-toast";
 import Switch from "src/components/Controls/Switch";
 import { useUserContext } from "src/contexts/userContext";
-import { axiosAuth } from "src/utils/axios";
+import { axiosInstance } from "src/utils/axios";
 
 export default function PrivacySettings(): ReactElement {
-    const { user, mutate } = useUserContext();
+    const { user, mutate, deviceId } = useUserContext();
 
     const toggleAllowAllDMs = async () => {
         try {
             await mutate(
-                axiosAuth.post("settings/toggle-allow-all-dms", {
+                axiosInstance.post("settings/toggle-allow-all-dms", {
                     allowAllDMs: !user?.settings?.allowAllDMs ?? true,
                 }),
                 {
                     optimisticData: {
+                        deviceId,
                         user: {
-                            ...user,
+                            ...user!,
                             settings: {
-                                ...user?.settings,
+                                ...user!.settings!,
                                 allowAllDMs: !user?.settings?.allowAllDMs,
                             },
                         },
@@ -37,15 +38,16 @@ export default function PrivacySettings(): ReactElement {
     const toggleReadReceipts = async () => {
         try {
             await mutate(
-                axiosAuth.post("settings/toggle-read-receipts", {
+                axiosInstance.post("settings/toggle-read-receipts", {
                     readReceipts: !user?.settings?.readReceipts ?? true,
                 }),
                 {
                     optimisticData: {
+                        deviceId,
                         user: {
-                            ...user,
+                            ...user!,
                             settings: {
-                                ...user?.settings,
+                                ...user!.settings!,
                                 readReceipts: !user?.settings?.readReceipts,
                             },
                         },

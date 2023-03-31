@@ -36,7 +36,6 @@ import {
 import { useRouter } from "next/router";
 import { useUserContext } from "src/contexts/userContext";
 import { IUser } from "src/types/interfaces";
-import { axiosAuth } from "src/utils/axios";
 import Avatar from "src/components/User/Avatar";
 import NavItem from "src/components/Nav/NavItem";
 import { BellIcon, ChatAlt2Icon } from "@heroicons/react/solid";
@@ -91,11 +90,6 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
     const { logout } = useUserContext();
     const { colorMode, toggleColorMode } = useColorMode();
 
-    const _logout = async () => {
-        await axiosAuth.delete("users/logout");
-        logout();
-    };
-
     return (
         <Box {...props}>
             <Menu placement="bottom-end">
@@ -148,7 +142,7 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
                                     </span>
                                 </MenuItem>
                                 <MenuDivider />
-                                <MenuItem onClick={_logout}>
+                                <MenuItem onClick={logout}>
                                     <Icon mr={3} as={LogoutIcon} h="20px" w="20px" />
                                     <span>Logout</span>
                                 </MenuItem>
@@ -194,7 +188,6 @@ export function LoggedOutHeader(): ReactElement {
                         <NextLink href="/register" passHref>
                             <Button
                                 as={ChakraLink}
-                                underline="none"
                                 colorScheme="button"
                                 sx={{ "&:hover": { textDecoration: "none" } }}
                             >

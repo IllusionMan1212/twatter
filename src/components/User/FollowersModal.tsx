@@ -10,9 +10,7 @@ import { useUserContext } from "src/contexts/userContext";
 import FollowButton from "./FollowButton";
 import NextLink from "next/link";
 import MessageButton from "./MessageButton";
-import { axiosNoAuth } from "src/utils/axios";
-
-export const fetcher = <T,>(url: string) => axiosNoAuth.get<T>(url).then(res => res.data);
+import { fetcher } from "src/utils/axios";
 
 interface UserProps {
     user: IFollowUser;
