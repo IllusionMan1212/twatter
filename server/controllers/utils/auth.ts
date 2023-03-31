@@ -63,6 +63,9 @@ export async function doLogin(req: Request, res: Response, user: User & { settin
         });
     }
 
+    const hmacHash = crypto.createHmac("sha256", process.env.NOVU_APIKEY ?? "").update(user.id).digest("hex");
+    user.notificationSubHash = hmacHash;
+
     const u = exclude(user, ...excludedUserProps);
 
     return res.status(200).json({ message: "Logged in successfully", tokens, user: u, deviceId, requiresTwoFactorAuth: false });
