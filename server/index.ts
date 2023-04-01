@@ -26,7 +26,6 @@ import { authGuard } from "./routes/utils/middleware";
 const port = parseInt(process.env.NEXT_PUBLIC_PORT ?? "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: process.env.NEXT_PUBLIC_DOMAIN ?? "localhost", port });
-const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
     checkEnv();
@@ -68,11 +67,6 @@ app.prepare().then(() => {
     expressApp.use("/api/events", eventsRouter);
 
     expressApp.use("/cdn", cdnRouter);
-
-    expressApp.all("*", (req, res) => {
-        console.log(req.ip);
-        return handle(req, res);
-    });
 
     expressApp.set("port", port);
     server
