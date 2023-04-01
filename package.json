@@ -7,6 +7,9 @@
     "build": "next build && tsc --project tsconfig.server.json",
     "start": "cross-env NODE_ENV=production node dist/server/index.js"
   },
+  "engines": {
+    "yarn": ">=3.2.0"
+  },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.18",
     "@chakra-ui/react": "^2.5.5",
