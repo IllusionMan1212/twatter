@@ -35,7 +35,7 @@ export async function doLogin(req: Request, res: Response, user: User & { settin
     }
     // TODO: store the session in redis
 
-    if (isNewIp) {
+    if (isNewIp && process.env.NODE_ENV === "production") {
         console.log(`Unrecognized IP '${req.ip}' for user '${user.id}', sending an email`);
 
         const transporter = nodemailer.createTransport({

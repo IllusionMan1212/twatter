@@ -144,9 +144,9 @@ export const attemptTokenRefresh = async (req: Request, res: Response): Promise<
 export const getLoginSession = async (req: Request, res: Response): Promise<Session | null> => {
     const token = getCookie(req, false);
 
-    const foundToken = await findSessionByToken(token);
+    const foundSession = await findSessionByToken(token ?? "");
 
-    const payload = verifyToken(foundToken?.accessToken);
+    const payload = verifyToken(foundSession?.accessToken);
 
     if (!payload) {
         const ok = await attemptTokenRefresh(req, res);
@@ -173,16 +173,16 @@ export const getLoginSession = async (req: Request, res: Response): Promise<Sess
 
     return {
         user,
-        deviceId: foundToken?.deviceId ?? ""
+        deviceId: foundSession?.deviceId ?? ""
     };
 };
 
 export const validateSocketToken = async (cookies: Record<string, string>): Promise<{ userId: string } | null> => {
     const token = cookies[ACCESS_COOKIE];
 
-    const foundToken = await findSessionByToken(token);
+    const foundSession = await findSessionByToken(token ?? "");
 
-    const payload = verifyToken(foundToken?.accessToken);
+    const payload = verifyToken(foundSession?.accessToken);
 
     if (!payload) {
         const refreshToken = cookies[REFRESH_COOKIE];

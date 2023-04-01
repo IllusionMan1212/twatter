@@ -69,7 +69,9 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         const resInter = axiosInstance.interceptors.response.use(
             (response) => response,
             async (error) => {
-                if (user && error.response.status === 401) {
+                let failure = false;
+                if (user && error.response.status === 401 && !failure) {
+                    failure = true;
                     toast.error("Your session has expired. Please log in again.");
                     await logout(false);
                     return Promise.reject(error);
