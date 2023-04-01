@@ -16,7 +16,7 @@ export const excludedUserProps = [
     "totpSecret",
 ] as const;
 
-function generateDeviceId(userId: string, ua: UAParser.IResult, ip: string): string {
+export function generateDeviceId(userId: string, ua: UAParser.IResult, ip: string): string {
     const data = `${ua.os.name ?? ""}-${ua.os.version ?? ""}-${ua.browser.name ?? ""}-${ua.browser.version ?? ""}-${ua.device.model ?? ""}-${ip}-${ua.ua}-${userId}-${process.env.DEVICE_IDENTIFIER_SECRET ?? ""}`;
 
     const hash = crypto.createHash("sha256").update(data).digest("hex");

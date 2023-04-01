@@ -6,6 +6,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { getUserById } from "../../database/users";
 import { findSessionByToken, updateTokens } from "../../database/auth";
 import { DatabaseError } from "../../database/utils";
+import { generateDeviceId } from "./auth";
+import UAParser from "ua-parser-js";
 
 const ACCESS_COOKIE = "a_token";
 const REFRESH_COOKIE = "r_token";
@@ -96,7 +98,7 @@ const verifyToken = (token: string | undefined): JwtPayload | null => {
     return payload;
 };
 
-export const attemptTokenRefresh = async (req: Request, res: Response, deviceId: string): Promise<[Tokens, SessionUser] | null> => {
+export const attemptTokenRefresh = async (req: Request, res: Response): Promise<[Tokens, SessionUser, string] | null> => {
     const refreshToken = getCookie(req, true);
 
     if (!refreshToken) {
@@ -127,6 +129,8 @@ export const attemptTokenRefresh = async (req: Request, res: Response, deviceId:
         return null;
     }
 
+    const ua = UAParser(req.headers["user-agent"] ?? "");
+    const deviceId = generateDeviceId(user.id, ua, req.ip);
     const tokens = await generateTokens(res, user);
     const error = await updateTokens(deviceId, user.id, tokens);
 
@@ -134,7 +138,7 @@ export const attemptTokenRefresh = async (req: Request, res: Response, deviceId:
         return null;
     }
 
-    return [tokens, user];
+    return [tokens, user, deviceId];
 };
 
 export const getLoginSession = async (req: Request, res: Response): Promise<Session | null> => {
@@ -142,17 +146,13 @@ export const getLoginSession = async (req: Request, res: Response): Promise<Sess
 
     const foundToken = await findSessionByToken(token);
 
-    if (!foundToken) {
-        return null;
-    }
-
-    const payload = verifyToken(token);
+    const payload = verifyToken(foundToken?.accessToken);
 
     if (!payload) {
-        const ok = await attemptTokenRefresh(req, res, foundToken.deviceId);
+        const ok = await attemptTokenRefresh(req, res);
         if (!ok) return null;
 
-        const [tokens, user] = ok;
+        const [tokens, user, deviceId] = ok;
 
         res.setHeader("Set-Cookie", [
             setCookie(tokens.accessToken, false),
@@ -161,7 +161,7 @@ export const getLoginSession = async (req: Request, res: Response): Promise<Sess
 
         return {
             user,
-            deviceId: foundToken.deviceId
+            deviceId
         };
     }
 
@@ -173,7 +173,7 @@ export const getLoginSession = async (req: Request, res: Response): Promise<Sess
 
     return {
         user,
-        deviceId: foundToken.deviceId
+        deviceId: foundToken?.deviceId ?? ""
     };
 };
 
@@ -182,11 +182,7 @@ export const validateSocketToken = async (cookies: Record<string, string>): Prom
 
     const foundToken = await findSessionByToken(token);
 
-    if (!foundToken) {
-        return null;
-    }
-
-    const payload = verifyToken(token);
+    const payload = verifyToken(foundToken?.accessToken);
 
     if (!payload) {
         const refreshToken = cookies[REFRESH_COOKIE];
