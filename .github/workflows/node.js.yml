@@ -26,7 +26,7 @@ jobs:
         cache: 'yarn'
     - run: yarn install
     - run: yarn run build
-    
+
     - name: calculate short sha
       shell: bash
       run: echo "git_short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
@@ -34,13 +34,13 @@ jobs:
     - name: tarball the build
       shell: bash
       run: tar czvf twatter-${{ env.git_short_sha }}.tar.gz .next/ dist/
-    
+
     - name: upload artifact
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
         name: twatter-${{ env.git_short_sha }}.tar.gz
         path: ./
-    
+
   #deploy:
   #  needs: [build]
   #  runs-on: ubuntu-latest
