@@ -8,7 +8,7 @@ import LoggedOutLayout from "src/components/Layout/LoggedOutLayout";
 import LoggedInLayout from "src/components/Layout/LoggedInLayout";
 import SEO from "../../next-seo.config";
 const Fonts = dynamic(() => import("src/components/Fonts"));
-const Toaster = dynamic(() => import("react-hot-toast").then((t) => t.Toaster));
+const Toaster = dynamic(() => import("react-hot-toast").then((t) => t.Toaster), { ssr: false });
 
 import "src/styles/global.scss";
 import "swiper/scss";
