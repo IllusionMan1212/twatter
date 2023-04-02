@@ -40,6 +40,7 @@ jobs:
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
+    environment: production
     
     steps:
       - uses: actions/checkout@v3
@@ -53,7 +54,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: twatter-build.tar.gz
-          remote : /home/${{ secrets.USERNAME }}/twatter-build.tar.gz
+          remote: /home/${{ secrets.USERNAME }}/twatter-build.tar.gz
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           privateKey: ${{ secrets.KEY }}
