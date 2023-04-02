@@ -69,6 +69,7 @@ jobs:
           script: |
             cd repos/twatter
             git pull
+            yarn install
             npx prisma migrate deploy
             npx prisma generate
             cd ../..
