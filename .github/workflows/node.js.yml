@@ -74,6 +74,7 @@ jobs:
             cd ../..
             tar xf twatter-build.tar.gz
             cp -r repos/twatter/dist/server/cdn dist/server/cdn
+            cp repos/twatter/dist/server/IP2LOCATION-DB.BIN dist/server/IP2LOCATION-DB.BIN
             rm -r repos/twatter/.next
             rm -r repos/twatter/dist
             mv .next repos/twatter/.next
