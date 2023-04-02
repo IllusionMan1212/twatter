@@ -248,6 +248,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
                         aria-label="Create Comment"
                         icon={<Icon as={NotePencil} w={6} h={6} />}
                         isDisabled={(!hasText && !attachments.length) || isSubmitting || charsLeft < 0}
+                        isLoading={isSubmitting}
                         onClick={submitPost}
                     />
                 </ButtonGroup>
