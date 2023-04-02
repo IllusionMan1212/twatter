@@ -7,7 +7,6 @@
 
 # testing
 /coverage
-
 # next.js
 /.next/
 /out/
@@ -48,3 +47,6 @@ dist/
 
 # cdn
 server/cdn
+
+# IP2Location DB
+server/IP2LOCATION-DB.BIN
