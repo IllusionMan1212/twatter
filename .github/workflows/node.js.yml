@@ -27,10 +27,15 @@ jobs:
         cache: 'yarn'
     - run: yarn install
     - name: Write .env file
+      shell: bash
       run: |
-        echo "NEXT_PUBLIC_PORT=${{ secrets.PORT }}" >> .env
-        echo "NEXT_PUBLIC_DOMAIN=${{ secrets.DOMAIN }}" >> .env
-        echo "NEXT_PUBLIC_NOVU_APP_ID=${{ secrets.NOVU_APP_ID }}" >> .env
+        echo "NEXT_PUBLIC_PORT=$PORT" >> .env
+        echo "NEXT_PUBLIC_DOMAIN=$DOMAIN" >> .env
+        echo "NEXT_PUBLIC_NOVU_APP_ID=$NOVU_APP_ID" >> .env
+      env:
+        PORT: ${{ secrets.PORT }}
+        DOMAIN: ${{ secrets.DOMAIN }}
+        NOVU_APP_ID: ${{ secrets.NOVU_APP_ID }}
     - run: yarn run build
 
     - name: tarball the build
