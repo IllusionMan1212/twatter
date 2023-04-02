@@ -25,11 +25,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
     - run: yarn install
+    - name: Write .env file
+      run: |
+        echo "NEXT_PUBLIC_PORT=${{ secrets.PORT }}" >> .env
+        echo "NEXT_PUBLIC_DOMAIN=${{ secrets.DOMAIN }}" >> .env
+        echo "NEXT_PUBLIC_NOVU_APP_ID=${{ secrets.NOVU_APP_ID }}" >> .env
     - run: yarn run build
-      env:
-        NEXT_PUBLIC_PORT: ${{ secrets.PORT }}
-        NEXT_PUBLIC_DOMAIN: ${{ secrets.DOMAIN }}
-        NEXT_PUBLIC_NOVU_APP_ID: ${{ secrets.NOVU_APP_ID }}
 
     - name: tarball the build
       shell: bash
