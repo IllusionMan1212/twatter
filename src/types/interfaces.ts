@@ -156,6 +156,7 @@ export interface ISession {
     browser: string;
     isMobile: boolean;
     ip: string;
+    geolocation: string;
     lastLoginTime: string;
     deviceId: string;
     userAgent: string;

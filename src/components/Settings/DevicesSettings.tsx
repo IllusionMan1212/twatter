@@ -13,6 +13,7 @@ import { useUserContext } from "src/contexts/userContext";
 interface DeviceProps {
     isMobile: boolean;
     ip: string;
+    geolocation: string;
     lastLogin?: string;
     name: string;
     isCurrent: boolean;
@@ -21,7 +22,7 @@ interface DeviceProps {
     mutate?: KeyedMutator<GetSessionsRes>;
 }
 
-function Device({ isMobile, name, ip, lastLogin, isCurrent, deviceId, sessions, mutate }: DeviceProps): ReactElement {
+function Device({ isMobile, name, ip, geolocation, lastLogin, isCurrent, deviceId, sessions, mutate }: DeviceProps): ReactElement {
     const LastLogin = () => {
         return <RelativeTime date={lastLogin ?? ""} />;
     };
@@ -54,7 +55,10 @@ function Device({ isMobile, name, ip, lastLogin, isCurrent, deviceId, sessions, 
                     </Box>
                     <VStack spacing={2} align="start">
                         <p className="text-sm font-semibold">{name}</p>
-                        <p className="text-xs">{ip} {isCurrent ? "" : <><span>-{" "}</span><LastLogin /></>}</p>
+                        <VStack spacing={1} align="start">
+                            <p className="text-xs">{ip} {<><span>-{" "}</span>{geolocation}</>}</p>
+                            <p className="text-xs">{isCurrent ? "" : <LastLogin />}</p>
+                        </VStack>
                     </VStack>
                 </HStack>
                 {!isCurrent && (
@@ -130,6 +134,7 @@ export default function DevicesSettings(): ReactElement {
                                     ip={activeSession.ip}
                                     isMobile={activeSession.isMobile}
                                     deviceId={activeSession.deviceId}
+                                    geolocation={activeSession.geolocation}
                                     isCurrent
                                 />
                             </>
@@ -146,6 +151,7 @@ export default function DevicesSettings(): ReactElement {
                                             name={`${session.os} - ${session.browser}`}
                                             ip={session.ip}
                                             isMobile={session.isMobile}
+                                            geolocation={session.geolocation}
                                             deviceId={session.deviceId}
                                             lastLogin={session.lastLoginTime}
                                             mutate={mutate}

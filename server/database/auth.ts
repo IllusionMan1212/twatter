@@ -135,6 +135,7 @@ export const querySessions = async (userId: string): Promise<Partial<Session>[]>
             ip: true,
             deviceId: true,
             userAgent: true,
+            geolocation: true,
             lastLoginTime: true,
         },
         orderBy: {
@@ -186,7 +187,7 @@ export const deleteSessions = async (activeDeviceId: string, userId: string): Pr
     return DatabaseError.SUCCESS;
 };
 
-export const createOrUpdateSession = async (deviceId: string, userId: string, userAgent: string, ip: string, tokens: Tokens): Promise<DatabaseError | Session> => {
+export const createOrUpdateSession = async (deviceId: string, userId: string, userAgent: string, ip: string, tokens: Tokens, geolocation: string): Promise<DatabaseError | Session> => {
     try {
         const sess = await prisma.session.upsert({
             where: {
@@ -198,6 +199,8 @@ export const createOrUpdateSession = async (deviceId: string, userId: string, us
             update: {
                 deviceId,
                 lastLoginTime: new Date(),
+                ip,
+                geolocation,
                 accessToken: tokens.accessToken,
                 accessTokenExpiresAt: new Date(Date.now() + (1000 * 3600 * 2)), // + 2 hours
                 refreshToken: tokens.refreshToken,
@@ -208,6 +211,7 @@ export const createOrUpdateSession = async (deviceId: string, userId: string, us
                 userId,
                 userAgent,
                 ip,
+                geolocation,
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken,
             },

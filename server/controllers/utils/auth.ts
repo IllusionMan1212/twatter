@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 import { exclude } from "../../database/utils";
 import { prepareUnrecognizedIPEmailHTML, prepareUnrecognizedIPEmailText } from "../../email";
+import { IP2Location } from "ip2location-nodejs";
 
 export const excludedUserProps = [
     "password",
@@ -23,13 +24,21 @@ export function generateDeviceId(userId: string, ua: UAParser.IResult, ip: strin
     return hash;
 }
 
+function getGeolocation(ip: string): string {
+    const ip2l = new IP2Location();
+    ip2l.open(`${__dirname}/../../IP2LOCATION-DB.BIN`);
+    const result = ip2l.getAll(ip);
+    return `${result.city}, ${result.region}, ${result.countryLong}`;
+}
+
 export async function doLogin(req: Request, res: Response, user: User & { settings: UserSettings | null, notificationSubHash: string }) {
     const ua = UAParser(req.headers["user-agent"] ?? "");
     const deviceId = generateDeviceId(user.id, ua, req.ip);
     const tokens = await Tokens.generateTokens(res, user);
     const isNewIp = await checkIfNewIp(user.id, req.ip);
+    const geolocation = getGeolocation(req.ip);
     // TODO: get the session from redis
-    const session = await createOrUpdateSession(deviceId, user.id, req.headers["user-agent"] ?? "", req.ip, tokens);
+    const session = await createOrUpdateSession(deviceId, user.id, req.headers["user-agent"] ?? "", req.ip, tokens, geolocation);
     if (typeof session !== "object") {
         return res.status(500).json({ message: "An internal error occurred" });
     }
@@ -50,8 +59,8 @@ export async function doLogin(req: Request, res: Response, user: User & { settin
 
         const mailOptions: Mail.Options = {
             from: `Twatter <${process.env.EMAIL}>`,
-            text: prepareUnrecognizedIPEmailText(req.ip, ua.os.name, ua.browser.name),
-            html: prepareUnrecognizedIPEmailHTML(req.ip, ua.os.name, ua.browser.name),
+            text: prepareUnrecognizedIPEmailText(req.ip, ua.os.name, ua.browser.name, geolocation),
+            html: prepareUnrecognizedIPEmailHTML(req.ip, ua.os.name, ua.browser.name, geolocation),
             subject: "Twatter - New Login",
             to: user.email,
         };

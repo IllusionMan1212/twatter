@@ -80,7 +80,7 @@ export const prepareResetPasswordEmailText = (link: string): string => {
     You're receiving this email because you recently requested a password. If this wasn't you, please ignore this email.`;
 };
 
-export const prepareUnrecognizedIPEmailHTML = (ip: string, os: string | undefined, browser: string | undefined): string => {
+export const prepareUnrecognizedIPEmailHTML = (ip: string, os: string | undefined, browser: string | undefined, geolocation: string): string => {
     return prepareHTMLTemplate(`
       <tr>
         <td align="center" style="padding:0;">
@@ -88,7 +88,7 @@ export const prepareUnrecognizedIPEmailHTML = (ip: string, os: string | undefine
             <tr>
               <td>
                 <h1 style="font-family:'Courier New'">TWATTER</h1>
-                <h3>New login from ${ip}</h3>
+                <h3>New login from ${ip} - ${geolocation}</h3>
                 <h4>On: ${os} - ${browser}</h4>
               </td>
             </tr>
@@ -109,9 +109,9 @@ export const prepareUnrecognizedIPEmailHTML = (ip: string, os: string | undefine
     `);
 };
 
-export const prepareUnrecognizedIPEmailText = (ip: string, os: string | undefined, browser: string | undefined): string => {
+export const prepareUnrecognizedIPEmailText = (ip: string, os: string | undefined, browser: string | undefined, geolocation: string): string => {
     return `TWATTER\n\n\
-        New login from ${ip}\n
+        New login from ${ip} - ${geolocation}\n
         On: ${os} - ${browser}\n\n\
         We detected a login to your account from a new device. As part of our security measures, we wanted to let you know about this login.\n\n\
         If you did not attempt to log in to your account from this IP address, we advise you to take the following steps:\n\n

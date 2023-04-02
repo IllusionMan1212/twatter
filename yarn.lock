@@ -2845,6 +2845,7 @@ __metadata:
     fuse.js: ^6.6.2
     hi-base32: ^0.5.1
     html-react-parser: ^3.0.15
+    ip2location-nodejs: ^9.4.2
     jsonwebtoken: ^9.0.0
     morgan: ^1.10.0
     next: ^12.3.4
@@ -3279,6 +3280,13 @@ __metadata:
     "@mapbox/node-pre-gyp": ^1.0.10
     node-addon-api: ^5.0.0
   checksum: a590b65d276d75d861dc85acc3128508b8f78c87431719658ea3be7996368b34b397b6efefe6bca0a3d555bf41a9267307fd4ce04e956598fca3ba81199c6706
+  languageName: node
+  linkType: hard
+
+"big-integer@npm:^1.6.47":
+  version: 1.6.51
+  resolution: "big-integer@npm:1.6.51"
+  checksum: 3d444173d1b2e20747e2c175568bedeebd8315b0637ea95d75fd27830d3b8e8ba36c6af40374f36bdaea7b5de376dcada1b07587cb2a79a928fccdb6e6e3c518
   languageName: node
   linkType: hard
 
@@ -3908,6 +3916,17 @@ __metadata:
   version: 3.1.0
   resolution: "csstype@npm:3.1.0"
   checksum: 644e986cefab86525f0b674a06889cfdbb1f117e5b7d1ce0fc55b0423ecc58807a1ea42ecc75c4f18999d14fc42d1d255f84662a45003a52bb5840e977eb2ffd
+  languageName: node
+  linkType: hard
+
+"csv-parser@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "csv-parser@npm:3.0.0"
+  dependencies:
+    minimist: ^1.2.0
+  bin:
+    csv-parser: bin/csv-parser
+  checksum: adc9d67d9f185249825570778c24d13004625301655330f6b735a052b9fdfbe1a239a014afb1f89939e0626ee573718f71f9f14164db7c17e4bcb2f38d6a162b
   languageName: node
   linkType: hard
 
@@ -5588,6 +5607,16 @@ __metadata:
   dependencies:
     loose-envify: ^1.0.0
   checksum: cc3182d793aad82a8d1f0af697b462939cb46066ec48bbf1707c150ad5fad6406137e91a262022c269702e01621f35ef60269f6c0d7fd178487959809acdfb14
+  languageName: node
+  linkType: hard
+
+"ip2location-nodejs@npm:^9.4.2":
+  version: 9.4.2
+  resolution: "ip2location-nodejs@npm:9.4.2"
+  dependencies:
+    big-integer: ^1.6.47
+    csv-parser: ^3.0.0
+  checksum: 6300535c192519e80e12ac933998eefa793932e67c88618fcced006f8a7747385fa283b0d263bbf3fb00a372b681ebc12f11cbf93dffac8b9becd73275c7eda5
   languageName: node
   linkType: hard
 

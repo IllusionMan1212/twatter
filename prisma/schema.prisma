@@ -208,6 +208,7 @@ model Session {
   deviceId  String
   userId    String
   ip        String
+  geolocation String @default("")
   userAgent String
   accessToken String
   accessTokenExpiresAt DateTime @default(dbgenerated("now() + interval '2 hours'"))
