@@ -67,5 +67,16 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-            pwd
+            cd repos/twatter
+            git pull
+            npx prisma migrate deploy
+            npx prisma generate
+            cd ../..
             tar xf twatter-build.tar.gz
+            cp -r repos/twatter/dist/server/cdn dist/server/cdn
+            rm -r repos/twatter/.next
+            rm -r repos/twatter/dist
+            mv .next repos/twatter/.next
+            mv dist repos/twatter/dist
+            rm twatter-build.tar.gz
+            pm2 restart twatter
