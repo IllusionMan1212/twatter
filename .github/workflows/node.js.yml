@@ -39,7 +39,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: twatter-${{ env.git_short_sha }}.tar.gz
-        path: ./
+        path: ./twatter-${{ env.git_short_sha }}.tar.gz
 
   #deploy:
   #  needs: [build]
