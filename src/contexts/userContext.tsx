@@ -125,6 +125,11 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         });
     }, []);
 
+    const getUnreadMessages = async () => {
+        const res = await axiosInstance.get<GetUnreadMessagesRes>("message/get-unread-messages");
+        setUnreadMessages(new Map<string, number>(res.data.convos.map(c => [c.id, c.messages])));
+    };
+
     useEffect(() => {
         if (!user) return;
 
@@ -144,8 +149,7 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
             openSocket();
             setLoading(false);
             (async () => {
-                const res = await axiosInstance.get<GetUnreadMessagesRes>("message/get-unread-messages");
-                setUnreadMessages(new Map<string, number>(res.data.convos.map(c => [c.id, c.messages])));
+                await getUnreadMessages();
             })();
         } else {
             setUser(null);
@@ -177,6 +181,7 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         setUser(user);
         setDeviceId(deviceId);
         openSocket();
+        await getUnreadMessages();
     };
 
     const logout = async (sendRequest = true) => {
