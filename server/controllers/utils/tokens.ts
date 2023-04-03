@@ -4,9 +4,9 @@ import { parse, serialize } from "cookie";
 import { User, UserSettings } from "@prisma/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { getUserById } from "../../database/users";
-import { findSessionByToken, updateTokens } from "../../database/auth";
+import { findSessionByToken, updateSession } from "../../database/auth";
 import { DatabaseError } from "../../database/utils";
-import { generateDeviceId } from "./auth";
+import { generateDeviceId, getGeolocation } from "./auth";
 import UAParser from "ua-parser-js";
 
 const ACCESS_COOKIE = "a_token";
@@ -54,7 +54,7 @@ const getCookie = (req: Request, isRefresh: boolean) => {
     return cookies[isRefresh ? REFRESH_COOKIE : ACCESS_COOKIE];
 };
 
-export const generateTokens = async (user: SessionUser): Promise<Tokens> => {
+export const generateTokens = async (user: SessionUser, deviceId: string): Promise<Tokens> => {
     const accessToken = jwt.sign({
         userId: user.id,
         username: user.username,
@@ -65,6 +65,7 @@ export const generateTokens = async (user: SessionUser): Promise<Tokens> => {
 
     let refreshToken = jwt.sign({
         userId: user.id,
+        deviceId,
     }, process.env.JWT_SECRET, {
         expiresIn: "7 days"
     });
@@ -126,20 +127,17 @@ export const attemptTokenRefresh = async (req: Request): Promise<[Tokens, Sessio
         return null;
     }
 
-    // TODO: this piece of code is problematic
-    // This causes the user to be logged out if they use a valid session from a different ip
-    // because the device id would be different and we can't update a session in the db
-    // that doesn't exist and that gives us an error and then we return null which boots the user
     const ua = UAParser(req.headers["user-agent"] ?? "");
-    const deviceId = generateDeviceId(user.id, ua, req.ip);
-    const tokens = await generateTokens(user);
-    const error = await updateTokens(deviceId, user.id, tokens);
+    const newDeviceId = generateDeviceId(user.id, ua, req.ip);
+    const tokens = await generateTokens(user, newDeviceId);
+    const geolocation = getGeolocation(req.ip);
+    const error = await updateSession(payload.deviceId, user.id, tokens, newDeviceId, req.ip, ua.ua, geolocation);
 
     if (error !== DatabaseError.SUCCESS) {
         return null;
     }
 
-    return [tokens, user, deviceId];
+    return [tokens, user, newDeviceId];
 };
 
 export const getLoginSession = async (req: Request, res: Response): Promise<Session | null> => {

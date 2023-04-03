@@ -240,16 +240,20 @@ export const checkIfNewIp = async (userId: string, ip: string): Promise<boolean>
     return sessions.length === 0;
 };
 
-export const updateTokens = async (deviceId: string, userId: string, tokens: Tokens): Promise<DatabaseError> => {
+export const updateSession = async (oldDeviceId: string, userId: string, tokens: Tokens, newDeviceId: string, ip: string, userAgent: string, geolocation: string): Promise<DatabaseError> => {
     try {
         await prisma.session.update({
             where: {
                 userId_deviceId: {
-                    deviceId,
+                    deviceId: oldDeviceId,
                     userId
                 }
             },
             data: {
+                deviceId: newDeviceId,
+                ip,
+                userAgent,
+                geolocation,
                 lastLoginTime: new Date(),
                 accessToken: tokens.accessToken,
                 accessTokenExpiresAt: new Date(Date.now() + (1000 * 3600 * 2)), // + 2 hours

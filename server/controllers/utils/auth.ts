@@ -25,7 +25,7 @@ export function generateDeviceId(userId: string, ua: UAParser.IResult, ip: strin
     return hash;
 }
 
-function getGeolocation(ip: string): string {
+export function getGeolocation(ip: string): string {
     const ip2l = new IP2Location();
     ip2l.open(`${__dirname}/../../IP2LOCATION-DB.BIN`);
     const result = ip2l.getAll(ip);
@@ -35,7 +35,7 @@ function getGeolocation(ip: string): string {
 export async function doLogin(req: Request, res: Response, user: User & { settings: UserSettings | null, notificationSubHash: string }) {
     const ua = UAParser(req.headers["user-agent"] ?? "");
     const deviceId = generateDeviceId(user.id, ua, req.ip);
-    const tokens = await Tokens.generateTokens(user);
+    const tokens = await Tokens.generateTokens(user, deviceId);
     const isNewIp = await checkIfNewIp(user.id, req.ip);
     const geolocation = getGeolocation(req.ip);
     // TODO: get the session from redis
