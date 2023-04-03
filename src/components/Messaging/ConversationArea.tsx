@@ -63,6 +63,7 @@ import useTyping from "src/hooks/useTyping";
 import { KeyedMutator } from "swr";
 import CharsRemaining from "../CharsRemaining";
 import useWindowSize from "src/hooks/useWindowSize";
+import { formatMessageDayDate } from "src/utils/helpers";
 
 const nonTypingInputs = [
     "deleteWordBackward",
@@ -536,6 +537,99 @@ function ConversationBody({
         );
     };
 
+    const Footer = () => {
+        return <div className="py-2" />;
+    };
+
+    const MessageContainer = (i: number) => {
+        const idx = Math.abs(firstItemIndex - i);
+        const message = state.messages[idx];
+
+        if (idx === state.messages.length && isRecipientTyping)
+            return (
+                <SlideFade in={isRecipientTyping} unmountOnExit offsetY="20px">
+                    <Typing recipientAvatarURL={convo.members[0].User.avatarURL} />
+                </SlideFade>
+            );
+        else if (idx === state.messages.length && !isRecipientTyping)
+            return <div className="w-[1px] h-[1px]" />;
+
+        if (!message) return;
+
+        const sameAuthor = idx !== 0 && state.messages[idx - 1].memberId === message.memberId;
+        const prevMessageDate = idx !== 0 ? new Date(state.messages[idx - 1].createdAt) : null;
+        const currMessageDate = new Date(message.createdAt);
+        const sameDay = prevMessageDate?.getDate() === currMessageDate.getDate();
+        const withinTimeWindow = prevMessageDate ? prevMessageDate.getTime() - currMessageDate.getTime() < 30 * 60 * 1000 : false;
+        const isGrouped = sameAuthor && sameDay && withinTimeWindow;
+
+        if (message.deleted)
+            return (
+                <>
+                    {!sameDay && prevMessageDate && (
+                        <div className="flex gap-2 items-center pb-2 py-4">
+                            <Divider borderColor="textMain" opacity={0.4} />
+                            <span className="flex-shrink-0 text-xs text-[color:var(--chakra-colors-textMain)]">
+                                {formatMessageDayDate(message.createdAt)}
+                            </span>
+                            <Divider borderColor="textMain" opacity={0.4} />
+                        </div>
+                    )}
+                    <DeletedMessage
+                        key={message.id}
+                        id={message.id}
+                        userOwned={user?.id === message.memberId}
+                        ownerAvatarURL={
+                            user?.id === message.memberId
+                                ? user?.avatarURL
+                                : convo.members[0].User.avatarURL
+                        }
+                        isGrouped={isGrouped}
+                        ownerUsername={
+                            user?.id === message.memberId
+                                ? user?.username
+                                : convo.members[0].User.username
+                        }
+                        createdAt={message.createdAt}
+                    />
+                </>
+            );
+
+        return (
+            <>
+                {!sameDay && prevMessageDate && (
+                    <div className="flex gap-2 items-center pb-2 py-4">
+                        <Divider borderColor="textMain" opacity={0.4} />
+                        <span className="flex-shrink-0 text-xs text-[color:var(--chakra-colors-textMain)]">
+                            {formatMessageDayDate(message.createdAt)}
+                        </span>
+                        <Divider borderColor="textMain" opacity={0.4} />
+                    </div>
+                )}
+                <Message
+                    key={message.id}
+                    id={message.id}
+                    content={message.content}
+                    conversationId={convo.id}
+                    userOwned={user?.id === message.memberId}
+                    isScrolling={isScrolling}
+                    ownerUsername={
+                        user?.id === message.memberId
+                            ? user?.username ?? ""
+                            : convo.members[0].User.username
+                    }
+                    attachment={message.Attachment}
+                    createdAt={message.createdAt}
+                    wasRead={message.wasRead}
+                    recipientId={convo.members[0].User.id}
+                    recipientAvatarURL={convo.members[0].User.avatarURL}
+                    isGrouped={isGrouped}
+                    convoWidth={convoWidth}
+                />
+            </>
+        );
+    };
+
     return (
         <div
             id="virtual-messages"
@@ -566,73 +660,9 @@ function ConversationBody({
                             atBottomThreshold={35}
                             components={{
                                 Header,
+                                Footer,
                             }}
-                            itemContent={(i) => {
-                                const idx = Math.abs(firstItemIndex - i);
-                                const message = state.messages[idx];
-
-                                if (
-                                    idx === state.messages.length &&
-                                    isRecipientTyping
-                                )
-                                    return (
-                                        <SlideFade
-                                            in={isRecipientTyping}
-                                            unmountOnExit
-                                            offsetY="20px"
-                                        >
-                                            <Typing
-                                                recipientAvatarURL={convo.members[0].User.avatarURL}
-                                            />
-                                        </SlideFade>
-                                    );
-                                else if (
-                                    idx === state.messages.length &&
-                                    !isRecipientTyping
-                                )
-                                    return <div className="w-[1px] h-[1px]" />;
-
-                                if (!message) return;
-
-                                if (message.deleted) return (
-                                    <DeletedMessage
-                                        key={message.id}
-                                        id={message.id}
-                                        userOwned={user?.id === message.memberId}
-                                        ownerAvatarURL={
-                                            user?.id === message.memberId
-                                                ? user?.avatarURL
-                                                : convo.members[0].User.avatarURL
-                                        }
-                                        ownerUsername={
-                                            user?.id === message.memberId
-                                                ? user?.username
-                                                : convo.members[0].User.username
-                                        }
-                                        createdAt={message.createdAt}
-                                    />
-                                );
-
-                                return <Message
-                                    key={message.id}
-                                    id={message.id}
-                                    content={message.content}
-                                    conversationId={convo.id}
-                                    userOwned={user?.id === message.memberId}
-                                    isScrolling={isScrolling}
-                                    ownerUsername={
-                                        user?.id === message.memberId
-                                            ? user?.username ?? ""
-                                            : convo.members[0].User.username
-                                    }
-                                    attachment={message.Attachment}
-                                    createdAt={message.createdAt}
-                                    wasRead={message.wasRead}
-                                    recipientId={convo.members[0].User.id}
-                                    recipientAvatarURL={convo.members[0].User.avatarURL}
-                                    convoWidth={convoWidth}
-                                />;
-                            }}
+                            itemContent={MessageContainer}
                         />
                     )}
                 </>

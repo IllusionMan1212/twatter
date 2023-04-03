@@ -34,3 +34,18 @@ export function formatEventDate(_date: string): string {
         month: "long",
     })}, ${date.getFullYear()} · ${date.toLocaleString("en-US", { timeStyle: "short" })}`;
 }
+
+export function formatMessageDayDate(_date: string): string {
+    const now = new Date();
+    const date = new Date(_date);
+
+    if (date.getFullYear() === now.getFullYear()) {
+        return `${date.toLocaleString("en-US", {
+            month: "long",
+        })} ${nth(date.getDate())}`;
+    }
+
+    return `${date.toLocaleString("en-US", {
+        month: "long",
+    })} ${nth(date.getDate())}, ${date.getFullYear()}`;
+}

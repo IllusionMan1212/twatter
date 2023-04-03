@@ -91,12 +91,25 @@ const ChecksIcon = () => {
 
 interface MessageTimeProps {
     date: string;
+    isGrouped?: boolean;
 }
 
-const MessageTime = memo(function MessageTime({ date }: MessageTimeProps): ReactElement {
+const MessageTime = memo(function MessageTime({ date, isGrouped }: MessageTimeProps): ReactElement {
     const now = new Date();
     const messageDate = new Date(date);
     const difference = now.getTime() - messageDate.getTime();
+
+    if (isGrouped) return (
+        <p className="text-[10px] text-[color:var(--chakra-colors-textSecondary)]">
+            {messageDate
+                .toLocaleString("default", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hourCycle: "h23"
+                })
+                .toUpperCase()}{" "}
+        </p>
+    );
 
     if (now.getFullYear() > messageDate.getFullYear()) {
         // different years
@@ -176,29 +189,35 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
 
     if (props.userOwned) return (
         <div
-            className="flex w-full justify-end py-4"
+            className={`group flex w-full justify-end ${props.isGrouped ? "py-1" : "pt-4 pb-1"}`}
             onMouseOver={() => setHovering(true)}
             onMouseOut={() => setHovering(false)}
         >
             <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
                 <div className="flex flex-col gap-0.5 items-end">
-                    <MessageTime date={props.createdAt} />
+                    {!props.isGrouped && (<MessageTime date={props.createdAt} />)}
                     <div className="flex gap-2 items-end">
                         <div className="flex flex-col gap-4 items-start px-4 py-2 border-2 border-gray-500 rounded-lg rounded-tr-[0]">
                             <p className="text-sm italic text-gray-500 leading-normal">
-                                Message Deleted
+                                Deleted Message
                             </p>
                         </div>
                     </div>
                 </div>
                 <div className="flex flex-col gap-0.5 items-start">
-                    <Avatar
-                        src={props.ownerAvatarURL}
-                        alt={`${props.ownerUsername}'s avatar`}
-                        width="35px"
-                        height="35px"
-                        pauseAnimation={!hovering}
-                    />
+                    {!props.isGrouped ? (
+                        <Avatar
+                            src={props.ownerAvatarURL}
+                            alt={`${props.ownerUsername}'s avatar`}
+                            width="35px"
+                            height="35px"
+                            pauseAnimation={!hovering}
+                        />
+                    ) : (
+                        <div className="w-[35px] min-w-[35px] opacity-0 group-hover:opacity-100">
+                            <MessageTime date={props.createdAt} isGrouped />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -206,19 +225,25 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
 
     return (
         <div
-            className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]"
+            className={`group flex items-start gap-2 ${props.isGrouped ? "py-1" : "pt-4 pb-1"} max-w-[80%] md:max-w-[65%]`}
             onMouseOver={() => setHovering(true)}
             onMouseOut={() => setHovering(false)}
         >
-            <Avatar
-                src={props.ownerAvatarURL}
-                alt={`${props.ownerUsername}'s avatar`}
-                width="35px"
-                height="35px"
-                pauseAnimation={!hovering}
-            />
+            {!props.isGrouped ? (
+                <Avatar
+                    src={props.ownerAvatarURL}
+                    alt={`${props.ownerUsername}'s avatar`}
+                    width="35px"
+                    height="35px"
+                    pauseAnimation={!hovering}
+                />
+            ) : (
+                <div className="w-[35px] min-w-[35px] opacity-0 group-hover:opacity-100">
+                    <MessageTime date={props.createdAt} isGrouped />
+                </div>
+            )}
             <div className="flex flex-col gap-0.5 items-start">
-                <MessageTime date={props.createdAt} />
+                {!props.isGrouped && (<MessageTime date={props.createdAt} />)}
                 <div className="flex flex-col gap-4 items-start px-4 py-2 border-2 border-gray-500 rounded-lg rounded-tl-[0]">
                     <p className="text-sm italic text-gray-500 leading-normal">
                         Message Deleted
@@ -231,12 +256,11 @@ export function DeletedMessage(props: DeletedMessageProps): ReactElement {
 
 interface MessageOptionsProps {
     messageId: string;
-    className: string;
     conversationId: string;
     recipientId: string;
 }
 
-function MessageOptions({ messageId, conversationId, recipientId, className }: MessageOptionsProps): ReactElement {
+function MessageOptions({ messageId, conversationId, recipientId }: MessageOptionsProps): ReactElement {
     const { socket } = useUserContext();
 
     const handleDelete = () => {
@@ -253,7 +277,7 @@ function MessageOptions({ messageId, conversationId, recipientId, className }: M
     };
 
     return (
-        <div className={`text-sm ${className}`}>
+        <div className="text-sm">
             <OptionsMenu buttonSize="6" direction="vertical" placement="left-end">
                 <MenuList minWidth="w-full">
                     <MenuItem width="26" color="red.500" onClick={handleDelete}>
@@ -279,6 +303,7 @@ interface MessageProps {
     createdAt: string;
     conversationId: string;
     convoWidth: number;
+    isGrouped: boolean;
 }
 
 export default function Message(props: MessageProps): ReactElement {
@@ -290,24 +315,27 @@ export default function Message(props: MessageProps): ReactElement {
         <>
             {props.userOwned ? (
                 <div
-                    className="group flex w-full justify-end py-4"
+                    className={`group flex w-full ${props.isGrouped ? "py-1" : "pt-4 pb-1"} justify-end`}
                     onMouseOver={() => setHovering(true)}
                     onMouseOut={() => setHovering(false)}
                 >
-                    <div className="flex items-start gap-2 max-w-[80%] md:max-w-[65%]">
+                    <div className={`flex gap-2 ${!props.isGrouped ? "items-start" : "items-end"} max-w-[80%] md:max-w-[65%]`}>
                         <div className="flex flex-col gap-0.5 items-end max-w-full overflow-hidden">
-                            <MessageTime date={props.createdAt} />
+                            {!props.isGrouped && (<MessageTime date={props.createdAt} />)}
                             <div className="flex gap-2 items-end max-w-full">
                                 {!props.isScrolling ? (
-                                    <MessageOptions
-                                        messageId={props.id}
-                                        conversationId={props.conversationId}
-                                        recipientId={props.recipientId}
-                                        className="opacity-0 group-hover:opacity-100"
-                                    />
+                                    <div className="flex gap-2 items-end opacity-0 group-hover:opacity-100">
+                                        <MessageOptions
+                                            messageId={props.id}
+                                            conversationId={props.conversationId}
+                                            recipientId={props.recipientId}
+                                        />
+                                    </div>
                                 ) : (
-                                    <div className="w-[24px] h-[24px]">
-                                        <DotsThreeVertical className="opacity-0 group-hover:opacity-100" color="var(--chakra-colors-textMain)" size={24} />
+                                    <div className="flex gap-2 items-end opacity-0 group-hover:opacity-100">
+                                        <div className="w-[24px] h-[24px]">
+                                            <DotsThreeVertical color="var(--chakra-colors-textMain)" size={24} />
+                                        </div>
                                     </div>
                                 )}
                                 <div className="flex flex-col gap-4 items-start max-w-[calc(100%_-_32px)] px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tr-[0]">
@@ -318,33 +346,47 @@ export default function Message(props: MessageProps): ReactElement {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-0.5 items-start">
-                            <Avatar
-                                src={user?.avatarURL}
-                                alt={`${props.ownerUsername}'s avatar`}
-                                width="35px"
-                                height="35px"
-                                pauseAnimation={!hovering}
-                            />
+                        <div className="flex flex-col gap-0.5 items-start w-[35px] min-w-[35px]">
+                            {!props.isGrouped ? (
+                                <Avatar
+                                    src={user?.avatarURL}
+                                    alt={`${props.ownerUsername}'s avatar`}
+                                    width="35px"
+                                    height="35px"
+                                    pauseAnimation={!hovering}
+                                />
+                            ) : (
+                                <div className="w-[35px] min-w-[35px] opacity-0 group-hover:opacity-100">
+                                    <MessageTime date={props.createdAt} isGrouped />
+                                </div>
+                            )}
                             {props.wasRead ? <ChecksIcon /> : <CheckIcon />}
                         </div>
                     </div>
                 </div>
             ) : (
                 <div
-                    className="flex items-start gap-2 py-4 max-w-[80%] md:max-w-[65%]"
+                    className={`flex group items-start gap-2 ${props.isGrouped ? "py-1" : "pt-4 pb-1"} max-w-[80%] md:max-w-[65%]`}
                     onMouseOver={() => setHovering(true)}
                     onMouseOut={() => setHovering(false)}
                 >
-                    <Avatar
-                        src={props.recipientAvatarURL}
-                        alt={`${props.ownerUsername}'s avatar`}
-                        width="35px"
-                        height="35px"
-                        pauseAnimation={!hovering}
-                    />
+                    {!props.isGrouped ? (
+                        <Avatar
+                            src={props.recipientAvatarURL}
+                            alt={`${props.ownerUsername}'s avatar`}
+                            width="35px"
+                            height="35px"
+                            pauseAnimation={!hovering}
+                        />
+                    ) : (
+                        <div className="w-[35px] min-w-[35px] opacity-0 group-hover:opacity-100">
+                            <MessageTime date={props.createdAt} isGrouped />
+                        </div>
+                    )}
                     <div className="flex flex-col gap-0.5 items-start">
-                        <MessageTime date={props.createdAt} />
+                        {!props.isGrouped ? (
+                            <MessageTime date={props.createdAt} />
+                        ) : null}
                         <div className="flex flex-col gap-4 items-start px-4 py-2 bg-[color:var(--chakra-colors-bgSecondary)] rounded-lg rounded-tl-[0]">
                             <Attachment attachment={props.attachment} convoWidth={props.convoWidth + 39} />
                             <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere] leading-normal">
