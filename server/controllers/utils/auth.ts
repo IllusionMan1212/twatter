@@ -9,6 +9,7 @@ import Mail from "nodemailer/lib/mailer";
 import { exclude } from "../../database/utils";
 import { prepareUnrecognizedIPEmailHTML, prepareUnrecognizedIPEmailText } from "../../email";
 import { IP2Location } from "ip2location-nodejs";
+import { setCookie } from "./tokens";
 
 export const excludedUserProps = [
     "password",
@@ -34,7 +35,7 @@ function getGeolocation(ip: string): string {
 export async function doLogin(req: Request, res: Response, user: User & { settings: UserSettings | null, notificationSubHash: string }) {
     const ua = UAParser(req.headers["user-agent"] ?? "");
     const deviceId = generateDeviceId(user.id, ua, req.ip);
-    const tokens = await Tokens.generateTokens(res, user);
+    const tokens = await Tokens.generateTokens(user);
     const isNewIp = await checkIfNewIp(user.id, req.ip);
     const geolocation = getGeolocation(req.ip);
     // TODO: get the session from redis
@@ -76,6 +77,11 @@ export async function doLogin(req: Request, res: Response, user: User & { settin
     user.notificationSubHash = hmacHash;
 
     const u = exclude(user, ...excludedUserProps);
+
+    res.setHeader("Set-Cookie", [
+        setCookie(tokens.accessToken, false),
+        setCookie(tokens.refreshToken, true)
+    ]);
 
     return res.status(200).json({ message: "Logged in successfully", tokens, user: u, deviceId, requiresTwoFactorAuth: false });
 }

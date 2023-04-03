@@ -25,7 +25,7 @@ export interface Session {
     deviceId: string;
 }
 
-const setCookie = (token: string, isRefresh: boolean) => {
+export const setCookie = (token: string, isRefresh: boolean) => {
     const cookie = serialize(isRefresh ? REFRESH_COOKIE : ACCESS_COOKIE, token, {
         httpOnly: true,
         path: "/",
@@ -54,7 +54,7 @@ const getCookie = (req: Request, isRefresh: boolean) => {
     return cookies[isRefresh ? REFRESH_COOKIE : ACCESS_COOKIE];
 };
 
-export const generateTokens = async (res: Response, user: SessionUser): Promise<Tokens> => {
+export const generateTokens = async (user: SessionUser): Promise<Tokens> => {
     const accessToken = jwt.sign({
         userId: user.id,
         username: user.username,
@@ -70,10 +70,6 @@ export const generateTokens = async (res: Response, user: SessionUser): Promise<
     });
 
     refreshToken = await Iron.seal(refreshToken, process.env.JWT_ENCRYPTION_KEY, Iron.defaults);
-    res.setHeader("Set-Cookie", [
-        setCookie(accessToken, false),
-        setCookie(refreshToken, true)
-    ]);
 
     return { accessToken, refreshToken };
 };
@@ -88,6 +84,7 @@ const verifyToken = (token: string | undefined): JwtPayload | null => {
     try {
         payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
+        console.log(err);
         return null;
     }
 
@@ -98,7 +95,7 @@ const verifyToken = (token: string | undefined): JwtPayload | null => {
     return payload;
 };
 
-export const attemptTokenRefresh = async (req: Request, res: Response): Promise<[Tokens, SessionUser, string] | null> => {
+export const attemptTokenRefresh = async (req: Request): Promise<[Tokens, SessionUser, string] | null> => {
     const refreshToken = getCookie(req, true);
 
     if (!refreshToken) {
@@ -129,9 +126,13 @@ export const attemptTokenRefresh = async (req: Request, res: Response): Promise<
         return null;
     }
 
+    // TODO: this piece of code is problematic
+    // This causes the user to be logged out if they use a valid session from a different ip
+    // because the device id would be different and we can't update a session in the db
+    // that doesn't exist and that gives us an error and then we return null which boots the user
     const ua = UAParser(req.headers["user-agent"] ?? "");
     const deviceId = generateDeviceId(user.id, ua, req.ip);
-    const tokens = await generateTokens(res, user);
+    const tokens = await generateTokens(user);
     const error = await updateTokens(deviceId, user.id, tokens);
 
     if (error !== DatabaseError.SUCCESS) {
@@ -149,7 +150,7 @@ export const getLoginSession = async (req: Request, res: Response): Promise<Sess
     const payload = verifyToken(foundSession?.accessToken);
 
     if (!payload) {
-        const ok = await attemptTokenRefresh(req, res);
+        const ok = await attemptTokenRefresh(req);
         if (!ok) return null;
 
         const [tokens, user, deviceId] = ok;
