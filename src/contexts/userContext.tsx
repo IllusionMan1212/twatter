@@ -86,6 +86,7 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
     }, [user]);
 
     const openSocket = () => {
+        if (socket?.connected) return;
         const _socket = io();
 
         setSocket(_socket);
@@ -125,7 +126,15 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
     }, []);
 
     useEffect(() => {
-        if (isValidating) {
+        if (!user) return;
+
+        if (data && data.user) {
+            setUser(data.user);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (isValidating || user) {
             return;
         }
 
