@@ -201,7 +201,7 @@ export default function SearchBar(props: SearchBarProps): ReactElement {
                         icon={<Box size="28" as={MagnifyingGlass} color="textMain" />}
                         transition="border-radius 0.1s linear"
                         onClick={doSearch}
-                        disabled={buttonDisabled}
+                        isDisabled={buttonDisabled}
                     />
                     {showRecent ? (
                         <RecentSearches

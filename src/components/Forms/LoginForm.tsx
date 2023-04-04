@@ -14,7 +14,7 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
-import { FormEvent, ReactElement, useState } from "react";
+import { FormEvent, ReactElement, useRef, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
 import toast from "react-hot-toast";
@@ -35,6 +35,8 @@ interface TwoFAModalProps {
 
 const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElement => {
     const { login } = useUserContext();
+
+    const initialFocusRef = useRef(null);
 
     const [passcode, setPasscode] = useState("");
     const [isSubmitting, setSubmitting] = useState(false);
@@ -64,7 +66,12 @@ const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElem
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            scrollBehavior="inside"
+            initialFocusRef={initialFocusRef}
+        >
             <ModalOverlay />
             <ModalContent bgColor="bgMain" pb={5}>
                 <ModalHeader>
@@ -76,6 +83,7 @@ const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElem
                         <VStack width="full" alignItems="start" spacing={4}>
                             <Text>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</Text>
                             <Input
+                                ref={initialFocusRef}
                                 placeholder={usingRecovery ? "XXXXXX-XXXXXX" : "6-digit two-factor authentication code"}
                                 onChange={(e) => setPasscode(e.target.value)}
                             />

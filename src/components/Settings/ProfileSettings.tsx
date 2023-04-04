@@ -143,6 +143,8 @@ export default function ProfileSettings(): ReactElement {
                     placeholder="Display Name"
                     name="displayName"
                     withLabel="Display Name"
+                    max={25}
+                    maxLength={25}
                     defaultValue={user?.displayName}
                     onChange={handleChange}
                 />
@@ -151,6 +153,10 @@ export default function ProfileSettings(): ReactElement {
                 placeholder="Username"
                 name="username"
                 withLabel="Username"
+                min={3}
+                minLength={3}
+                max={16}
+                maxLength={16}
                 defaultValue={user?.username}
                 leftAddon={
                     <InputLeftAddon bgColor="text" color="textOpposite" border="none">

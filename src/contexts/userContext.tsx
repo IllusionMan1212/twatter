@@ -16,6 +16,7 @@ import { GetUnreadMessagesRes, GetMeRes } from "src/types/server";
 import { MarkedMessagesAsSeenData, ServerMessageEventData } from "server/sockets/types";
 import { axiosInstance, fetcher } from "src/utils/axios";
 import { toast } from "react-hot-toast";
+import Router from "next/router";
 
 interface UserContextType {
     user: IUser | null | undefined;
@@ -191,6 +192,7 @@ export function UserWrapper({ children }: PropsWithChildren): ReactElement {
         setUser(null);
         socket?.close();
         setSocket(null);
+        await Router.replace("/login");
     };
 
     return (

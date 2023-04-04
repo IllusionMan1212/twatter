@@ -3,11 +3,14 @@ import {
     Flex,
     forwardRef,
     Input as ChakraInput,
+    InputProps as ChakraInputProps,
     InputGroup,
     InputRightElement,
     Text,
     useColorModeValue,
+    ChakraComponent,
 } from "@chakra-ui/react";
+
 
 export interface InputProps {
     placeholder: string;
@@ -26,14 +29,32 @@ export interface InputProps {
     value?: string;
 }
 
-const Input = forwardRef<InputProps, "input">((props, ref): ReactElement => {
+type MyInput = ChakraComponent<"input", InputProps>;
+
+const Input = forwardRef<InputProps & ChakraInputProps, "input">(({ 
+    placeholder,
+    name,
+    type,
+    withLabel,
+    icon,
+    defaultValue,
+    leftAddon,
+    rightAddon,
+    disabled,
+    onChange,
+    onClick,
+    onFocus,
+    onBlur,
+    value,
+    ...otherProps
+}, ref): ReactElement => {
     const focusColor = useColorModeValue("black", "white");
 
     return (
         <Flex width="full" direction="column">
-            {props.withLabel && <Text fontSize="md">{props.withLabel}</Text>}
+            {withLabel && <Text fontSize="md">{withLabel}</Text>}
             <InputGroup>
-                {props.leftAddon}
+                {leftAddon}
                 <ChakraInput
                     ref={ref}
                     color="text"
@@ -41,29 +62,30 @@ const Input = forwardRef<InputProps, "input">((props, ref): ReactElement => {
                     border="1px solid"
                     borderColor="stroke"
                     bgColor="bgSecondary"
-                    placeholder={props.placeholder}
+                    placeholder={placeholder}
                     _placeholder={{ color: "textMain", opacity: 0.8 }}
                     focusBorderColor={focusColor}
                     _hover={{ borderColor: "button.400" }}
                     pl={5}
-                    type={props.type}
-                    defaultValue={props.defaultValue}
-                    disabled={props.disabled}
-                    onChange={props.onChange}
-                    onClick={props.onClick}
-                    onFocus={props.onFocus}
-                    onBlur={props.onBlur}
-                    value={props.value}
-                    name={props.name}
+                    type={type}
+                    defaultValue={defaultValue}
+                    disabled={disabled}
+                    onChange={onChange}
+                    onClick={onClick}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    value={value}
+                    name={name}
+                    {...otherProps}
                 />
-                {props.icon && (
-                    <InputRightElement right="10px">{props.icon}</InputRightElement>
+                {icon && (
+                    <InputRightElement right="10px">{icon}</InputRightElement>
                 )}
-                {props.rightAddon}
+                {rightAddon}
             </InputGroup>
         </Flex>
     );
-});
+}) as MyInput;
 
 Input.defaultProps = {
     type: "text",

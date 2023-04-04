@@ -201,7 +201,16 @@ export async function updateProfile(req: Request, res: Response) {
     }
 
     if (data.data.displayName) {
-        const error = await updateUserDisplayName(req.session.user.id, data.data.displayName);
+        const displayName = z.string()
+            .min(1, "Display name is too short, at least 1 character is required")
+            .max(25, "Display name is too long, it cannot exceed 25 characters")
+            .safeParse(data.data.displayName);
+
+        if (!displayName.success) {
+            return res.status(400).json({ message: displayName.error.errors[0].message });
+        }
+
+        const error = await updateUserDisplayName(req.session.user.id, displayName.data);
         if (error === DatabaseError.UNKNOWN) {
             return res.status(500).json({ message: "An internal error occurred while updating your display name" });
         }

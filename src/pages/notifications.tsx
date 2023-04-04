@@ -73,7 +73,7 @@ function Notification({ notif }: NotificationProps): ReactElement {
                 </Link>
                 <div className="flex flex-col gap-2 whitespace-normal">
                     <p>{content}</p>
-                    {body && (<p className="text-sm text-[color:var(--chakra-colors-textMain)]">{body}</p>)}
+                    {body && (<p className="text-sm [overflow-wrap:anywhere] text-[color:var(--chakra-colors-textMain)]">{body}</p>)}
                 </div>
             </div>
             <div className="flex flex-col justify-between items-end">

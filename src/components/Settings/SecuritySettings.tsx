@@ -23,7 +23,7 @@ import {
     GridItem,
 } from "@chakra-ui/react";
 import { AxiosError } from "axios";
-import { ReactElement, useEffect, useState } from "react";
+import { FormEvent, ReactElement, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import Input from "src/components/Controls/Input";
 import Switch from "src/components/Controls/Switch";
@@ -50,13 +50,17 @@ type TwoFADialogProps = TwoFAModalProps;
 const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
     const { mutate, user, deviceId } = useUserContext();
 
+    const initialFocusRef = useRef(null);
+
     const [isLoading, setLoading] = useState(false);
     const [isSubmitting, setSubmitting] = useState(false);
     const [secret, setSecret] = useState("");
     const [qrcode, setQRcode] = useState("");
     const [passcode, setPasscode] = useState("");
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: FormEvent<HTMLButtonElement | HTMLFormElement>) => {
+        e.preventDefault();
+
         if (passcode.length !== 6) {
             toast.error("Passcode must be 6 digits");
             return;
@@ -102,7 +106,13 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
     }, [isOpen]);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            size="xl"
+            scrollBehavior="inside"
+            initialFocusRef={initialFocusRef}
+        >
             <ModalOverlay />
             <ModalContent bgColor="bgMain" pb={5}>
                 <ModalHeader>
@@ -132,26 +142,29 @@ const TwoFAModal = ({ isOpen, onClose }: TwoFAModalProps): ReactElement => {
                             </VStack>
                         )}
                         <Divider height="1px" bgColor="bgSecondary" />
-                        <VStack alignItems="end" spacing={3}>
-                            <Text>
-                                After authenticating with the app, enter the passcode
-                                shown on the app below:
-                            </Text>
-                            <Input
-                                placeholder="Passcode"
-                                name="passcode"
-                                type="number"
-                                onChange={(e) => setPasscode(e.target.value)}
-                            />
-                            <Button
-                                colorScheme="accent"
-                                isLoading={isSubmitting}
-                                loadingText="Verifying"
-                                onClick={handleSubmit}
-                            >
-                                Verify
-                            </Button>
-                        </VStack>
+                        <form onSubmit={handleSubmit}>
+                            <VStack alignItems="end" spacing={3}>
+                                <Text>
+                                    After authenticating with the app, enter the passcode
+                                    shown on the app below:
+                                </Text>
+                                <Input
+                                    ref={initialFocusRef}
+                                    placeholder="Passcode"
+                                    name="passcode"
+                                    type="number"
+                                    onChange={(e) => setPasscode(e.target.value)}
+                                />
+                                <Button
+                                    colorScheme="accent"
+                                    isLoading={isSubmitting}
+                                    loadingText="Verifying"
+                                    onClick={handleSubmit}
+                                >
+                                    Verify
+                                </Button>
+                            </VStack>
+                        </form>
                     </VStack>
                 </ModalBody>
             </ModalContent>
