@@ -80,6 +80,7 @@ function User({ user }: Props): ReactElement {
                 gap={4}
                 py={2}
                 width="full"
+                maxWidth="90vw"
                 justify={{ base: "center", "600px": "space-between" }}
                 align="center"
             >
@@ -124,8 +125,8 @@ function User({ user }: Props): ReactElement {
                     <span className="text-[color:var(--chakra-colors-textMain)]">Posts</span>
                 </div>
             </div>
-            <FollowersModal isOpen={isFollowerOpen} onClose={onCloseFollower} userId={user.id} />
-            <FollowingModal isOpen={isFollowingOpen} onClose={onCloseFollowing} userId={user.id} />
+            {isFollowerOpen && (<FollowersModal isOpen={isFollowerOpen} onClose={onCloseFollower} userId={user.id} />)}
+            {isFollowingOpen && (<FollowingModal isOpen={isFollowingOpen} onClose={onCloseFollowing} userId={user.id} />)}
         </div>
     );
 }

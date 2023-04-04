@@ -1,4 +1,4 @@
-import { ButtonGroup, LinkBox, LinkOverlay, Modal, ModalBody, ModalContent, ModalOverlay, Spinner, VStack } from "@chakra-ui/react";
+import { ButtonGroup, LinkBox, LinkOverlay, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, VStack } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { IFollowUser } from "src/types/interfaces";
@@ -11,6 +11,7 @@ import FollowButton from "./FollowButton";
 import NextLink from "next/link";
 import MessageButton from "./MessageButton";
 import { fetcher } from "src/utils/axios";
+import styles from "src/styles/userProfile.module.scss";
 
 interface UserProps {
     user: IFollowUser;
@@ -22,10 +23,10 @@ function User({ user }: UserProps): ReactElement {
 
     return (
         <LinkBox>
-            <div className="flex gap-1 justify-between items-center mb-1 hover:bg-[color:var(--chakra-colors-bgPrimary)] p-2 rounded-md">
+            <div className="flex gap-1 justify-between items-center mb-1 hover:bg-[color:var(--chakra-colors-bgPrimary)] p-2 rounded-md truncate">
                 <NextLink href={`/@${user.username}`} passHref>
-                    <LinkOverlay>
-                        <div className="flex items-center gap-2">
+                    <LinkOverlay minWidth={0}>
+                        <div className="flex items-center gap-2 min-w-0">
                             <Avatar
                                 src={user.avatarURL}
                                 alt={`${user.username}'s avatar`}
@@ -33,8 +34,8 @@ function User({ user }: UserProps): ReactElement {
                                 height="40px"
                                 pauseAnimation
                             />
-                            <div className="flex flex-col">
-                                <p>{user.displayName}</p>
+                            <div className="flex flex-col truncate">
+                                <p className="truncate">{user.displayName}</p>
                                 <p className="text-sm text-[color:var(--chakra-colors-textMain)]">@{user.username}</p>
                             </div>
                         </div>
@@ -110,10 +111,11 @@ export function FollowersModal({ isOpen, onClose, userId }: ModalProps): ReactEl
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
             <ModalOverlay />
-            <ModalContent bgColor="bgMain">
-                <ModalBody py={5}>
+            <ModalContent bgColor="bgMain" height="60vh">
+                <ModalHeader />
+                <ModalBody p={0}>
                     {!isValidating && !followers.length && (
-                        <div>
+                        <div className="py-4">
                             <p className="font-bold text-lg text-center">
                                 This user doesn&apos;t have any followers
                             </p>
@@ -126,21 +128,22 @@ export function FollowersModal({ isOpen, onClose, userId }: ModalProps): ReactEl
                                     "An error occurred while fetching followers"}
                             </p>
                         </div>
-                    ) : (
+                    ) : followers.length ? (
                         <Virtuoso
+                            className={styles.followers}
                             data={followers}
                             totalCount={followers.length}
-                            useWindowScroll
                             endReached={loadMoreFollowers}
                             components={{
-                                Footer
+                                Footer,
                             }}
                             itemContent={(_, follower) => (
                                 <User user={follower.Follower} />
                             )}
                         />
-                    )}
+                    ) : null}
                 </ModalBody>
+                <ModalFooter />
             </ModalContent>
         </Modal>
     );
@@ -201,10 +204,11 @@ export function FollowingModal({ isOpen, onClose, userId }: ModalProps): ReactEl
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
             <ModalOverlay />
-            <ModalContent bgColor="bgMain">
-                <ModalBody py={5}>
+            <ModalContent bgColor="bgMain" height="60vh">
+                <ModalHeader />
+                <ModalBody p={0}>
                     {!isValidating && !following.length && (
-                        <div>
+                        <div className="py-4">
                             <p className="font-bold text-lg text-center">
                                 This user is not following anyone
                             </p>
@@ -217,11 +221,11 @@ export function FollowingModal({ isOpen, onClose, userId }: ModalProps): ReactEl
                                     "An error occurred while fetching following"}
                             </p>
                         </div>
-                    ) : (
+                    ) : following.length ? (
                         <Virtuoso
+                            className={styles.followers}
                             data={following}
                             totalCount={following.length}
-                            useWindowScroll
                             endReached={loadMoreFollowing}
                             components={{
                                 Footer
@@ -230,8 +234,9 @@ export function FollowingModal({ isOpen, onClose, userId }: ModalProps): ReactEl
                                 <User user={following.Following} />
                             )}
                         />
-                    )}
+                    ) : null}
                 </ModalBody>
+                <ModalFooter />
             </ModalContent>
         </Modal>
     );

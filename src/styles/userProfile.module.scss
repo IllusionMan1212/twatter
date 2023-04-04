@@ -7,3 +7,9 @@
         gap: var(--chakra-space-1);
     }
 }
+
+.followers {
+    & > div > div {
+        padding: 0 var(--chakra-space-4);
+    }
+}

@@ -49,9 +49,12 @@ export default function User(props: UserProps): ReactElement {
                                 height="50px"
                                 pauseAnimation={!hovering}
                             />
-                            <Tooltip label={props.displayName}>
-                                <p className="truncate max-w-full">{props.displayName}</p>
-                            </Tooltip>
+                            <div className="flex flex-col truncate">
+                                <Tooltip label={props.displayName}>
+                                    <p className="truncate max-w-full">{props.displayName}</p>
+                                </Tooltip>
+                                <p className="truncate max-w-full text-sm text-[color:var(--chakra-colors-textMain)]">@{props.username}</p>
+                            </div>
                         </HStack>
                     </LinkOverlay>
                 </NextLink>
