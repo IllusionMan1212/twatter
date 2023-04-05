@@ -124,10 +124,10 @@ export default function ProfileSettings(): ReactElement {
 
         axiosInstance
             .patch<GenericBackendRes>("settings/update-profile", payload)
-            .then((res) => {
+            .then(async (res) => {
                 setSubmitting(false);
                 toast.success(res.data.message);
-                mutate();
+                await mutate();
                 removeAttachment();
             })
             .catch((e: AxiosError<GenericBackendRes>) => {
