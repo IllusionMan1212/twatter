@@ -289,7 +289,7 @@ function NoMessages(): ReactElement {
                 <Image
                     fit="cover"
                     alt="No new messages graphic"
-                    src="/graphics/No_New_Messages.png"
+                    src="/graphics/No_New_Messages.avif"
                 />
             </Box>
             <VStack>

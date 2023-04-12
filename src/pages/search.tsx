@@ -77,7 +77,7 @@ function NoSearch(): ReactElement {
             <Image
                 fit="cover"
                 width="250px"
-                src="/graphics/Coming_Soon.png"
+                src="/graphics/Coming_Soon.avif"
                 alt="List is empty graphic"
             />
             <VStack spacing={1} textAlign="center">

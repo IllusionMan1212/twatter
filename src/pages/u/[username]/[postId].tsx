@@ -389,7 +389,7 @@ function CommentsError({ error }: CommentsErrorProps): ReactElement {
     return (
         <div className="flex flex-col gap-4 w-full p-4 items-center">
             <img
-                src="/graphics/Connection_Lost.png"
+                src="/graphics/Connection_Lost.avif"
                 alt="Error Graphic"
                 className="w-auto h-[200px]"
             />

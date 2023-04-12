@@ -134,7 +134,7 @@ export default function Notifications(): ReactElement {
             <ChakraImage
                 fit="cover"
                 alt="Empty list graphic"
-                src="/graphics/List_Is_Empty.png"
+                src="/graphics/List_Is_Empty.avif"
                 width="250px"
             />
             <VStack>

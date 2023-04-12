@@ -19,7 +19,7 @@ export default function InternalError(): ReactElement {
             <Box boxSize="250px">
                 <Image
                     fit="cover"
-                    src="/graphics/Connection_Lost.png"
+                    src="/graphics/Connection_Lost.avif"
                     alt="Internal error graphic"
                 />
             </Box>

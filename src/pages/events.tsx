@@ -88,7 +88,7 @@ function EventsBody({ swr }: EventsBodyProps): ReactElement {
                 <Image
                     fit="cover"
                     width="250px"
-                    src="/graphics/Deleted.png"
+                    src="/graphics/Deleted.avif"
                     alt="List is empty graphic"
                 />
                 <Text fontSize="3xl" fontWeight="bold">

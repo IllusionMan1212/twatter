@@ -417,7 +417,7 @@ function PendingReports(): ReactElement {
                 <Image
                     fit="cover"
                     width="250px"
-                    src="/graphics/Deleted.png"
+                    src="/graphics/Deleted.avif"
                     alt="List is empty graphic"
                 />
                 <p className="font-bold text-3xl">
@@ -540,7 +540,7 @@ function ResolvedReports(): ReactElement {
                 <Image
                     fit="cover"
                     width="250px"
-                    src="/graphics/Deleted.png"
+                    src="/graphics/Deleted.avif"
                     alt="List is empty graphic"
                 />
                 <p className="font-bold text-3xl">

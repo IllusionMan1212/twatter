@@ -81,7 +81,7 @@ function Posts({ swr }: PostsProps): ReactElement {
                 <Box boxSize="250px">
                     <Image
                         fit="cover"
-                        src="/graphics/Something_Went_Wrong.png"
+                        src="/graphics/Something_Went_Wrong.avif"
                         alt="No posts found graphic"
                     />
                 </Box>

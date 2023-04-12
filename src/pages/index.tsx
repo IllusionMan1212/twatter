@@ -49,7 +49,7 @@ export default function Landing(): ReactElement {
                     <Box mx={{ base: "0", md: "10" }}>
                         <Image
                             alt="Twatter Graphic"
-                            src="/graphics/LandingPageGraphic.png"
+                            src="/graphics/LandingPageGraphic.avif"
                             fit="cover"
                             width="700px"
                         />

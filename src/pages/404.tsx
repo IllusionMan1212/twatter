@@ -19,7 +19,7 @@ export default function NotFound(): ReactElement {
             <Box boxSize="250px">
                 <Image
                     fit="cover"
-                    src="/graphics/Page_Not_Found.png"
+                    src="/graphics/Page_Not_Found.avif"
                     alt="Page not found graphic"
                 />
             </Box>
