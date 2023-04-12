@@ -133,7 +133,8 @@ export default function ComposePost({
         if (
             composePostRef.current &&
             (composePostRef.current?.value.trim().length || attachments.length) &&
-            charsLeft >= 0
+            charsLeft >= 0 &&
+            !isSubmitting
         ) {
             setSubmitting(true);
             setAttachments([]);

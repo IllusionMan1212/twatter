@@ -38,7 +38,7 @@ const CommentBox = forwardRef<CommentBoxProps, "textarea">(function CommentBox(
     const submitPost = () => {
         if (typeof ref === "function") return;
 
-        if (ref?.current && (ref.current?.value.trim().length || attachments.length) && charsLeft >= 0) {
+        if (ref?.current && (ref.current?.value.trim().length || attachments.length) && charsLeft >= 0 && !isSubmitting) {
             setSubmitting(true);
             setAttachments([]);
             setPreviewImages([]);
