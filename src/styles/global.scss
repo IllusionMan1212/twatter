@@ -7,7 +7,7 @@
 }
 
 .link {
-    @apply text-[color:var(--chakra-colors-accent-500)] hover:underline;
+    @apply text-[color:var(--chakra-colors-accent-500)] hover:underline [overflow-wrap:anywhere];
 }
 
 .swiper {
