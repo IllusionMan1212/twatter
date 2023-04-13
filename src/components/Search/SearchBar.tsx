@@ -1,4 +1,5 @@
-import { ClockCounterClockwise, MagnifyingGlass } from "@phosphor-icons/react";
+import ClockCounterClockwise from "@phosphor-icons/react/dist/icons/ClockCounterClockwise";
+import MagnifyingGlass from "@phosphor-icons/react/dist/icons/MagnifyingGlass";
 import {
     Box,
     HStack,

@@ -2,7 +2,9 @@ import { MenuItem, MenuList, useDisclosure, useMediaQuery } from "@chakra-ui/rea
 import { memo, ReactElement, useEffect, useRef, useState } from "react";
 import Avatar from "src/components/User/Avatar";
 import { useUserContext } from "src/contexts/userContext";
-import { Check, Checks, DotsThreeVertical } from "@phosphor-icons/react";
+import Check from "@phosphor-icons/react/dist/icons/Check";
+import Checks from "@phosphor-icons/react/dist/icons/Checks";
+import DotsThreeVertical from "@phosphor-icons/react/dist/icons/DotsThreeVertical";
 import MediaModal from "src/components/Attachments/MediaModal";
 import HTMLToJSX from "html-react-parser";
 import { parsingOptions } from "src/components/Post/Post";

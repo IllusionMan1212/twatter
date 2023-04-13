@@ -13,7 +13,8 @@ import {
     LinkOverlay,
     useDisclosure,
 } from "@chakra-ui/react";
-import { Calendar, UserList } from "@phosphor-icons/react";
+import Calendar from "@phosphor-icons/react/dist/icons/Calendar";
+import UserList from "@phosphor-icons/react/dist/icons/UserList";
 import { ComponentProps, ReactElement, useEffect, useState } from "react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";

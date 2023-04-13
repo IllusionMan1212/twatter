@@ -2006,13 +2006,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@phosphor-icons/react@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "@phosphor-icons/react@npm:2.0.6"
+"@phosphor-icons/react@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "@phosphor-icons/react@npm:2.0.8"
   peerDependencies:
     react: ">= 16.8"
     react-dom: ">= 16.8"
-  checksum: 36a29e759055f3949bdf28744fe99e3270520ea94b33d99f292a5e49773b8cf1f698ba48e7c52899afc7ae56ead92dd98569d8df7cf6e54a47baea0984a14c46
+  checksum: 58049166ddffd72dc626d4a9a61b08df5b54918eb8155f767a8a097120aa4e10707235bbfec91f09fcdb3c9343850d347d01a66efacbfb0abe737908906f3b22
   languageName: node
   linkType: hard
 
@@ -2803,7 +2803,7 @@ __metadata:
     "@next/bundle-analyzer": ^12.3.4
     "@novu/node": ^0.13.0
     "@novu/notification-center": ^0.13.0
-    "@phosphor-icons/react": ^2.0.6
+    "@phosphor-icons/react": ^2.0.8
     "@prisma/client": ^4.8.1
     "@types/bcrypt": ^5.0.0
     "@types/compression": ^1.7.2

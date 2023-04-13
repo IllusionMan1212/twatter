@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { Button, ButtonGroup, Textarea, VStack } from "@chakra-ui/react";
-import { Camera, NotePencil } from "@phosphor-icons/react";
+import Camera from "@phosphor-icons/react/dist/icons/Camera";
+import NotePencil from "@phosphor-icons/react/dist/icons/NotePencil";
 import { ReactElement, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserContext } from "src/contexts/userContext";

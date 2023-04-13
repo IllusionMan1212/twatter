@@ -1,5 +1,6 @@
 import { Box, Button, Divider, Icon, IconButton, VStack, HStack, Spinner } from "@chakra-ui/react";
-import { Desktop, DeviceMobile } from "@phosphor-icons/react";
+import Desktop from "@phosphor-icons/react/dist/icons/Desktop";
+import DeviceMobile from "@phosphor-icons/react/dist/icons/DeviceMobile";
 import { XIcon } from "@heroicons/react/outline";
 import { ReactElement, useEffect, useState } from "react";
 import { axiosInstance, fetcher } from "src/utils/axios";

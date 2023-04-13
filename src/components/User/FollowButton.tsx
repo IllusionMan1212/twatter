@@ -1,7 +1,8 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Button, Icon, IconButton } from "@chakra-ui/react";
 import toast from "react-hot-toast";
-import { UserCircleMinus, UserCirclePlus } from "@phosphor-icons/react";
+import UserCircleMinus from "@phosphor-icons/react/dist/icons/UserCircleMinus";
+import UserCirclePlus from "@phosphor-icons/react/dist/icons/UserCirclePlus";
 import { useUserContext } from "src/contexts/userContext";
 import { axiosInstance } from "src/utils/axios";
 

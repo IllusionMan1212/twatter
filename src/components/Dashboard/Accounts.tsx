@@ -15,7 +15,8 @@ import {
     HStack,
     Wrap,
 } from "@chakra-ui/react";
-import { CheckSquare, XSquare } from "@phosphor-icons/react";
+import CheckSquare from "@phosphor-icons/react/dist/icons/CheckSquare";
+import XSquare from "@phosphor-icons/react/dist/icons/XSquare";
 import { ReactElement, useEffect, useState } from "react";
 import CheckBox from "src/components/Controls/Checkbox";
 import { Dialog } from "src/components/Dialog";

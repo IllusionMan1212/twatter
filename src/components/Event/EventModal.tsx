@@ -15,7 +15,7 @@ import {
     ModalFooter,
     Button,
 } from "@chakra-ui/react";
-import { MapPinLine } from "@phosphor-icons/react";
+import MapPinLine from "@phosphor-icons/react/dist/icons/MapPinLine";
 import { ReactElement, useState } from "react";
 import { EventType } from "src/components/Event/Event";
 import { formatEventDate } from "src/utils/helpers";

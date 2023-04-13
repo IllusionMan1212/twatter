@@ -22,7 +22,7 @@
     "@next/bundle-analyzer": "^12.3.4",
     "@novu/node": "^0.13.0",
     "@novu/notification-center": "^0.13.0",
-    "@phosphor-icons/react": "^2.0.6",
+    "@phosphor-icons/react": "^2.0.8",
     "@prisma/client": "^4.8.1",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/twitter-text": "^3.1.5",

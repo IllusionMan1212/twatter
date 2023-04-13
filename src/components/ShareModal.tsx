@@ -6,7 +6,9 @@ import {
     ModalBody,
     ModalHeader,
 } from "@chakra-ui/react";
-import { FacebookLogo, RedditLogo, TwitterLogo } from "@phosphor-icons/react";
+import FacebookLogo from "@phosphor-icons/react/dist/icons/FacebookLogo";
+import RedditLogo from "@phosphor-icons/react/dist/icons/RedditLogo";
+import TwitterLogo from "@phosphor-icons/react/dist/icons/TwitterLogo";
 import { ComponentType, memo, ReactElement } from "react";
 
 const facebookSharerPrefix = "https://facebook.com/sharer/sharer.php?u=";

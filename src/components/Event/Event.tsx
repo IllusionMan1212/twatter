@@ -10,7 +10,8 @@ import {
     Badge,
     useDisclosure,
 } from "@chakra-ui/react";
-import { Clock, MapPinLine } from "@phosphor-icons/react";
+import Clock from "@phosphor-icons/react/dist/icons/Clock";
+import MapPinLine from "@phosphor-icons/react/dist/icons/MapPinLine";
 import { ReactElement } from "react";
 import { GetEventsRes, SearchAllRes } from "src/types/server";
 import { formatEventDate } from "src/utils/helpers";

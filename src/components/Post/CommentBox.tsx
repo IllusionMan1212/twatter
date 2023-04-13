@@ -14,7 +14,8 @@ import { useUserContext } from "src/contexts/userContext";
 import { GenericBackendRes } from "src/types/server";
 import toast from "react-hot-toast";
 import { MAX_ATTACHMENT_SIZE, POST_MAX_CHARS, SUPPORTED_ATTACHMENTS } from "src/utils/constants";
-import { Camera, NotePencil } from "@phosphor-icons/react";
+import Camera from "@phosphor-icons/react/dist/icons/Camera";
+import NotePencil from "@phosphor-icons/react/dist/icons/NotePencil";
 import CharsRemaining from "../CharsRemaining";
 import { axiosInstance } from "src/utils/axios";
 

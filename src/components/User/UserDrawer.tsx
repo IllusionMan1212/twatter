@@ -24,7 +24,7 @@ import {
     TrendingUpIcon,
     UserCircleIcon,
 } from "@heroicons/react/solid";
-import { Gauge } from "@phosphor-icons/react";
+import Gauge from "@phosphor-icons/react/dist/icons/Gauge";
 import { useUserContext } from "src/contexts/userContext";
 import Avatar from "src/components/User/Avatar";
 
