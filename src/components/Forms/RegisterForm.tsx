@@ -1,4 +1,4 @@
-import { Button, Icon, Link as ChakraLink, Stack, Text, VStack } from "@chakra-ui/react";
+import { Button, Icon, Stack, VStack } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
 import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
@@ -83,13 +83,13 @@ export default function RegisterForm(): ReactElement {
     return (
         <Stack spacing={10} p={5} rounded="4px" bgColor="bgPrimary">
             <VStack spacing={3} align="start">
-                <Text fontSize="3xl" fontWeight="semibold">
+                <p className="text-3xl font-semibold">
                     Sign Up
-                </Text>
+                </p>
                 <NextLink href="/login" passHref>
-                    <ChakraLink fontWeight="semibold">
+                    <a className="font-semibold hover:underline">
                         Already a member? Log in
-                    </ChakraLink>
+                    </a>
                 </NextLink>
             </VStack>
             <form className="flex flex-col gap-10" onSubmit={handleSignup}>

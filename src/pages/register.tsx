@@ -1,4 +1,3 @@
-import { Container, Stack } from "@chakra-ui/react";
 import { NextSeo } from "next-seo";
 import { registerSEO } from "next-seo.config";
 import { ReactElement } from "react";
@@ -8,11 +7,11 @@ export default function Register(): ReactElement {
     return (
         <>
             <NextSeo {...registerSEO} />
-            <Stack justify="center" align="center" bgColor="bgMain">
-                <Container maxWidth="md" my={12}>
+            <div className="flex items-center justify-center bg-[color:var(--chakra-colors-bgMain)]">
+                <div className="my-12 max-w-md container px-4">
                     <RegisterForm />
-                </Container>
-            </Stack>
+                </div>
+            </div>
         </>
     );
 }
