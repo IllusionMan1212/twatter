@@ -17,8 +17,6 @@ export default function LoggedOutLayout({ children }: Props): ReactElement {
         }
     }, [user]);
 
-    if (user && !children.props.notFoundPage) return <></>;
-
     return (
         <>
             <LoggedOutHeader />

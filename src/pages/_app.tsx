@@ -17,6 +17,7 @@ import "swiper/scss/pagination";
 import "swiper/scss/zoom";
 import { DefaultSeo } from "next-seo";
 import ErrorBoundary from "src/components/ErrorFallback";
+import ErrorPageWrapper from "src/components/Layout/ErrorPageWrapper";
 
 export interface PageProps {
     noAuthPage: boolean;
@@ -38,19 +39,25 @@ function Twatter({ Component, pageProps }: AppProps<PageProps>) {
                         }}
                     />
                     <Fonts />
-                    {Component.defaultProps?.noAuthPage ? (
-                        <LoggedOutLayout>
-                            <ErrorBoundary>
+                    <ErrorBoundary>
+                        {Component.defaultProps?.notFoundPage ? (
+                            <ErrorPageWrapper>
                                 <Component {...pageProps} />
-                            </ErrorBoundary>
-                        </LoggedOutLayout>
-                    ) : (
-                        <LoggedInLayout>
-                            <ErrorBoundary>
-                                <Component {...pageProps} />
-                            </ErrorBoundary>
-                        </LoggedInLayout>
-                    )}
+                            </ErrorPageWrapper>
+                        ) : (
+                            <>
+                                {Component.defaultProps?.noAuthPage ? (
+                                    <LoggedOutLayout>
+                                        <Component {...pageProps} />
+                                    </LoggedOutLayout>
+                                ) : (
+                                    <LoggedInLayout>
+                                        <Component {...pageProps} />
+                                    </LoggedInLayout>
+                                )}
+                            </>
+                        )}
+                    </ErrorBoundary>
                 </UserWrapper>
             </ChakraProvider>
         </>

@@ -213,6 +213,7 @@ const routesTitles: Record<string, string> = {
     "/u/[username]": "User Profile",
     "/u/[username]/[postId]": "Post",
     "/404": "Not Found",
+    "/500": "Error",
 };
 
 export function LoggedInHeader(): ReactElement {
