@@ -1,6 +1,4 @@
 import {
-    VStack,
-    Text,
     TableContainer,
     Table,
     Thead,
@@ -12,7 +10,6 @@ import {
     Button,
     useDisclosure,
     Spinner,
-    HStack,
 } from "@chakra-ui/react";
 import { memo, ReactElement, useEffect, useState } from "react";
 import CheckBox from "src/components/Controls/Checkbox";
@@ -100,7 +97,7 @@ export default function Events(): ReactElement {
 
     return (
         <>
-            <VStack align="start" width="full">
+            <div className="flex flex-col w-full items-start gap-2">
                 <TableContainer
                     width="full"
                     border="1px solid var(--chakra-colors-bgSecondary)"
@@ -153,18 +150,18 @@ export default function Events(): ReactElement {
                             {!isValidating && pages === 0 && events.length === 0 ? (
                                 <Tr>
                                     <Td colSpan={6}>
-                                        <VStack width="full">
-                                            <Text>There are no events to manage</Text>
-                                        </VStack>
+                                        <div className="flex flex-col gap-2 items-center w-full">
+                                            <p>There are no events to manage</p>
+                                        </div>
                                     </Td>
                                 </Tr>
                             ) : null}
                             {isValidating || (pages !== 0 && events.length === 0) ? (
                                 <Tr>
                                     <Td colSpan={6}>
-                                        <VStack width="full">
+                                        <div className="flex flex-col gap-2 items-center w-full">
                                             <Spinner />
-                                        </VStack>
+                                        </div>
                                     </Td>
                                 </Tr>
                             ) : null}
@@ -203,15 +200,15 @@ export default function Events(): ReactElement {
                         </Tbody>
                     </Table>
                 </TableContainer>
-                <HStack width="full" align="space-between">
-                    <VStack align="start" width="full" spacing={5}>
-                        <Text fontSize="sm">
-                            <Text as="span" fontWeight="bold">
+                <div className="flex w-full gap-2 items-between">
+                    <div className="flex flex-col items-start w-full gap-5">
+                        <p className="text-sm">
+                            <span className="font-bold">
                                 {events.length}
-                            </Text>{" "}
+                            </span>{" "}
                             Events - {events.filter((e) => e.selected).length} of{" "}
                             {events.length} selected
-                        </Text>
+                        </p>
                         <ButtonGroup size="sm" isDisabled={!anyChecked}>
                             <Button
                                 rounded="8px"
@@ -223,12 +220,12 @@ export default function Events(): ReactElement {
                                 Delete
                             </Button>
                         </ButtonGroup>
-                    </VStack>
-                    <VStack width="full" align="end" justify="space-between">
+                    </div>
+                    <div className="flex flex-col w-full gap-2 items-end justify-between">
                         {pages !== 0 && (
-                            <Text fontSize="sm" fontWeight="bold">
+                            <p className="text-sm font-bold">
                                 Page {page + 1}/{pages}
-                            </Text>
+                            </p>
                         )}
                         <ButtonGroup
                             isDisabled={Boolean(events.length)}
@@ -252,9 +249,9 @@ export default function Events(): ReactElement {
                                 Next
                             </Button>
                         </ButtonGroup>
-                    </VStack>
-                </HStack>
-            </VStack>
+                    </div>
+                </div>
+            </div>
             <Dialog
                 isOpen={deleteDialog.isOpen}
                 onClose={deleteDialog.onClose}

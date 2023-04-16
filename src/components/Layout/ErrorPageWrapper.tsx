@@ -3,7 +3,6 @@ import { useUserContext } from "src/contexts/userContext";
 import { PageProps } from "src/pages/_app";
 import { LoggedInHeader, LoggedOutHeader } from "src/components/Header";
 import { NovuProvider } from "@novu/notification-center";
-import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
 import Nav from "src/components/Nav/Nav";
 
 interface Props {
@@ -12,7 +11,6 @@ interface Props {
 
 export default function LoggedOutLayout({ children }: Props): ReactElement {
     const { user } = useUserContext();
-    const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
 
     return (
         <NovuProvider
@@ -22,31 +20,20 @@ export default function LoggedOutLayout({ children }: Props): ReactElement {
             initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true, fetchUnseenCount: true }}
         >
             {user ? <LoggedInHeader /> : <LoggedOutHeader />}
-            <Container
-                maxWidth={!isLargerThanMd ? "full" : "8xl"}
-                px={!isLargerThanMd ? 0 : "1rem"}
+            <div
+                className="max-w-full md:max-w-[90rem] px-0 md:px-4 mx-auto"
             >
-                <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
+                <div className="flex relative items-start md:gap-12 lg:gap-16 xl:gap-24">
                     <Nav />
-                    <Flex
-                        gap={10}
-                        flex="7"
-                        flexBasis="70%"
-                        position="relative"
-                        mt={{
-                            base: "initial",
-                            md: 5,
-                        }}
-                        mb={{ base: user ? "var(--chakra-navBarHeight)" : "", md: user ? 5 : 0 }}
-                        maxWidth="full"
-                        minWidth="0"
+                    <div
+                        className="flex-1 basis-[70%] gap-10 relative mt-initial md:mt-5 max-w-full min-w-0"
                     >
-                        <Box flex="7" maxWidth="full" minWidth="0">
+                        <div className="flex-1 max-w-full min-w-0">
                             {children}
-                        </Box>
-                    </Flex>
-                </Flex>
-            </Container>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </NovuProvider>
     );
 }

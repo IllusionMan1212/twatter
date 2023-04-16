@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Icon, IconButton, VStack, HStack, Spinner } from "@chakra-ui/react";
+import { Button, Divider, Icon, IconButton, Spinner } from "@chakra-ui/react";
 import Desktop from "@phosphor-icons/react/dist/icons/Desktop";
 import DeviceMobile from "@phosphor-icons/react/dist/icons/DeviceMobile";
 import { XIcon } from "@heroicons/react/outline";
@@ -42,10 +42,10 @@ function Device({ isMobile, name, ip, geolocation, lastLogin, isCurrent, deviceI
     };
 
     return (
-        <Box width="full">
-            <HStack px={4} py={2} bgColor="bgSecondary" spacing={4} rounded="lg" justify="space-between">
-                <HStack spacing={5}>
-                    <Box bgColor="bgMain" p={3} rounded="full">
+        <div className="w-full">
+            <div className="flex px-4 py-2 gap-4 rounded-lg items-center justify-between bg-[color:var(--chakra-colors-bgSecondary)]">
+                <div className="flex gap-5 items-center">
+                    <div className="p-3 rounded-full bg-[color:var(--chakra-colors-bgMain)]">
                         {
                             isMobile ? (
                                 <DeviceMobile color={isCurrent ? "var(--chakra-colors-accent-400)" : "var(--chakra-colors-textSecondary)"} weight="fill" size="36" />
@@ -53,15 +53,15 @@ function Device({ isMobile, name, ip, geolocation, lastLogin, isCurrent, deviceI
                                 <Desktop color={isCurrent ? "var(--chakra-colors-accent-400)" : "var(--chakra-colors-textSecondary)"} weight="fill" size="36" />
                             )
                         }
-                    </Box>
-                    <VStack spacing={2} align="start">
+                    </div>
+                    <div className="flex flex-col gap-2 items-start">
                         <p className="text-sm font-semibold">{name}</p>
-                        <VStack spacing={1} align="start">
+                        <div className="flex flex-col gap-1 items-start">
                             <p className="text-xs">{ip} {<><span>-{" "}</span>{geolocation}</>}</p>
                             <p className="text-xs">{isCurrent ? "" : <LastLogin />}</p>
-                        </VStack>
-                    </VStack>
-                </HStack>
+                        </div>
+                    </div>
+                </div>
                 {!isCurrent && (
                     <IconButton
                         colorScheme="red"
@@ -71,8 +71,8 @@ function Device({ isMobile, name, ip, geolocation, lastLogin, isCurrent, deviceI
                         onClick={revokeSession}
                     />
                 )}
-            </HStack>
-        </Box>
+            </div>
+        </div>
     );
 }
 
@@ -110,7 +110,7 @@ export default function DevicesSettings(): ReactElement {
     }, [data]);
 
     return (
-        <VStack align="start" width="full" p={3} spacing={6}>
+        <div className="flex flex-col items-start w-full p-3 gap-6">
             <p className="text-sm text-[color:var(--chakra-colors-textMain)]">
                 In here you can check your logged in devices.
                 You can log out of any session individually or all sessions at once excluding the current one.
@@ -121,12 +121,12 @@ export default function DevicesSettings(): ReactElement {
             <Divider height="1px" bgColor="bgSecondary" />
             {error && (<p className="font-bold py-2">{error.message}</p>)}
             {isValidating ? (
-                <VStack width="full">
+                <div className="flex flex-col w-full gap-2 items-center">
                     <Spinner />
-                </VStack>
+                </div>
             ) : (
                 <>
-                    <VStack width="full" align="start">
+                    <div className="flex flex-col w-full items-start gap-2">
                         {activeSession && (
                             <>
                                 <p className="text-xl font-bold">Current Device</p>
@@ -140,12 +140,12 @@ export default function DevicesSettings(): ReactElement {
                                 />
                             </>
                         )}
-                    </VStack>
+                    </div>
                     {sessions.length > 1 && (
                         <>
-                            <VStack width="full" align="start">
+                            <div className="flex flex-col w-full gap-2 items-start">
                                 <p className="text-xl font-bold">Other Devices</p>
-                                <VStack width="full">
+                                <div className="flex flex-col w-full gap-2 items-center">
                                     {sessions.filter((sess) => sess.deviceId !== deviceId).map((session) => (
                                         <Device
                                             key={session.deviceId}
@@ -159,8 +159,8 @@ export default function DevicesSettings(): ReactElement {
                                             sessions={sessions}
                                         />
                                     ))}
-                                </VStack>
-                            </VStack>
+                                </div>
+                            </div>
                             <Button colorScheme="red" variant="outline" onClick={revokeAllOtherSessions}>
                                 Log out all other devices
                             </Button>
@@ -168,6 +168,6 @@ export default function DevicesSettings(): ReactElement {
                     )}
                 </>
             )}
-        </VStack>
+        </div>
     );
 }

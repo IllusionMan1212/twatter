@@ -1,4 +1,4 @@
-import { Spinner, VStack, Text } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { SearchUsersRes } from "src/types/server";
@@ -38,9 +38,9 @@ export default function UsersResults({ query }: SearchResultsTabProps): ReactEle
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack width="full" py={5}>
+                <div className="flex flex-col w-full gap-2 items-center py-5">
                     <Spinner />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -66,11 +66,11 @@ export default function UsersResults({ query }: SearchResultsTabProps): ReactEle
 
     if (!isValidating && data?.[0]?.users.length === 0)
         return (
-            <VStack width="full" py={5}>
-                <Text fontWeight="bold" fontSize="3xl">
+            <div className="flex flex-col gap-2 items-center w-full py-5">
+                <p className="text-3xl font-bold">
                     No results found
-                </Text>
-            </VStack>
+                </p>
+            </div>
         );
 
     return (

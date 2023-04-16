@@ -1,6 +1,7 @@
 import { ReactElement, SyntheticEvent, useState, useRef, useEffect } from "react";
-import { Modal, ModalBody, Text, ModalContent, ModalHeader, ModalOverlay, ModalFooter, Button, ButtonGroup, VStack, Slider, SliderFilledTrack, SliderTrack, SliderThumb } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalContent, ModalOverlay, ModalFooter, Button, ButtonGroup, VStack, Slider, SliderFilledTrack, SliderTrack, SliderThumb } from "@chakra-ui/react";
 import { ZoomInIcon, ZoomOutIcon } from "@heroicons/react/outline";
+import ModalHeader from "src/components/Modal/ModalHeader";
 import useWasm from "src/hooks/useWasm";
 
 interface AvatarCropModalProps {
@@ -162,7 +163,7 @@ export default function AvatarCropModal({ isOpen, onClose, ...props }: AvatarCro
             <ModalOverlay />
             <ModalContent bgColor="bgMain">
                 <ModalHeader>
-                    <Text>Crop Image</Text>
+                    <p>Crop Image</p>
                 </ModalHeader>
                 <ModalBody as={VStack} width="full" py={0} spacing={4}>
                     <div className="bg-[color:var(--chakra-colors-bgPrimary)] w-full">

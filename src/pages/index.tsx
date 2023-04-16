@@ -1,43 +1,23 @@
-import {
-    Button,
-    Stack,
-    Text,
-    VStack,
-    Link as ChakraLink,
-    Flex,
-    Image,
-    Box,
-} from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Container } from "src/components/Container";
 import { ReactElement } from "react";
 import NextLink from "next/link";
 
 export default function Landing(): ReactElement {
     return (
-        <Stack justify="center" align="center">
+        <div className="flex justify-center items-center">
             <Container width="full" maxWidth="7xl" my={12}>
-                <Flex
-                    gap="20"
-                    direction={{ base: "column", md: "row" }}
-                    width="full"
-                    alignItems={{ base: "center", md: "start" }}
-                    mx={5}
-                >
-                    <VStack
-                        spacing={8}
-                        textAlign="center"
-                        py={{ base: "0", md: "5" }}
-                        mx={{ base: "6", md: "10" }}
-                    >
-                        <Text fontSize="6xl" fontWeight="bold" lineHeight="1.2">
+                <div className="flex gap-20 flex-col md:flex-row w-full mx-5 items-center md:items-start">
+                    <div className="flex flex-col items-center gap-8 text-center md:py-5 mx-6 md:mx-10">
+                        <p className="text-6xl font-bold leading-tight">
                             Connect with the world!
-                        </Text>
-                        <Text fontSize="lg">
+                        </p>
+                        <p className="text-lg">
                             Twatter is a social platform made to help connect people
-                        </Text>
+                        </p>
                         <NextLink href="/register" passHref>
                             <Button
-                                as={ChakraLink}
+                                as="a"
                                 sx={{ "&:hover": { textDecoration: "none" } }}
                                 colorScheme="button"
                                 width="36"
@@ -45,18 +25,18 @@ export default function Landing(): ReactElement {
                                 Sign up
                             </Button>
                         </NextLink>
-                    </VStack>
-                    <Box mx={{ base: "0", md: "10" }}>
-                        <Image
+                    </div>
+                    <div className="md:mx-10">
+                        <img
+                            className="object-cover"
                             alt="Twatter Graphic"
                             src="/graphics/LandingPageGraphic.avif"
-                            fit="cover"
                             width="700px"
                         />
-                    </Box>
-                </Flex>
+                    </div>
+                </div>
             </Container>
-        </Stack>
+        </div>
     );
 }
 

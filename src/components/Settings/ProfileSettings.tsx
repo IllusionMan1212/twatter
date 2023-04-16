@@ -1,9 +1,5 @@
 import {
-    HStack,
     InputLeftAddon,
-    VStack,
-    Text,
-    Flex,
     Button,
     ButtonGroup,
     useDisclosure,
@@ -137,8 +133,8 @@ export default function ProfileSettings(): ReactElement {
     };
 
     return (
-        <VStack align="start" p={3} spacing={6}>
-            <HStack width="full" spacing={3}>
+        <div className="flex flex-col items-start p-3 gap-6">
+            <div className="flex gap-3 items-center w-full">
                 <Input
                     placeholder="Display Name"
                     name="displayName"
@@ -148,7 +144,7 @@ export default function ProfileSettings(): ReactElement {
                     defaultValue={user?.displayName}
                     onChange={handleChange}
                 />
-            </HStack>
+            </div>
             <Input
                 placeholder="Username"
                 name="username"
@@ -165,26 +161,20 @@ export default function ProfileSettings(): ReactElement {
                 }
                 onChange={handleChange}
             />
-            <VStack width="full" align="start">
+            <div className="flex flex-col gap-2 items-start w-full">
                 <Input
                     placeholder="Email"
                     withLabel="Email"
                     defaultValue={user?.email}
                     disabled
                 />
-                <Text fontSize="xs" color="textMain">
+                <p className="text-xs text-[color:var(--chakra-colors-textMain)]">
                     Email can&apos;t be changed
-                </Text>
-            </VStack>
-            <VStack width="full" align="start">
-                <Text>Profile Photo</Text>
-                <Flex
-                    width="full"
-                    direction={{ base: "column", md: "row" }}
-                    align="center"
-                    justify={{ base: "center", md: "initial" }}
-                    gap={{ base: 3, md: 10 }}
-                >
+                </p>
+            </div>
+            <div className="flex flex-col gap-2 items-start w-full">
+                <p>Profile Photo</p>
+                <div className="w-full items-center gap-3 md:gap-10 flex flex-col md:flex-row justify-center md:justify-start">
                     {!croppedPreview && (
                         <Avatar
                             src={user?.avatarURL}
@@ -223,8 +213,8 @@ export default function ProfileSettings(): ReactElement {
                             </FileUpload>
                         )}
                     </ButtonGroup>
-                </Flex>
-            </VStack>
+                </div>
+            </div>
             <Button
                 alignSelf="end"
                 colorScheme="green"
@@ -244,6 +234,6 @@ export default function ProfileSettings(): ReactElement {
                     onConfirmCrop={confirmCrop}
                 />
             ) : null}
-        </VStack>
+        </div>
     );
 }

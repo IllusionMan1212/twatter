@@ -1,4 +1,3 @@
-import { Container, Stack } from "@chakra-ui/react";
 import { NextSeo } from "next-seo";
 import { forgotPasswordSEO } from "next-seo.config";
 import { ReactElement } from "react";
@@ -8,11 +7,11 @@ export default function ForgotPassword(): ReactElement {
     return (
         <>
             <NextSeo {...forgotPasswordSEO} />
-            <Stack justify="center" align="center" bgColor="bgMain">
-                <Container maxWidth="lg" my={12}>
+            <div className="flex justify-center items-center">
+                <div className="my-12 max-w-md container px-4">
                     <ForgotPasswordForm />
-                </Container>
-            </Stack>
+                </div>
+            </div>
         </>
     );
 }

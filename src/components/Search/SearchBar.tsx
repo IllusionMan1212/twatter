@@ -8,8 +8,6 @@ import {
     InputGroup,
     InputRightElement,
     ResponsiveValue,
-    VStack,
-    Link as ChakraLink,
 } from "@chakra-ui/react";
 import { ChangeEventHandler, forwardRef, ReactElement, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as CSS from "csstype";
@@ -33,18 +31,13 @@ function RecentSearchItem({ value, idx, removeItem, setShowRecent }: RecentSearc
 
     return (
         <NextLink className="w-full" tabIndex={-1} href={`/search?q=${value}`} passHref>
-            <ChakraLink width="full" onClick={() => setShowRecent(false)}>
-                <HStack
-                    width="full"
-                    _active={{ bgColor: "bgSecondary" }}
-                    _hover={{ bgColor: "bgSecondary" }}
-                    px={5}
-                    justify="space-between"
+            <a className="w-full" onClick={() => setShowRecent(false)}>
+                <div className="flex w-full px-5 items-center justify-between active:bg-[color:var(--chakra-colors-bgSecondary)] hover:bg-[color:var(--chakra-colors-bgSecondary)]"
                 >
-                    <HStack spacing={4} minWidth={0}>
+                    <div className="flex items-center gap-4 min-w-0">
                         <ClockCounterClockwise size={24} className="min-w-[24px]" color="var(--chakra-colors-textMain)" />
                         <p className="text-sm truncate max-w-full">{value}</p>
-                    </HStack>
+                    </div>
                     <IconButton
                         size="sm"
                         variant="ghost"
@@ -58,8 +51,8 @@ function RecentSearchItem({ value, idx, removeItem, setShowRecent }: RecentSearc
                             />
                         }
                     />
-                </HStack>
-            </ChakraLink>
+                </div>
+            </a>
         </NextLink>
     );
 }
@@ -87,7 +80,7 @@ const RecentSearches = forwardRef<HTMLDivElement, RecentSearchesProps>(
                 boxSizing="border-box"
                 rounded="0 0 var(--chakra-radii-lg) var(--chakra-radii-lg)"
             >
-                <VStack width="full" align="start">
+                <div className="flex flex-col w-full items-start gap-2">
                     {recent.map((val, i) => (
                         <RecentSearchItem
                             key={`${val + i.toString()}`}
@@ -97,7 +90,7 @@ const RecentSearches = forwardRef<HTMLDivElement, RecentSearchesProps>(
                             idx={i}
                         />
                     ))}
-                </VStack>
+                </div>
             </Box>
         );
     },

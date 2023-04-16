@@ -1,17 +1,12 @@
 import {
     Button,
     Icon,
-    Link as ChakraLink,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
-    ModalHeader,
     ModalOverlay,
-    Stack,
-    Text,
     useDisclosure,
-    VStack,
 } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
 import { FormEvent, ReactElement, useRef, useState } from "react";
@@ -21,6 +16,7 @@ import toast from "react-hot-toast";
 import { GenericBackendRes, LoginRes } from "src/types/server";
 import axios, { AxiosError } from "axios";
 import { useUserContext } from "src/contexts/userContext";
+import ModalHeader from "src/components/Modal/ModalHeader";
 
 interface LoginData {
     username: string;
@@ -75,13 +71,15 @@ const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElem
             <ModalOverlay />
             <ModalContent bgColor="bgMain" pb={5}>
                 <ModalHeader>
-                    <Text fontSize="lg">{usingRecovery ? "Recovery code" : "Two-factor authentication"}</Text>
+                    <p className="text-lg">
+                        {usingRecovery ? "Recovery code" : "Two-factor authentication"}
+                    </p>
                 </ModalHeader>
                 <ModalCloseButton size="lg" />
                 <ModalBody>
                     <form onSubmit={handleSubmit}>
-                        <VStack width="full" alignItems="start" spacing={4}>
-                            <Text>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</Text>
+                        <div className="flex flex-col w-full items-start gap-4">
+                            <p>{usingRecovery ? "Input one of your unused recovery codes" : "Input your 2FA code below"}</p>
                             <Input
                                 ref={initialFocusRef}
                                 placeholder={usingRecovery ? "XXXXXX-XXXXXX" : "6-digit two-factor authentication code"}
@@ -99,7 +97,7 @@ const TwoFAModal = ({ isOpen, onClose, twoFAToken }: TwoFAModalProps): ReactElem
                             >
                                 Verify
                             </Button>
-                        </VStack>
+                        </div>
                     </form>
                 </ModalBody>
             </ModalContent>
@@ -165,17 +163,19 @@ export default function LoginForm(): ReactElement {
     };
 
     return (
-        <Stack spacing={10} p={5} rounded="4px" bgColor="bgPrimary">
-            <VStack spacing={3} align="start">
-                <Text fontSize="3xl" fontWeight="semibold">
+        <div className="flex flex-col gap-10 p-5 rounded-[4px] bg-[color:var(--chakra-colors-bgPrimary)]">
+            <div className="flex flex-col gap-3 items-start">
+                <p className="text-3xl font-semibold">
                     Log in
-                </Text>
+                </p>
                 <NextLink href="/register" passHref>
-                    <ChakraLink fontWeight="semibold">Not registered? Sign up</ChakraLink>
+                    <a className="font-semibold hover:underline">
+                        Not registered? Sign up
+                    </a>
                 </NextLink>
-            </VStack>
+            </div>
             <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
-                <VStack spacing={5} align="stretch">
+                <div className="flex flex-col gap-5 items-stretch">
                     <Input
                         placeholder="Username or Email"
                         name="username"
@@ -199,10 +199,12 @@ export default function LoginForm(): ReactElement {
                         }
                         onChange={handleChange}
                     />
-                </VStack>
-                <VStack align="start">
+                </div>
+                <div className="flex flex-col gap-2 items-start">
                     <NextLink href="/forgot-password" passHref>
-                        <ChakraLink fontWeight="semibold">Forgot your password?</ChakraLink>
+                        <a className="font-semibold hover:underline">
+                            Forgot your password?
+                        </a>
                     </NextLink>
                     <Button
                         alignSelf="stretch"
@@ -215,9 +217,9 @@ export default function LoginForm(): ReactElement {
                     >
                         Log in
                     </Button>
-                </VStack>
+                </div>
             </form>
             <TwoFAModal isOpen={isOpen} onClose={onClose} twoFAToken={twoFAToken} />
-        </Stack>
+        </div>
     );
 }

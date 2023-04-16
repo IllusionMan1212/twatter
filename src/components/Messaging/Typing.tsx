@@ -1,4 +1,3 @@
-import { HStack, VStack, Box } from "@chakra-ui/react";
 import { ReactElement } from "react";
 import styles from "src/styles/Typing.module.scss";
 import Avatar from "src/components/User/Avatar";
@@ -11,7 +10,7 @@ export default function Typing({ recipientAvatarURL }: TypingProps): ReactElemen
     const dots = Array(3).fill(null);
 
     return (
-        <HStack align="start" maxWidth={{ base: "80%", md: "65%" }} py={4}>
+        <div className="flex items-start py-4 max-w-[80%] md:max-w-[65%] gap-2">
             <Avatar
                 src={recipientAvatarURL}
                 alt="User avatar"
@@ -19,20 +18,13 @@ export default function Typing({ recipientAvatarURL }: TypingProps): ReactElemen
                 height="35px"
                 pauseAnimation
             />
-            <VStack spacing={0.5} align="start">
-                <HStack
-                    spacing={1}
-                    alignItems="start"
-                    px={4}
-                    py={3}
-                    bgColor="bgSecondary"
-                    rounded="0 8px 8px 8px"
-                >
+            <div className="flex flex-col items-start gap-[0.5]">
+                <div className="flex gap-1 items-start px-4 py-3 bg-[color:var(--chakra-colors-bgSecondary)] rounded-[0_8px_8px_8px]">
                     {dots.map((_, i) => (
-                        <Box data-delay={i} className={styles.dot} key={i} />
+                        <div data-delay={i} className={styles.dot} key={i} />
                     ))}
-                </HStack>
-            </VStack>
-        </HStack>
+                </div>
+            </div>
+        </div>
     );
 }

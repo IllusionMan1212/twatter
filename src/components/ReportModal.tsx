@@ -4,7 +4,6 @@ import {
     ModalOverlay,
     ModalContent,
     ModalBody,
-    ModalHeader,
     ModalCloseButton,
     RadioGroup,
     Radio,
@@ -17,6 +16,7 @@ import { toast } from "react-hot-toast";
 import { GenericBackendRes } from "src/types/server";
 import { AxiosError, isAxiosError } from "axios";
 import { axiosInstance } from "src/utils/axios";
+import ModalHeader from "src/components/Modal/ModalHeader";
 
 interface ReportModalProps {
     isOpen: boolean;

@@ -1,5 +1,4 @@
 import {
-    HStack,
     LinkBox,
     LinkOverlay,
     Tooltip,
@@ -30,18 +29,10 @@ export default function User(props: UserProps): ReactElement {
             onMouseOver={() => setHovering(true)}
             onMouseOut={() => setHovering(false)}
         >
-            <HStack
-                px={4}
-                py={2}
-                justify="space-between"
-                rounded="lg"
-                bgColor="bgPrimary"
-                width="full"
-                minWidth={0}
-            >
+            <div className="flex gap-2 items-center px-4 py-2 justify-between rounded-lg w-full min-w-0 bg-[color:var(--chakra-colors-bgPrimary)]">
                 <NextLink href={`/@${props.username}`} passHref>
                     <LinkOverlay minWidth={0}>
-                        <HStack minWidth={0}>
+                        <div className="flex min-w-0 gap-2 items-center">
                             <Avatar
                                 src={props.avatarURL}
                                 alt={`${props.username}'s avatar`}
@@ -55,14 +46,14 @@ export default function User(props: UserProps): ReactElement {
                                 </Tooltip>
                                 <p className="truncate max-w-full text-sm text-[color:var(--chakra-colors-textMain)]">@{props.username}</p>
                             </div>
-                        </HStack>
+                        </div>
                     </LinkOverlay>
                 </NextLink>
                 <ButtonGroup size="sm" colorScheme="accent">
                     <FollowButton isFollowing={props.isFollowing} userId={props.id} iconOnly iconSize="20" />
                     <MessageButton userId={props.id} iconOnly messageCB={props.startConvoCB} allowAllDMs={props.allowAllDMs} />
                 </ButtonGroup>
-            </HStack>
+            </div>
         </LinkBox>
     );
 }

@@ -1,11 +1,6 @@
 import {
-    Text,
-    Image,
-    Flex,
     Icon,
-    VStack,
     Divider,
-    Box,
     Spinner,
     IconButton,
     useDisclosure,
@@ -51,9 +46,9 @@ function Posts({ swr }: PostsProps): ReactElement {
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack width="full" my={3}>
+                <div className="flex flex-col items-center w-full my-3">
                     <Spinner />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -70,25 +65,25 @@ function Posts({ swr }: PostsProps): ReactElement {
     }, [data]);
 
     if (error) return (
-        <VStack width="full" textAlign="center">
+        <div className="flex flex-col w-full items-center text-center">
             <p className="font-bold">{error.message}</p>
-        </VStack>
+        </div>
     );
 
     if (!isValidating && data?.[0]?.posts.length === 0)
         return (
-            <VStack width="full" textAlign="center">
-                <Box boxSize="250px">
-                    <Image
-                        fit="cover"
+            <div className="flex flex-col w-full items-center text-center">
+                <div className="w-[250px] h-[250px]">
+                    <img
+                        className="object-cover"
                         src="/graphics/Something_Went_Wrong.avif"
                         alt="No posts found graphic"
                     />
-                </Box>
-                <Text fontSize="3xl" fontWeight="bold">
+                </div>
+                <p className="text-3xl font-bold">
                     There are no posts
-                </Text>
-            </VStack>
+                </p>
+            </div>
         );
 
     return (
@@ -148,13 +143,11 @@ export default function Home(): ReactElement {
     };
 
     return (
-        <Flex>
+        <div className="flex">
             <NextSeo {...homeSEO} />
-            <VStack spacing={{ base: 0, md: 4 }} align="start" width="full">
-                <VStack
-                    spacing={4}
-                    width="full"
-                    display={{ base: "none", md: "initial" }}
+            <div className="flex flex-col items-start w-full md:gap-4">
+                <div
+                    className="flex-col gap-4 w-full items-center hidden md:flex"
                 >
                     <ComposePost
                         cb={async () => {
@@ -164,7 +157,7 @@ export default function Home(): ReactElement {
                         apiRoute="posts/create-post"
                     />
                     <Divider height="1px" bgColor="bgSecondary" />
-                </VStack>
+                </div>
                 <IconButton
                     display={{ base: "flex", md: "none" }}
                     aria-label="Mobile Compose Button"
@@ -180,7 +173,7 @@ export default function Home(): ReactElement {
                 />
                 <ComposePostModal isOpen={isOpen} onClose={onClose} cb={cb} />
                 <Posts swr={swr} />
-            </VStack>
-        </Flex>
+            </div>
+        </div>
     );
 }

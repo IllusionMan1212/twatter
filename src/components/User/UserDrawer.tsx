@@ -2,7 +2,6 @@ import {
     Box,
     BoxProps,
     ChakraComponent,
-    Text,
     Drawer,
     DrawerBody,
     DrawerCloseButton,
@@ -11,7 +10,6 @@ import {
     DrawerOverlay,
     useColorMode,
     useDisclosure,
-    VStack,
 } from "@chakra-ui/react";
 import { DrawerNavItem } from "src/components/Nav/NavItem";
 import {
@@ -117,7 +115,7 @@ const UserDrawer = ((props: BoxProps) => {
                 <DrawerContent bgColor="bgMain" maxWidth="275px">
                     <DrawerCloseButton />
                     <DrawerHeader>
-                        <VStack minWidth={0} align="start">
+                        <div className="flex flex-col gap-2 items-start min-w-0">
                             <Avatar
                                 src={user?.avatarURL}
                                 alt={`${user?.username}'s avatar`}
@@ -125,20 +123,20 @@ const UserDrawer = ((props: BoxProps) => {
                                 height="45px"
                             />
                             <p className="truncate font-semibold max-w-full">{user?.displayName}</p>
-                        </VStack>
+                        </div>
                     </DrawerHeader>
                     <DrawerBody>
-                        <VStack spacing={6} width="full">
-                            <VStack width="full" align="start">
-                                <Text fontWeight="semibold">Profile</Text>
+                        <div className="flex flex-col gap-6 items-center w-full">
+                            <div className="flex flex-col gap-2 items-start w-full">
+                                <p className="font-semibold">Profile</p>
                                 <DrawerProfileItems
                                     username={user?.username ?? ""}
                                     onClose={onClose}
                                     logout={logout}
                                 />
-                            </VStack>
-                            <VStack width="full" align="start">
-                                <Text fontWeight="semibold">Quick Links</Text>
+                            </div>
+                            <div className="flex flex-col gap-2 items-start w-full">
+                                <p className="font-semibold">Quick Links</p>
                                 {drawerLinksItems.map((item) => {
                                     if (item.adminOnly && !user?.isAdmin) {
                                         return null;
@@ -155,8 +153,8 @@ const UserDrawer = ((props: BoxProps) => {
                                         );
                                     }
                                 })}
-                            </VStack>
-                        </VStack>
+                            </div>
+                        </div>
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>

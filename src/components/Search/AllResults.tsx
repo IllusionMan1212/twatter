@@ -1,4 +1,4 @@
-import { Text, Spinner, VStack, Divider, Button, Flex } from "@chakra-ui/react";
+import { Spinner, Divider, Button, Flex } from "@chakra-ui/react";
 import { ReactElement, useEffect } from "react";
 import toast from "react-hot-toast";
 import { IEvent, ISearchUser, SearchResultsTabProps } from "src/types/interfaces";
@@ -20,10 +20,10 @@ interface EventsResultsProps {
 
 function Users({ users }: UsersResultsProps): ReactElement {
     return (
-        <VStack width="full" align="start">
-            <Text fontSize="2xl" fontWeight="bold">
+        <div className="flex flex-col w-full items-start gap-2">
+            <p className="text-2xl font-bold">
                 Users
-            </Text>
+            </p>
             {users.map((user) => (
                 <User
                     key={user.id}
@@ -52,16 +52,16 @@ function Users({ users }: UsersResultsProps): ReactElement {
                     <Divider height="1px" bgColor="stroke" />
                 </Flex>
             ) : null}
-        </VStack>
+        </div>
     );
 }
 
 function Events({ events, mutate }: EventsResultsProps): ReactElement {
     return (
-        <VStack width="full" align="start">
-            <Text fontSize="2xl" fontWeight="bold">
+        <div className="flex flex-col w-full items-start gap-2">
+            <p className="text-2xl font-bold">
                 Events
-            </Text>
+            </p>
             {events.map((event) => (
                 <Event
                     id={event.id}
@@ -93,7 +93,7 @@ function Events({ events, mutate }: EventsResultsProps): ReactElement {
                     <Divider height="1px" bgColor="stroke" />
                 </Flex>
             ) : null}
-        </VStack>
+        </div>
     );
 }
 
@@ -116,9 +116,9 @@ export default function AllResults({ query }: SearchResultsTabProps): ReactEleme
 
     if (isValidating && !data)
         return (
-            <VStack width="full" py={5}>
+            <div className="flex flex-col w-full gap-2 items-center py-5">
                 <Spinner />
-            </VStack>
+            </div>
         );
 
     if (
@@ -126,21 +126,21 @@ export default function AllResults({ query }: SearchResultsTabProps): ReactEleme
         (data?.users.length === 0 && data?.events.length === 0)
     )
         return (
-            <VStack width="full" py={5}>
-                <Text fontWeight="bold" fontSize="3xl">
+            <div className="flex flex-col w-full gap-2 items-center py-5">
+                <p className="text-3xl font-bold">
                     No results found
-                </Text>
-            </VStack>
+                </p>
+            </div>
         );
 
     if (!data) return <></>;
 
     return (
-        <VStack width="full" spacing={10}>
+        <div className="flex flex-col w-full gap-10 items-center">
             {data.users.length !== 0 ? <Users users={data.users} /> : null}
             {data.events.length !== 0 ? (
                 <Events events={data.events} mutate={mutate} />
             ) : null}
-        </VStack>
+        </div>
     );
 }

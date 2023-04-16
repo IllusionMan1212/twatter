@@ -1,4 +1,4 @@
-import { Spinner, VStack, Text } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { IEvent, SearchResultsTabProps } from "src/types/interfaces";
@@ -39,9 +39,9 @@ export default function EventsResults({ query }: SearchResultsTabProps): ReactEl
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack width="full" py={5}>
+                <div className="flex flex-col w-full py-5 gap-2 items-center">
                     <Spinner />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -67,11 +67,11 @@ export default function EventsResults({ query }: SearchResultsTabProps): ReactEl
 
     if (!isValidating && data?.[0]?.events.length === 0)
         return (
-            <VStack width="full" py={5}>
-                <Text fontWeight="bold" fontSize="3xl">
+            <div className="flex flex-col gap-2 items-center w-full py-5">
+                <p className="text-3xl font-bold">
                     No results found
-                </Text>
-            </VStack>
+                </p>
+            </div>
         );
 
     return (

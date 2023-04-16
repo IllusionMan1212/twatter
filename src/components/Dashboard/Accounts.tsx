@@ -1,6 +1,4 @@
 import {
-    VStack,
-    Text,
     TableContainer,
     Table,
     Thead,
@@ -12,7 +10,6 @@ import {
     Button,
     useDisclosure,
     Spinner,
-    HStack,
     Wrap,
 } from "@chakra-ui/react";
 import CheckSquare from "@phosphor-icons/react/dist/icons/CheckSquare";
@@ -141,7 +138,7 @@ export default function Accounts(): ReactElement {
 
     return (
         <>
-            <VStack align="start" width="full">
+            <div className="flex flex-col items-start gap-2 w-full">
                 <TableContainer
                     width="full"
                     border="1px solid var(--chakra-colors-bgSecondary)"
@@ -194,18 +191,18 @@ export default function Accounts(): ReactElement {
                             {!isValidating && pages === 0 && accounts.length === 0 ? (
                                 <Tr>
                                     <Td colSpan={7}>
-                                        <VStack width="full">
-                                            <Text>There are no accounts to manage</Text>
-                                        </VStack>
+                                        <div className="flex flex-col w-full gap-2 items-center">
+                                            <p>There are no accounts to manage</p>
+                                        </div>
                                     </Td>
                                 </Tr>
                             ) : null}
                             {isValidating || (pages !== 0 && accounts.length === 0) ? (
                                 <Tr>
                                     <Td colSpan={7}>
-                                        <VStack width="full">
+                                        <div className="flex flex-col w-full gap-2 items-center">
                                             <Spinner />
-                                        </VStack>
+                                        </div>
                                     </Td>
                                 </Tr>
                             ) : null}
@@ -254,15 +251,15 @@ export default function Accounts(): ReactElement {
                         </Tbody>
                     </Table>
                 </TableContainer>
-                <HStack width="full" align="space-between">
-                    <VStack align="start" width="full" spacing={5}>
-                        <Text fontSize="sm">
-                            <Text as="span" fontWeight="bold">
+                <div className="flex w-full gap-2 items-between">
+                    <div className="flex flex-col items-start w-full gap-5">
+                        <p className="text-sm">
+                            <span className="font-bold">
                                 {accounts.length}
-                            </Text>{" "}
+                            </span>{" "}
                             Students - {accounts.filter((a) => a.selected).length} of{" "}
                             {accounts.length} selected
-                        </Text>
+                        </p>
                         <ButtonGroup as={Wrap} size="sm" isDisabled={!anyChecked}>
                             <Button
                                 rounded="8px"
@@ -294,12 +291,12 @@ export default function Accounts(): ReactElement {
                                 Delete
                             </Button>
                         </ButtonGroup>
-                    </VStack>
-                    <VStack align="end" justify="space-between">
+                    </div>
+                    <div className="flex flex-col items-end justify-between gap-2">
                         {pages !== 0 && (
-                            <Text fontSize="sm" fontWeight="bold">
+                            <p className="text-sm font-bold">
                                 Page {page + 1}/{pages}
-                            </Text>
+                            </p>
                         )}
                         <ButtonGroup
                             isDisabled={Boolean(accounts.length)}
@@ -323,9 +320,9 @@ export default function Accounts(): ReactElement {
                                 Next
                             </Button>
                         </ButtonGroup>
-                    </VStack>
-                </HStack>
-            </VStack>
+                    </div>
+                </div>
+            </div>
             <Dialog
                 isOpen={restrictDialog.isOpen}
                 onClose={restrictDialog.onClose}

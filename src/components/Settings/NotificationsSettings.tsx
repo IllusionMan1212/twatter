@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Spinner } from "@chakra-ui/react";
+import { Spinner } from "@chakra-ui/react";
 import { useFetchUserPreferences, useUpdateUserPreferences } from "@novu/notification-center";
 import { ReactElement, useEffect, useState } from "react";
 import Switch from "src/components/Controls/Switch";
@@ -60,12 +60,12 @@ export default function NotificationsSettings(): ReactElement {
     }, [data]);
 
     return (
-        <VStack align="start" width="full" p={2} spacing={6}>
+        <div className="flex flex-col gap-6 items-start w-full p-2">
             <div className="flex flex-col w-full gap-3">
                 <div className="flex w-full justify-between">
-                    <Text fontSize="xl" fontWeight="bold">
+                    <p className="text-xl font-bold">
                         In-App
-                    </Text>
+                    </p>
                     <Switch
                         isChecked={inAppEnabled}
                         isDisabled={isLoading}
@@ -89,66 +89,66 @@ export default function NotificationsSettings(): ReactElement {
                                 />
                             </div>
                             {pref.critical ? (
-                                <Text fontSize="xs" color="textMain">Critical preferences cannot be changed</Text>
+                                <p className="text-xs text-[color:var(--chakra-colors-textMain)]">Critical preferences cannot be changed</p>
                             ) : null}
                         </div>
                     ))}
                 </div>
             </div>
-            <HStack width="full" justify="space-between">
-                <Text fontSize="xl" fontWeight="bold">
+            <div className="flex w-full gap-2 items-center justify-between">
+                <p className="text-xl font-bold">
                     Email
-                </Text>
+                </p>
                 <Switch
                     isChecked={emailEnabled}
                     isDisabled
                 />
-            </HStack>
+            </div>
             {emailEnabled ? (
-                <VStack width="full" align="start" spacing={4}>
-                    <HStack width="full" justify="space-between">
-                        <Text fontSize="lg">Allow Anyone to Message You</Text>
+                <div className="flex gap-4 items-start w-full">
+                    <div className="flex gap-2 items-center w-full justify-between">
+                        <p className="text-lg">Allow Anyone to Message You</p>
                         <Switch
                             isChecked={false}
                             isDisabled
                         />
-                    </HStack>
-                    <HStack width="full" justify="space-between">
-                        <Text fontSize="lg">Read receipts</Text>
+                    </div>
+                    <div className="flex gap-2 items-center w-full justify-between">
+                        <p className="text-lg">Read receipts</p>
                         <Switch
                             isChecked={false}
                             isDisabled
                         />
-                    </HStack>
-                </VStack>
+                    </div>
+                </div>
             ) : null}
-            <HStack width="full" justify="space-between">
-                <Text fontSize="xl" fontWeight="bold">
+            <div className="flex gap-2 items-center w-full justify-between">
+                <p className="text-xl font-bold">
                     Push
-                </Text>
+                </p>
                 <Switch
                     isChecked={pushEnabled}
                     isDisabled
                 />
-            </HStack>
+            </div>
             {pushEnabled ? (
-                <VStack width="full" align="start" spacing={4}>
-                    <HStack width="full" justify="space-between">
-                        <Text fontSize="lg">Allow Anyone to Message You</Text>
+                <div className="flex flex-col gap-4 items-start w-full">
+                    <div className="flex gap-2 items-center w-full justify-between">
+                        <p className="text-xl">Allow Anyone to Message You</p>
                         <Switch
                             isChecked={false}
                             isDisabled
                         />
-                    </HStack>
-                    <HStack width="full" justify="space-between">
-                        <Text fontSize="lg">Read receipts</Text>
+                    </div>
+                    <div className="flex gap-2 items-center w-full justify-between">
+                        <p className="text-lg">Read receipts</p>
                         <Switch
                             isChecked={false}
                             isDisabled
                         />
-                    </HStack>
-                </VStack>
+                    </div>
+                </div>
             ) : null}
-        </VStack>
+        </div>
     );
 }

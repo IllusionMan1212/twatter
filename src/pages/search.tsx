@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { Flex, VStack, Text, HStack, Image, Box, Button } from "@chakra-ui/react";
+import { HStack, Box, Button } from "@chakra-ui/react";
 import Router, { useRouter } from "next/router";
 import { ComponentType, ReactElement, useEffect, useState } from "react";
 import AllResults from "src/components/Search/AllResults";
@@ -45,9 +45,9 @@ function Tab({ text, isActive }: TabProps): ReactElement {
             minWidth="fit-content"
             onClick={() => Router.replace(`/search?q=${Router.query.q}&type=${text}`)}
         >
-            <Text fontWeight={isActive ? "semibold" : "normal"}>
+            <p className={isActive ? "font-semibold" : "font-normal"}>
                 {text.charAt(0).toUpperCase() + text.slice(1)}
-            </Text>
+            </p>
         </Box>
     );
 }
@@ -73,22 +73,22 @@ function TabBar({ activeTab }: TabBarProps): ReactElement {
 
 function NoSearch(): ReactElement {
     return (
-        <VStack spacing={5} width="full">
-            <Image
-                fit="cover"
+        <div className="flex flex-col gap-5 w-full items-center">
+            <img
+                className="object-cover"
                 width="250px"
                 src="/graphics/Coming_Soon.avif"
                 alt="List is empty graphic"
             />
-            <VStack spacing={1} textAlign="center">
-                <Text fontSize="3xl" fontWeight="bold">
+            <div className="flex flex-col gap-1 text-center items-center">
+                <p className="text-3xl font-bold">
                     Looking for something?
-                </Text>
-                <Text color="textMain" fontSize="md">
+                </p>
+                <p className="text-[color:var(--chakra-colors-textMain)] text-md">
                     Start typing into the search bar
-                </Text>
-            </VStack>
-        </VStack>
+                </p>
+            </div>
+        </div>
     );
 }
 
@@ -99,9 +99,9 @@ interface SearchResultsProps {
 
 function SearchResults(props: SearchResultsProps): ReactElement {
     return (
-        <VStack width="full" flex="1" alignItems="start">
+        <div className="flex flex-col w-full flex-1 items-start gap-2">
             <props.tab query={props.query} />
-        </VStack>
+        </div>
     );
 }
 
@@ -125,7 +125,7 @@ export default function Search(): ReactElement {
     if (!router.query) return <></>;
 
     return (
-        <Flex direction="column" gap={4} m={3} align="start">
+        <div className="flex flex-col gap-4 m-3 items-start">
             <NextSeo {...searchSEO} />
             <SearchBar
                 size="md"
@@ -151,6 +151,6 @@ export default function Search(): ReactElement {
             ) : (
                 <NoSearch />
             )}
-        </Flex>
+        </div>
     );
 }

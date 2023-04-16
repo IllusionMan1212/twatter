@@ -1,4 +1,4 @@
-import { Box, Button, ButtonProps, IconButton, IconButtonProps } from "@chakra-ui/react";
+import { Button, ButtonProps, IconButton, IconButtonProps } from "@chakra-ui/react";
 import { ReactElement, useRef } from "react";
 
 interface FileUploadProps {
@@ -31,7 +31,7 @@ export function IconFileUpload(props: FileUploadProps & IconButtonProps): ReactE
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
-        <Box>
+        <div>
             <IconButton {...buttonProps} onClick={() => inputRef.current?.click()} />
             <input
                 ref={inputRef}
@@ -40,8 +40,8 @@ export function IconFileUpload(props: FileUploadProps & IconButtonProps): ReactE
                 style={{ display: "none" }}
                 multiple={multiple}
                 onChange={onInputChange}
-            ></input>
-        </Box>
+            />
+        </div>
     );
 }
 

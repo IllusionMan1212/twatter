@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from "react";
-import { Button, Text, VStack, Link as ChakraLink, Box, Spinner } from "@chakra-ui/react";
+import { Button, Spinner } from "@chakra-ui/react";
 import Event from "src/components/Event/Event";
 import NextLink from "next/link";
 import styles from "src/styles/sidebar.module.scss";
@@ -24,9 +24,9 @@ interface ErrorProps {
 
 function Error({ error }: ErrorProps): ReactElement {
     return (
-        <Text fontSize="lg" fontWeight="bold">
+        <p className="text-lg font-bold">
             {error.response?.data.message ?? "An error has occurred"}
-        </Text>
+        </p>
     );
 }
 
@@ -40,9 +40,9 @@ function Events({ isValidating, error, events, mutate }: EventsProps): ReactElem
 
     if (isValidating && !events.length) {
         return (
-            <VStack width="full">
+            <div className="flex flex-col gap-2 items-center w-full">
                 <Spinner />
-            </VStack>
+            </div>
         );
     }
 
@@ -85,9 +85,9 @@ function UpcomingEvents(): ReactElement {
     if (!isValidating && !events.length) return <></>;
 
     return (
-        <VStack width="full" align="start">
-            <Text fontWeight="semibold">Upcoming Events</Text>
-            <VStack width="full" spacing={4} align="start">
+        <div className="flex flex-col w-full gap-2 items-start">
+            <p className="font-semibold">Upcoming Events</p>
+            <div className="flex flex-col w-full gap-4 items-start">
                 <Events
                     isValidating={isValidating}
                     error={error}
@@ -96,7 +96,7 @@ function UpcomingEvents(): ReactElement {
                 />
                 <NextLink href="/events" passHref>
                     <Button
-                        as={ChakraLink}
+                        as="a"
                         colorScheme="button"
                         variant="outline"
                         size="lg"
@@ -104,18 +104,18 @@ function UpcomingEvents(): ReactElement {
                         See All
                     </Button>
                 </NextLink>
-            </VStack>
-        </VStack>
+            </div>
+        </div>
     );
 }
 
 export default function Sidebar(props: SidebarProps): ReactElement {
     return (
-        <Box className={styles.sidebar}>
-            <VStack width="full" spacing={8}>
+        <div className={styles.sidebar}>
+            <div className="flex flex-col gap-8 items-center w-full">
                 {props.withEvents && <UpcomingEvents />}
-            </VStack>
-        </Box>
+            </div>
+        </div>
     );
 }
 

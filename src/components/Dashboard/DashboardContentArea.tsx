@@ -1,4 +1,4 @@
-import { HStack, Icon, IconButton, VStack, Text } from "@chakra-ui/react";
+import { Icon, IconButton } from "@chakra-ui/react";
 import { ArrowNarrowLeftIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
 import { ReactElement } from "react";
@@ -14,21 +14,17 @@ export default function DashboardContentArea({
     const router = useRouter();
 
     return (
-        <VStack spacing={5} width="full" px={{ base: 3, md: 0 }}>
-            <HStack
-                width="full"
-                borderBottom="1px solid var(--chakra-colors-bgSecondary)"
-                borderColor="inherit"
-            >
+        <div className="flex flex-col gap-5 w-full items-center px-3 md:px-0">
+            <div className="flex w-full items-center gap-2 border-b-[1px] border-[color:inherit]">
                 <IconButton
                     variant="ghost"
                     aria-label="Back button"
                     icon={<Icon as={ArrowNarrowLeftIcon} w="28px" h="28px" />}
                     onClick={() => router.back()}
                 />
-                <Text fontWeight="semibold">{item.title}</Text>
-            </HStack>
+                <p className="font-semibold">{item.title}</p>
+            </div>
             <item.component />
-        </VStack>
+        </div>
     );
 }

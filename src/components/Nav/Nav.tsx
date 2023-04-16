@@ -1,10 +1,7 @@
 import {
-    Box,
     Button,
     Icon,
     Divider,
-    HStack,
-    VStack,
     useDisclosure,
 } from "@chakra-ui/react";
 import {
@@ -64,8 +61,8 @@ export default function Nav(): ReactElement {
     const { data: unreadNotifications } = useUnseenCount();
 
     return (
-        <Box className={styles.nav}>
-            <VStack display={{ base: "none", md: "flex" }} spacing={4} my={5}>
+        <div className={styles.nav}>
+            <div className="hidden md:flex flex-col items-center gap-4 my-5">
                 {user ? (
                     <>
                         <NavItem href="/home" icon={HomeIcon}>
@@ -98,15 +95,15 @@ export default function Nav(): ReactElement {
                         </NavItem>
                     </>
                 )}
-            </VStack>
+            </div>
             {user ? (
-                <HStack justify="space-around" p={1} display={{ base: "flex", md: "none" }}>
+                <div className="flex md:hidden justify-around items-center p-1">
                     <NavItem href="/home" ariaLabel="Home" icon={HomeIcon} />
                     <NavItem href="/search" ariaLabel="Search" icon={SearchIcon} />
                     <NavItem href="/trends" ariaLabel="Trending" icon={TrendingUpIcon} />
                     <UserDrawer display={{ base: "initial", md: "none" }} />
-                </HStack>
+                </div>
             ) : null}
-        </Box>
+        </div>
     );
 }

@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { PropsWithChildren, ReactElement, useEffect } from "react";
 import Nav from "src/components/Nav/Nav";
@@ -33,7 +32,6 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
 
     const router = useRouter();
 
-    const [isLargerThanMd] = useMediaQuery(["(min-width: 52em)"]);
     const fullScreenRoute = fullScreenRoutes.includes(router.pathname);
     const isGuest = !user && guestRoutes.includes(router.pathname);
 
@@ -60,33 +58,22 @@ export default function LoggedInLayout({ children }: PropsWithChildren): ReactEl
             initialFetchingStrategy={{ fetchNotifications: true, fetchUserPreferences: true, fetchUnseenCount: true }}
         >
             {isGuest ? <LoggedOutHeader /> : <LoggedInHeader />}
-            <Container
-                maxWidth={!isLargerThanMd ? "full" : "8xl"}
-                px={!isLargerThanMd ? 0 : "1rem"}
+            <div
+                className="max-w-full md:max-w-[90rem] px-0 md:px-4 mx-auto"
             >
-                <Flex position="relative" gap={{ md: 12, lg: 16, xl: 24 }} align="start">
+                <div className="flex relative items-start md:gap-12 lg:gap-16 xl:gap-24">
                     <Nav />
-                    <Flex
-                        gap={10}
-                        flex="7"
-                        flexBasis="70%"
-                        position="relative"
-                        mt={{
-                            base: "initial",
-                            md: 5,
-                        }}
-                        mb={{ base: !isGuest ? "var(--chakra-navBarHeight)" : "", md: fullScreenRoute ? 0 : 5 }}
-                        maxWidth="full"
-                        minWidth="0"
+                    <div
+                        className={`flex flex-[7] basis-[70%] gap-10 relative mt-initial md:mt-5 max-w-full min-w-0 ${!isGuest ? "mb-[var(--chakra-navBarHeight)] md:mb-0" : ""} ${fullScreenRoute ? "md:mb-0" : "md:mb-5"}`}
                     >
-                        <Box flex="7" maxWidth="full" minWidth="0">
+                        <div className="flex-[7] max-w-full min-w-0">
                             {children}
-                        </Box>
+                        </div>
                         {hasSidebar ? <Sidebar withEvents={withEvents} /> : null}
                         {isGuest ? <JoinReminder /> : null}
-                    </Flex>
-                </Flex>
-            </Container>
+                    </div>
+                </div>
+            </div>
         </NovuProvider>
     );
 }

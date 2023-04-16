@@ -1,7 +1,4 @@
 import {
-    Flex,
-    VStack,
-    Text,
     HStack,
     MenuList,
     MenuItem,
@@ -9,7 +6,6 @@ import {
     Icon,
     Textarea,
     Box,
-    Link as ChakraLink,
     Divider,
     useDisclosure,
     Spinner,
@@ -240,9 +236,9 @@ function ConversationHeader({ convo, onOpen }: ConversationHeaderProps): ReactEl
     const isRecipientTyping = useTyping(convo.id);
 
     return (
-        <Flex width="full" px={3} py={2} boxShadow="conversationHeader">
-            <HStack width="full">
-                <Flex gap={2} minWidth={0} width="full" align="center">
+        <div className="flex w-full px-3 py-2 shadow-[0_2px_2px_rgba(0,0,0,0.07)]">
+            <div className="flex w-full items-center gap-2">
+                <div className="flex gap-2 min-w-0 w-full items-center">
                     <IconButton
                         variant="ghost"
                         display={{ base: "flex", lg: "none" }}
@@ -251,31 +247,31 @@ function ConversationHeader({ convo, onOpen }: ConversationHeaderProps): ReactEl
                         onClick={() => Router.back()}
                     />
                     <NextLink href={`/@${convo.members[0].User.username}`} passHref>
-                        <HStack minWidth={0} as={ChakraLink}>
+                        <HStack minWidth={0} as="a">
                             <Avatar
                                 src={convo.members[0].User.avatarURL}
                                 alt={`${convo.members[0].User.username}'s avatar`}
                                 width="40px"
                                 height="40px"
                             />
-                            <VStack width="full" minWidth={0} spacing={0} align="start">
-                                <Text className="truncate max-w-full" fontWeight="semibold">{convo.members[0].User.displayName}</Text>
+                            <div className="flex flex-col w-full min-w-0 items-start">
+                                <p className="truncate max-w-full font-semibold">{convo.members[0].User.displayName}</p>
                                 {isRecipientTyping ? (
-                                    <Text fontSize="xs" color="textMain">
+                                    <p className="text-xs text-[color:var(--chakra-colors-textMain)]">
                                         typing...
-                                    </Text>
+                                    </p>
                                 ) : null}
-                            </VStack>
+                            </div>
                         </HStack>
                     </NextLink>
-                </Flex>
+                </div>
                 <OptionsMenu buttonSize="8" direction="vertical">
                     <MenuList>
                         <MenuItem onClick={onOpen}>Leave Conversation</MenuItem>
                     </MenuList>
                 </OptionsMenu>
-            </HStack>
-        </Flex>
+            </div>
+        </div>
     );
 }
 
@@ -379,7 +375,7 @@ function ConversationFooter({
     };
 
     return (
-        <VStack width="full" align="start" boxShadow="conversationFooter">
+        <div className="flex flex-col w-full gap-2 items-start shadow-[0_-2px_2px_rgba(0,0,0,0.07)]">
             {previewImage && (
                 <>
                     <Box p={4}>
@@ -392,7 +388,7 @@ function ConversationFooter({
                     <Divider height="1px" bgColor="bgSecondary" />
                 </>
             )}
-            <Flex gap={3} width="full" px={2} py={2}>
+            <div className="flex gap-3 w-full p-2">
                 <IconFileUpload
                     variant="ghost"
                     aria-label="Add attachment"
@@ -425,8 +421,8 @@ function ConversationFooter({
                     />
                     <CharsRemaining charsLeft={charsLeft} type="Message" />
                 </div>
-            </Flex>
-        </VStack>
+            </div>
+        </div>
     );
 }
 
@@ -519,21 +515,15 @@ function ConversationBody({
 
     const Header = () => {
         return (
-            <VStack width="full">
+            <div className="flex flex-col w-full gap-2 items-center">
                 {reachedStart ? (
-                    <Text
-                        color="textMain"
-                        textAlign="center"
-                        py={4}
-                        px={2}
-                        fontWeight="semibold"
-                    >
+                    <p className="font-semibold py-4 px-2 text-center text-[color:var(--chakra-colors-textMain)]">
                         You reached the beginning of this conversation
-                    </Text>
+                    </p>
                 ) : (
                     <Spinner />
                 )}
-            </VStack>
+            </div>
         );
     };
 
@@ -636,9 +626,9 @@ function ConversationBody({
             className="flex flex-col gap-5 grow w-full py-2"
         >
             {(isValidating && data?.length === 0) || (!data?.length && state.messages.length === 0) ? (
-                <VStack width="full">
+                <div className="flex flex-col gap-2 items-center w-full">
                     <Spinner />
-                </VStack>
+                </div>
             ) : (
                 <>
                     {state.messages.length === 0 ? (
@@ -766,20 +756,7 @@ export default function ConversationArea({
     }, [socket, socket?.connected, handleMessage, handleMarkedMessagesAsRead, handleDeletedMessage]);
 
     return (
-        <VStack
-            spacing={0}
-            height={{
-                base: "100vh",
-                lg: "calc(100vh - var(--chakra-headerHeight-desktop) - var(--chakra-space-5))",
-            }}
-            bgColor="bgPrimary"
-            rounded="4px"
-            width="full"
-            position={{ base: "fixed", lg: "relative" }}
-            top={0}
-            right={0}
-            zIndex={{ base: 3, lg: "unset" }}
-        >
+        <div className="flex flex-col w-full rounded top-0 right-0 fixed lg:relative z-[3] lg:z-[unset] bg-[color:var(--chakra-colors-bgPrimary)] h-[100vh] lg:h-[calc(100vh_-_var(--chakra-headerHeight-desktop)_-_var(--chakra-space-5))]">
             <ConversationHeader convo={convo} onOpen={onOpen} />
             <ConversationBody
                 key={`${convo.id}-body`}
@@ -798,6 +775,6 @@ export default function ConversationArea({
                 conversationId={convo.id}
                 mutateConvos={mutateConvos}
             />
-        </VStack>
+        </div>
     );
 }

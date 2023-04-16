@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { Button, ButtonGroup, Textarea, VStack } from "@chakra-ui/react";
+import { Button, ButtonGroup, Textarea } from "@chakra-ui/react";
 import Camera from "@phosphor-icons/react/dist/icons/Camera";
 import NotePencil from "@phosphor-icons/react/dist/icons/NotePencil";
 import { ReactElement, useRef, useState } from "react";
@@ -168,20 +168,8 @@ export default function ComposePost({
 
     return (
         <div className="flex flex-col space-y-4 items-start w-full">
-            <VStack
-                bgColor="bgPrimary"
-                borderRadius="compose"
-                p={4}
-                spacing={6}
-                align="start"
-                width="full"
-                border="1px solid"
-                borderColor="bgSecondary"
-                _hover={{ borderColor: "gray.400" }}
-                _focusWithin={{
-                    borderColor: "button.400",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-button-400)",
-                }}
+            <div
+                className="flex flex-col items-start gap-6 bg-[color:var(--chakra-colors-bgPrimary)] rounded-lg p-4 w-full border-[1px] border-[color:var(--chakra-colors-bgSecondary)] hover:border-gray-400 focus-within:border-[color:var(--chakra-colors-button-400)] focus-within:ring-1 focus-within:ring-[color:var(--chakra-colors-button-400)]"
             >
                 <div className="flex items-start gap-4 w-full">
                     <div className="flex flex-col items-center gap-2">
@@ -216,7 +204,7 @@ export default function ComposePost({
                         />
                     ))}
                 </div>
-            </VStack>
+            </div>
             <ButtonGroup size="sm" colorScheme="button">
                 <Button
                     width={32}

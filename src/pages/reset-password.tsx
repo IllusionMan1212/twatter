@@ -1,4 +1,3 @@
-import { Container, Stack } from "@chakra-ui/react";
 import { NextSeo } from "next-seo";
 import { resetPasswordSEO } from "next-seo.config";
 import { useRouter } from "next/router";
@@ -37,11 +36,11 @@ export default function ResetPassword(): ReactElement {
     return (
         <>
             <NextSeo {...resetPasswordSEO} />
-            <Stack justify="center" align="center" bgColor="bgMain">
-                <Container maxWidth="lg" my={12}>
+            <div className="flex justify-center items-center">
+                <div className="my-12 max-w-md container px-4">
                     <ResetPasswordForm user={user} loading={loading} token={token} />
-                </Container>
-            </Stack>
+                </div>
+            </div>
         </>
     );
 }

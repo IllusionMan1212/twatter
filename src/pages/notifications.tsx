@@ -1,4 +1,4 @@
-import { Button, Flex, Spinner, VStack, Text, Image as ChakraImage } from "@chakra-ui/react";
+import { Button, Flex, Spinner } from "@chakra-ui/react";
 import { ChannelCTATypeEnum, IMessage, useNotifications } from "@novu/notification-center";
 import { ReactElement, useEffect, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
@@ -115,41 +115,41 @@ export default function Notifications(): ReactElement {
 
     const Footer = (): ReactElement | null => {
         if (hasNextPage && isFetchingNextPage) return (
-            <VStack width="full">
+            <div className="flex flex-col w-full gap-2 items-center">
                 <Spinner />
-            </VStack>
+            </div>
         );
 
         return null;
     };
 
     if (isLoading) return (
-        <VStack width="full">
+        <div className="flex flex-col w-full gap-2 items-center">
             <Spinner />
-        </VStack>
+        </div>
     );
 
     if (!notifications.length) return (
-        <VStack my={4} px={2} spacing={10} align="center" justify="center" width="full">
-            <ChakraImage
-                fit="cover"
+        <div className="flex flex-col my-4 px-2 gap-10 items-center justify-center w-full">
+            <img
+                className="object-cover"
                 alt="Empty list graphic"
                 src="/graphics/List_Is_Empty.avif"
                 width="250px"
             />
-            <VStack>
-                <Text fontSize="3xl" fontWeight="bold">
+            <div className="flex flex-col gap-2 items-center">
+                <p className="text-3xl font-bold">
                     No Notifications Yet
-                </Text>
-                <Text align="center" color="textMain">
+                </p>
+                <p className="text-center text-[color:var(--chakra-colors-textMain)]">
                     You will be notified when certain events happen, such as when someone follows you or interacts with your posts
-                </Text>
-            </VStack>
-        </VStack>
+                </p>
+            </div>
+        </div>
     );
 
     return (
-        <Flex width="full">
+        <div className="flex flex-col gap-2 items-center w-full">
             <div className="flex flex-col w-full">
                 <Virtuoso
                     data={notifications}
@@ -168,6 +168,6 @@ export default function Notifications(): ReactElement {
                     )}
                 />
             </div>
-        </Flex>
+        </div>
     );
 }

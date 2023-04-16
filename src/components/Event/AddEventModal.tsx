@@ -1,16 +1,11 @@
 import {
-    Text,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
-    ModalHeader,
     ModalOverlay,
-    VStack,
     Button,
-    HStack,
     Code,
-    Flex,
     IconButton,
     Icon,
 } from "@chakra-ui/react";
@@ -28,6 +23,7 @@ import { AxiosError } from "axios";
 import { XIcon } from "@heroicons/react/outline";
 import { KeyedMutator } from "swr";
 import { axiosInstance } from "src/utils/axios";
+import ModalHeader from "src/components/Modal/ModalHeader";
 
 interface AddEventModalProps {
     isOpen: boolean;
@@ -125,12 +121,12 @@ export default function AddEventModal({
             <ModalOverlay />
             <ModalContent bgColor="bgMain">
                 <ModalHeader>
-                    <Text>Add an Event</Text>
+                    <p>Add an Event</p>
                 </ModalHeader>
                 <ModalCloseButton size="lg" />
                 <ModalBody>
-                    <VStack width="full" align="end" spacing={5}>
-                        <VStack width="full" spacing={3} align="start">
+                    <div className="flex flex-col w-full items-end gap-5">
+                        <div className="flex flex-col w-full gap-3 items-start">
                             <Input
                                 placeholder="Title"
                                 name="title"
@@ -154,7 +150,7 @@ export default function AddEventModal({
                                 name="location"
                                 onChange={handleChange}
                             />
-                            <Flex width="full" wrap="wrap" gap={3}>
+                            <div className="flex w-full gap-3 flex-wrap">
                                 <FileUpload
                                     acceptedFileTypes="image/png,image/jpeg,image/jpg,image/webp"
                                     onInputChange={(e) => handleImageChange(e)}
@@ -163,7 +159,7 @@ export default function AddEventModal({
                                     Upload Image
                                 </FileUpload>
                                 {attachment ? (
-                                    <HStack flex="1" maxWidth="100%">
+                                    <div className="flex flex-1 max-w-full items-center gap-2">
                                         <Code
                                             noOfLines={1}
                                             fontWeight="bold"
@@ -171,7 +167,7 @@ export default function AddEventModal({
                                         >
                                             {attachment.name}
                                         </Code>{" "}
-                                        <Text>selected</Text>
+                                        <p>selected</p>
                                         <IconButton
                                             colorScheme="red"
                                             size="sm"
@@ -179,15 +175,15 @@ export default function AddEventModal({
                                             icon={<Icon as={XIcon} w={6} h={6} />}
                                             onClick={removeAttachment}
                                         />
-                                    </HStack>
+                                    </div>
                                 ) : null}
-                            </Flex>
+                            </div>
                             <Textarea
                                 placeholder="Description"
                                 name="description"
                                 onChange={handleChange}
                             />
-                        </VStack>
+                        </div>
                         <Button
                             colorScheme="green"
                             isLoading={isSubmitting}
@@ -196,7 +192,7 @@ export default function AddEventModal({
                         >
                             Add
                         </Button>
-                    </VStack>
+                    </div>
                 </ModalBody>
             </ModalContent>
         </Modal>

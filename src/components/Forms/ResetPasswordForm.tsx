@@ -1,11 +1,6 @@
 import {
     Button,
     Icon,
-    Link as ChakraLink,
-    Stack,
-    Text,
-    VStack,
-    HStack,
     Spinner,
 } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
@@ -91,40 +86,41 @@ export default function ResetPasswordForm({
     };
 
     return (
-        <Stack spacing={10} p={5} rounded="4px" bgColor="bgPrimary">
-            <VStack spacing={3} align="start">
-                <Text fontSize="3xl" fontWeight="semibold">
+        <div className="flex flex-col gap-10 p-5 rounded-[4px] bg-[color:var(--chakra-colors-bgPrimary)]">
+            <div className="flex flex-col gap-3 items-start">
+                <p className="text-3xl font-semibold">
                     Reset password
-                </Text>
+                </p>
                 <NextLink href="/" passHref>
-                    <ChakraLink fontWeight="semibold">
+                    <a className="font-semibold">
                         Changed your mind? Return home
-                    </ChakraLink>
+                    </a>
                 </NextLink>
-            </VStack>
+            </div>
             {loading ? (
-                <VStack width="full">
+                <div className="flex flex-col items-center w-full">
                     <Spinner />
-                </VStack>
+                </div>
             ) : (
                 <>
-                    <HStack spacing={3}>
+                    <div className="flex gap-3">
                         <Avatar
                             src={user?.avatarURL}
                             alt={`${user?.username}'s avatar`}
                             width="55px"
                             height="55px"
                         />
-                        <Text fontSize="xl">
+                        <p className="text-xl">
                             Welcome back{" "}
-                            <Text
-                                as="span"
-                                fontWeight="bold"
-                            >{`${user?.displayName} (@${user?.username})`}</Text>
-                        </Text>
-                    </HStack>
+                            <span
+                                className="font-bold"
+                            >
+                                {`${user?.displayName} (@${user?.username})`}
+                            </span>
+                        </p>
+                    </div>
                     <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
-                        <VStack spacing={5} align="stretch">
+                        <div className="flex flex-col items-stretch gap-5">
                             <Input
                                 placeholder="New Password"
                                 type={passwordHidden ? "password" : "text"}
@@ -161,7 +157,7 @@ export default function ResetPasswordForm({
                                 }
                                 onChange={handleChange}
                             />
-                        </VStack>
+                        </div>
                         <Button
                             alignSelf="stretch"
                             isLoading={isSubmitting}
@@ -176,6 +172,6 @@ export default function ResetPasswordForm({
                     </form>
                 </>
             )}
-        </Stack>
+        </div>
     );
 }

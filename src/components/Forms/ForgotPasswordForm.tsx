@@ -1,11 +1,4 @@
-import {
-    Button,
-    Link as ChakraLink,
-    Stack,
-    Text,
-    VStack,
-    HStack,
-} from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
 import NextLink from "next/link";
@@ -37,22 +30,22 @@ export default function ResetPasswordForm(): ReactElement {
     };
 
     return (
-        <Stack spacing={10} p={5} rounded="4px" bgColor="bgPrimary">
-            <VStack spacing={3} align="start">
-                <Text fontSize="3xl" fontWeight="semibold">
+        <div className="flex flex-col gap-10 p-5 rounded-[4px] bg-[color:var(--chakra-colors-bgPrimary)]">
+            <div className="flex flex-col gap-3 items-start">
+                <p className="text-3xl font-semibold">
                     Forgot your password?
-                </Text>
+                </p>
                 <NextLink href="/login" passHref>
-                    <ChakraLink fontWeight="semibold">
+                    <a className="font-semibold">
                         Remembered your password? Log in
-                    </ChakraLink>
+                    </a>
                 </NextLink>
-            </VStack>
-            <HStack spacing={3}>
-                <Text fontSize="xl">
+            </div>
+            <div className="flex gap-3">
+                <p className="text-xl">
                     Enter your email to receive a recovery link to reset your password.
-                </Text>
-            </HStack>
+                </p>
+            </div>
             <form className="flex flex-col w-full gap-10" onSubmit={handleSubmit}>
                 <Input
                     placeholder="Email"
@@ -73,6 +66,6 @@ export default function ResetPasswordForm(): ReactElement {
                     Send Recovery Email
                 </Button>
             </form>
-        </Stack>
+        </div>
     );
 }

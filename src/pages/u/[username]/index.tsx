@@ -1,11 +1,6 @@
 import {
     Flex,
-    HStack,
-    Text,
-    Image,
     Tag,
-    VStack,
-    Box,
     Spinner,
     ButtonGroup,
     useDisclosure,
@@ -84,7 +79,7 @@ function User({ user }: Props): ReactElement {
                 justify={{ base: "center", "600px": "space-between" }}
                 align="center"
             >
-                <HStack spacing={6}>
+                <div className="flex items-center gap-6">
                     <Avatar
                         src={user.avatarURL}
                         alt={`${user.username}'s avatar`}
@@ -92,17 +87,17 @@ function User({ user }: Props): ReactElement {
                         height="100px"
                     />
                     <Flex height="full" minWidth={0} gap={2} direction="column" align="start">
-                        <Box minWidth={0}>
+                        <div className="min-w-0">
                             <p className="font-semibold text-2xl max-w-full break-all">
                                 {user.displayName}
                             </p>
-                            <Text fontSize="md" color="textMain" fontWeight="semibold">
+                            <p className="text-md font-semibold text-[color:var(--chakra-colors-textMain)]">
                                 @{user.username}
-                            </Text>
-                        </Box>
+                            </p>
+                        </div>
                         <Tags user={user} />
                     </Flex>
-                </HStack>
+                </div>
                 <ButtonGroup
                     colorScheme="accent"
                     size="sm"
@@ -162,9 +157,9 @@ function Posts({ user }: Props): ReactElement {
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack width="full" my={3}>
+                <div className="flex flex-col w-full items-center my-3 gap-2">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -189,18 +184,18 @@ function Posts({ user }: Props): ReactElement {
 
     if (!isValidating && data?.[0].posts?.length === 0)
         return (
-            <VStack width="full" textAlign="center" spacing={8}>
-                <Box boxSize="250px">
-                    <Image
-                        fit="cover"
+            <div className="flex flex-col gap-8 items-center text-center w-full">
+                <div className="w-[250px] h-[250px]">
+                    <img
+                        className="object-cover"
                         src="/graphics/Something_Went_Wrong.avif"
                         alt="No posts found graphic"
                     />
-                </Box>
-                <Text fontSize="3xl" fontWeight="bold">
+                </div>
+                <p className="text-3xl font-bold">
                     This user has not posted yet
-                </Text>
-            </VStack>
+                </p>
+            </div>
         );
 
     return (
@@ -262,10 +257,10 @@ export default function Profile({ user }: Props): ReactElement {
                     ],
                 }}
             />
-            <VStack spacing={6} align="start" flex="7">
+            <div className="flex w-full flex-col gap-6 items-start flex-7">
                 <User user={user} />
                 <Posts user={user} />
-            </VStack>
+            </div>
         </Flex>
     );
 }

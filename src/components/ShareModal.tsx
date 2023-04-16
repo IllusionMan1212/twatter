@@ -1,15 +1,14 @@
 import {
-    Link as ChakraLink,
     Modal,
     ModalOverlay,
     ModalContent,
     ModalBody,
-    ModalHeader,
 } from "@chakra-ui/react";
 import FacebookLogo from "@phosphor-icons/react/dist/icons/FacebookLogo";
 import RedditLogo from "@phosphor-icons/react/dist/icons/RedditLogo";
 import TwitterLogo from "@phosphor-icons/react/dist/icons/TwitterLogo";
 import { ComponentType, memo, ReactElement } from "react";
+import ModalHeader from "src/components/Modal/ModalHeader";
 
 const facebookSharerPrefix = "https://facebook.com/sharer/sharer.php?u=";
 const redditSharerPrefix = "https://reddit.com/submit?title=";
@@ -39,12 +38,12 @@ interface ShareLinkProps {
 
 function ShareLink({ title, href, Icon }: ShareLinkProps): ReactElement {
     return (
-        <ChakraLink href={href} isExternal>
+        <a href={href} target="_blank" rel="noreferrer">
             <div className="flex flex-col w-20 space-y-1 items-center">
                 <Icon />
                 <p className="text-sm">{title}</p>
             </div>
-        </ChakraLink>
+        </a>
     );
 }
 

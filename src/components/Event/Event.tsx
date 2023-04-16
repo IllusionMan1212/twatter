@@ -1,10 +1,6 @@
 import {
     Box,
-    Flex,
-    Text,
     Spacer,
-    HStack,
-    VStack,
     Icon,
     Button,
     Badge,
@@ -59,18 +55,7 @@ export default function Event({
     const isExpired = Date.now() >= new Date(date).getTime();
 
     return (
-        <Flex
-            position="relative"
-            rounded="4px"
-            overflow="hidden"
-            direction="column"
-            gap={6}
-            p={5}
-            pb={4}
-            align="start"
-            width="full"
-            color="gray.100"
-        >
+        <div className="flex flex-col relative rounded overflow-hidden gap-6 p-5 pb-4 items-start w-full text-[color:var(--chakra-colors-gray-100)]">
             {imageURL ? (
                 <Box
                     width="full"
@@ -86,29 +71,17 @@ export default function Event({
                     bgSize="cover"
                 />
             ) : (
-                <Box
-                    width="full"
-                    height="full"
-                    position="absolute"
-                    top={0}
-                    right={0}
-                    zIndex={-1}
-                    bgImg="linear-gradient(135deg, #81FFEF 10%, #F067B4 100%)"
+                <div
+                    className="w-full h-full absolute top-0 right-0 -z-[1] bg-gradient-135 from-[#81FFEF] from-10% to-[#F067B4]"
                 />
             )}
-            <Box
-                position="absolute"
-                zIndex={-1}
-                top={0}
-                right={0}
-                width="full"
-                height="full"
-                bgColor="rgba(0, 0, 0, 0.45)"
+            <div
+                className="absolute -z-[1] top-0 right-0 w-full h-full bg-[rgba(0,0,0,0.45)]"
             />
-            <HStack width="full" align="space-between">
-                <Text fontWeight="semibold" noOfLines={1} fontSize="18px">
+            <div className="flex w-full items-between">
+                <p className="font-semibold text-lg truncate">
                     {title}
-                </Text>
+                </p>
                 {isExpired ? (
                     <Badge
                         position="absolute"
@@ -120,23 +93,23 @@ export default function Event({
                         Expired
                     </Badge>
                 ) : null}
-            </HStack>
+            </div>
             <Spacer />
-            <HStack width="full" justify="space-between" align="flex-end">
-                <VStack align="start" spacing={0}>
-                    <Flex align="center" gap={1}>
+            <div className="flex w-full justify-between items-end">
+                <div className="flex flex-col items-start gap-0">
+                    <div className="flex items-center gap-1">
                         <Icon as={ClockIcon} />
-                        <Text fontSize="sm">{formatEventDate(date)}</Text>
-                    </Flex>
-                    <Flex align="center" gap={1}>
+                        <p className="text-sm">{formatEventDate(date)}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
                         <Icon as={LocationIcon} />
-                        <Text fontSize="sm">{location}</Text>
-                    </Flex>
-                </VStack>
+                        <p className="text-sm">{location}</p>
+                    </div>
+                </div>
                 <Button size="sm" colorScheme="button" onClick={onOpen}>
                     See Details
                 </Button>
-            </HStack>
+            </div>
             <EventModal
                 isOpen={isOpen}
                 onClose={onClose}
@@ -152,6 +125,6 @@ export default function Event({
                     mutateEvents,
                 }}
             />
-        </Flex>
+        </div>
     );
 }

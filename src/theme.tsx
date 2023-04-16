@@ -238,12 +238,7 @@ const theme = extendTheme({
     },
     shadows: {
         header: "0 4px 4px rgba(0, 0, 0, 0.15)",
-        conversationHeader: "0 2px 2px rgba(0, 0, 0, 0.07)",
-        conversationFooter: "0 -2px 2px rgba(0, 0, 0, 0.07)",
         nav: "0 -2px 4px rgba(0, 0, 0, 0.15)",
-    },
-    radii: {
-        compose: "8px",
     },
     fonts,
     breakpoints,

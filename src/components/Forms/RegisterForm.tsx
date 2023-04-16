@@ -1,4 +1,4 @@
-import { Button, Icon, Stack, VStack } from "@chakra-ui/react";
+import { Button, Icon } from "@chakra-ui/react";
 import { EyeOffIcon, EyeIcon } from "@heroicons/react/solid";
 import { FormEvent, ReactElement, useState } from "react";
 import Input from "src/components/Controls/Input";
@@ -81,8 +81,8 @@ export default function RegisterForm(): ReactElement {
     };
 
     return (
-        <Stack spacing={10} p={5} rounded="4px" bgColor="bgPrimary">
-            <VStack spacing={3} align="start">
+        <div className="flex flex-col gap-10 p-5 rounded-[4px] bg-[color:var(--chakra-colors-bgPrimary)]">
+            <div className="flex flex-col gap-3 items-start">
                 <p className="text-3xl font-semibold">
                     Sign Up
                 </p>
@@ -91,9 +91,9 @@ export default function RegisterForm(): ReactElement {
                         Already a member? Log in
                     </a>
                 </NextLink>
-            </VStack>
+            </div>
             <form className="flex flex-col gap-10" onSubmit={handleSignup}>
-                <VStack spacing={5} align="stretch">
+                <div className="flex flex-col gap-5 items-stretch">
                     <Input
                         placeholder="Username"
                         name="username"
@@ -145,7 +145,7 @@ export default function RegisterForm(): ReactElement {
                         }
                         onChange={handleChange}
                     />
-                </VStack>
+                </div>
                 <Button
                     isLoading={isSubmitting}
                     loadingText="Submitting"
@@ -157,6 +157,6 @@ export default function RegisterForm(): ReactElement {
                     Sign up
                 </Button>
             </form>
-        </Stack>
+        </div>
     );
 }

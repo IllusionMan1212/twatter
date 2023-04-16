@@ -5,16 +5,13 @@ import {
     TabPanels,
     Tabs,
     TabPanel,
-    VStack,
     Spinner,
-    Image,
     Select,
     ModalOverlay,
     Modal,
     ModalContent,
     ModalBody,
     useDisclosure,
-    ModalHeader,
     ModalFooter,
     Collapse,
     IconButton as ChakraIconButton
@@ -41,6 +38,7 @@ import IconButton from "../IconButton";
 import toast from "react-hot-toast";
 import { KeyedMutator } from "swr";
 import { axiosInstance } from "src/utils/axios";
+import ModalHeader from "src/components/Modal/ModalHeader";
 
 interface EmbeddedPostProps {
     post: IReportPost;
@@ -142,9 +140,9 @@ function ListOfReportersModal({
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack py={4} width="full">
+                <div className="flex flex-col gap-2 py-4 w-full items-center">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -383,9 +381,9 @@ function PendingReports(): ReactElement {
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack py={4} width="full">
+                <div className="flex flex-col gap-2 items-center py-4 w-full">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -415,9 +413,9 @@ function PendingReports(): ReactElement {
 
     if (!isValidating && data?.[0]?.reports.length === 0) {
         return (
-            <VStack width="full" spacing={4} textAlign="center">
-                <Image
-                    fit="cover"
+            <div className="flex flex-col gap-4 items-center w-full text-center">
+                <img
+                    className="object-cover"
                     width="250px"
                     src="/graphics/Deleted.avif"
                     alt="List is empty graphic"
@@ -425,7 +423,7 @@ function PendingReports(): ReactElement {
                 <p className="font-bold text-3xl">
                     There are no pending reports
                 </p>
-            </VStack>
+            </div>
         );
     }
 
@@ -506,9 +504,9 @@ function ResolvedReports(): ReactElement {
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack py={4} width="full">
+                <div className="flex flex-col gap-2 items-center py-4 w-full">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -538,9 +536,9 @@ function ResolvedReports(): ReactElement {
 
     if (!isValidating && data?.[0]?.reports.length === 0) {
         return (
-            <VStack width="full" spacing={4} textAlign="center">
-                <Image
-                    fit="cover"
+            <div className="flex flex-col gap-4 items-center w-full text-center">
+                <img
+                    className="object-cover"
                     width="250px"
                     src="/graphics/Deleted.avif"
                     alt="List is empty graphic"
@@ -548,7 +546,7 @@ function ResolvedReports(): ReactElement {
                 <p className="font-bold text-3xl">
                     There are no resolved reports
                 </p>
-            </VStack>
+            </div>
         );
     }
 

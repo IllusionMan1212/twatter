@@ -1,4 +1,4 @@
-import { Box, Button, Flex, HStack, Icon, Text } from "@chakra-ui/react";
+import { Button, Flex, Icon } from "@chakra-ui/react";
 import { ComponentProps, MouseEventHandler, ReactElement } from "react";
 import { SettingItem } from "src/types/interfaces";
 
@@ -39,23 +39,14 @@ export default function SettingsItem({
             rounded={{ base: 0, md: "4px" }}
             onClick={onClick}
         >
-            <Box
-                display={isActive ? "initial" : "none"}
-                position="absolute"
-                top={0}
-                left={0}
-                height="full"
-                width="6px"
-                rounded="4px 0 0 4px"
-                bgColor="accent.500"
-            />
-            <HStack>
+            <div className={`${isActive ? "block" : "hidden"} absolute top-0 left-0 h-full w-[6px] rounded-[4px_0_0_4px] bg-[color:var(--chakra-colors-accent-500)]`}/>
+            <div className="flex gap-2 items-center">
                 <Icon as={icon} h="24px" w="24px" />
-                <Text fontWeight="semibold">{title}</Text>
-            </HStack>
-            <Text fontSize="xs" whiteSpace="normal" color="textMain">
+                <p className="font-semibold">{title}</p>
+            </div>
+            <p className="text-xs whitespace-normal text-[color:var(--chakra-colors-textMain)]">
                 {desc}
-            </Text>
+            </p>
         </Flex>
     );
 }

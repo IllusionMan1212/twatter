@@ -2,7 +2,6 @@ import {
     Button,
     Icon,
     IconButton,
-    Link as ChakraLink,
     useMediaQuery,
 } from "@chakra-ui/react";
 import {
@@ -37,7 +36,7 @@ export default function NavItem({
         <NextLink href={href} passHref>
             {isLargerThanMd ? (
                 <Button
-                    as={ChakraLink}
+                    as="a"
                     justifyContent="flex-start"
                     py={6}
                     minWidth="200px"
@@ -58,7 +57,7 @@ export default function NavItem({
                     <IconButton
                         variant="ghost"
                         aria-label={ariaLabel ?? ""}
-                        as={ChakraLink}
+                        as="a"
                         icon={<Icon as={icon} w="26px" h="26px" />}
                     />
                     {indicator}
@@ -84,7 +83,7 @@ export function DrawerNavItem({
             {href !== null ? (
                 <NextLink href={href} passHref>
                     <Button
-                        as={ChakraLink}
+                        as="a"
                         justifyContent="flex-start"
                         py={6}
                         leftIcon={<Icon as={icon} w="26px" h="26px" />}

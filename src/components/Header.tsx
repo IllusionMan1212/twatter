@@ -1,13 +1,8 @@
 import {
     Button,
     Container,
-    HStack,
-    Stack,
-    Text,
-    Link as ChakraLink,
     LinkOverlay,
     LinkBox,
-    Flex,
     Box,
     Icon,
     Menu,
@@ -71,17 +66,17 @@ const UserDropDownCardButton = ((
                 />
             }
         >
-            <HStack>
+            <div className="flex gap-2 items-center">
                 <Avatar
                     src={props.user?.avatarURL}
                     alt={`${props.user?.username}'s avatar`}
                     width="45px"
                     height="45px"
                 />
-                <Text display={{ md: "none", lg: "initial" }}>
+                <p className="hidden lg:[display:initial]">
                     {props.user?.displayName}
-                </Text>
-            </HStack>
+                </p>
+            </div>
         </MenuButton>
     );
 }) as CustomMenuButton;
@@ -99,10 +94,7 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
                         <Portal>
                             <MenuList zIndex={3}>
                                 <NextLink href={`/@${props.user?.username}`} passHref>
-                                    <MenuItem
-                                        as={ChakraLink}
-                                        _hover={{ textDecoration: "none" }}
-                                    >
+                                    <MenuItem as="a">
                                         <Icon
                                             mr={3}
                                             as={UserIconOutline}
@@ -113,10 +105,7 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
                                     </MenuItem>
                                 </NextLink>
                                 <NextLink href="/settings" passHref>
-                                    <MenuItem
-                                        as={ChakraLink}
-                                        _hover={{ textDecoration: "none" }}
-                                    >
+                                    <MenuItem as="a">
                                         <Icon
                                             mr={3}
                                             as={CogIconOutline}
@@ -157,27 +146,22 @@ const UserDropDown = ((props: BoxProps & UserDropDownProps) => {
 
 export function LoggedOutHeader(): ReactElement {
     return (
-        <Stack
-            bgColor="bgMain"
-            position="sticky"
-            top="0"
-            zIndex={3}
-        >
+        <div className="flex sticky top-0 z-[3] bg-[color:var(--chakra-colors-bgMain)]">
             <Container maxWidth="8xl" py={2}>
-                <HStack justify="space-between">
+                <div className="flex gap-2 items-center justify-between">
                     <LinkBox>
                         <NextLink href="/" passHref>
                             <LinkOverlay>
-                                <Text fontSize="2xl" fontWeight="bold">
+                                <p className="text-2xl font-bold">
                                     Twatter
-                                </Text>
+                                </p>
                             </LinkOverlay>
                         </NextLink>
                     </LinkBox>
-                    <HStack>
+                    <div className="flex gap-2 items-center">
                         <NextLink href="/login" passHref>
                             <Button
-                                as={ChakraLink}
+                                as="a"
                                 colorScheme="button"
                                 variant="outline"
                                 sx={{ "&:hover": { textDecoration: "none" } }}
@@ -187,17 +171,17 @@ export function LoggedOutHeader(): ReactElement {
                         </NextLink>
                         <NextLink href="/register" passHref>
                             <Button
-                                as={ChakraLink}
+                                as="a"
                                 colorScheme="button"
                                 sx={{ "&:hover": { textDecoration: "none" } }}
                             >
                                 Sign up
                             </Button>
                         </NextLink>
-                    </HStack>
-                </HStack>
+                    </div>
+                </div>
             </Container>
-        </Stack>
+        </div>
     );
 }
 
@@ -236,14 +220,9 @@ export function LoggedInHeader(): ReactElement {
     };
 
     return (
-        <Stack
-            bgColor="bgMain"
-            position="sticky"
-            top="0"
-            zIndex={3}
-        >
+        <div className="flex sticky top-0 z-[3] bg-[color:var(--chakra-colors-bgMain)]">
             <Container maxWidth="8xl" py={2}>
-                <Flex align="center" justify="space-between">
+                <div className="flex items-center justify-between">
                     <LinkBox
                         display={{ base: "none", md: "initial" }}
                         width={{ base: "initial", md: "25%" }}
@@ -254,36 +233,23 @@ export function LoggedInHeader(): ReactElement {
                                 width="fit-content"
                                 _before={{ width: "fit-content" }}
                             >
-                                <Text fontSize="2xl" fontWeight="bold">
+                                <p className="text-2xl font-bold">
                                     Twatter
-                                </Text>
+                                </p>
                             </LinkOverlay>
                         </NextLink>
                     </LinkBox>
-                    <Box
-                        display={{ base: "none", md: "initial" }}
-                        width={{ md: "35%", xl: "40%" }}
-                    >
+                    <div className="hidden md:[display:initial] md:w-[35%] xl:w-[40%]">
                         <SearchBar size="md" withButton showRecent onSubmit={handleSearchSubmit} />
-                    </Box>
-                    <Flex
-                        gap={7}
-                        align="center"
-                        marginLeft={{ md: "auto" }}
-                        display={{ base: "none", md: "initial" }}
-                    >
+                    </div>
+                    <div className="hidden md:flex gap-7 items-center md:ml-auto">
                         <UserDropDown user={user} />
-                    </Flex>
-                    <Flex
-                        display={{ base: "flex", md: "none" }}
-                        width="full"
-                        justify="space-between"
-                        align="center"
-                    >
-                        <Text fontSize="xl" fontWeight="bold">
+                    </div>
+                    <div className="flex md:hidden w-full justify-between items-center">
+                        <p className="text-xl font-bold">
                             {routesTitles[router.pathname]}
-                        </Text>
-                        <Flex>
+                        </p>
+                        <div className="flex">
                             <NavItem
                                 href="/messages"
                                 ariaLabel="Messages"
@@ -296,10 +262,10 @@ export function LoggedInHeader(): ReactElement {
                                 icon={BellIcon}
                                 indicator={<UnreadIndicator position="top-0 right-0" count={unreadNotifications?.count ?? 0} />}
                             />
-                        </Flex>
-                    </Flex>
-                </Flex>
+                        </div>
+                    </div>
+                </div>
             </Container>
-        </Stack>
+        </div>
     );
 }

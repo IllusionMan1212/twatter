@@ -1,4 +1,4 @@
-import { ButtonGroup, LinkBox, LinkOverlay, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, VStack } from "@chakra-ui/react";
+import { ButtonGroup, LinkBox, LinkOverlay, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay, Spinner } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { IFollowUser } from "src/types/interfaces";
@@ -11,6 +11,7 @@ import FollowButton from "./FollowButton";
 import NextLink from "next/link";
 import MessageButton from "./MessageButton";
 import { fetcher } from "src/utils/axios";
+import ModalHeader from "src/components/Modal/ModalHeader";
 import styles from "src/styles/userProfile.module.scss";
 
 interface UserProps {
@@ -77,9 +78,9 @@ export function FollowersModal({ isOpen, onClose, userId }: ModalProps): ReactEl
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack py={4} width="full">
+                <div className="flex flex-col items-center gap-2 py-4 w-full">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -122,7 +123,7 @@ export function FollowersModal({ isOpen, onClose, userId }: ModalProps): ReactEl
                         </div>
                     )}
                     {error ? (
-                        <div>
+                        <div className="flex items-center">
                             <p className="font-bold">
                                 {error.response?.data.message ??
                                     "An error occurred while fetching followers"}
@@ -170,9 +171,9 @@ export function FollowingModal({ isOpen, onClose, userId }: ModalProps): ReactEl
     const Footer = (): ReactElement | null => {
         if (!reachedEnd)
             return (
-                <VStack py={4} width="full">
+                <div className="flex flex-col gap-2 items-center py-4 w-full">
                     <Spinner size="lg" />
-                </VStack>
+                </div>
             );
 
         return null;
@@ -215,7 +216,7 @@ export function FollowingModal({ isOpen, onClose, userId }: ModalProps): ReactEl
                         </div>
                     )}
                     {error ? (
-                        <div>
+                        <div className="flex items-center">
                             <p className="font-bold">
                                 {error.response?.data.message ??
                                     "An error occurred while fetching following"}

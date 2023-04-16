@@ -1,7 +1,4 @@
 import {
-    Grid,
-    GridItem,
-    Link as ChakraLink,
     Modal,
     ModalOverlay,
     ModalContent,
@@ -48,14 +45,10 @@ const CommentModal = memo(function CommentModal({
             <ModalContent bgColor="bgPrimary">
                 <ModalBody py={6} px={0}>
                     <div className="flex flex-col px-5 space-y-2">
-                        <Grid
-                            width="full"
-                            rowGap={3}
-                            templateColumns="1fr"
-                        >
-                            <GridItem minWidth={0} colStart={1} colEnd={2}>
+                        <div className="grid grid-cols-1 w-full gap-y-3">
+                            <div className="min-w-0 col-start-1 col-end-2">
                                 <NextLink href={`/@${post.author.username}`} passHref>
-                                    <ChakraLink>
+                                    <a className="hover:underline">
                                         <div className="flex space-x-3 items-center">
                                             <Avatar
                                                 src={post.author.avatarURL}
@@ -72,41 +65,38 @@ const CommentModal = memo(function CommentModal({
                                                 </p>
                                             </div>
                                         </div>
-                                    </ChakraLink>
+                                    </a>
                                 </NextLink>
-                            </GridItem>
+                            </div>
                             {post.parentAuthorUsername ? (
-                                <GridItem colStart={1} colEnd={3}>
+                                <div className="col-start-1 col-end-3">
                                     <p className="text-sm break-words whitespace-pre-line text-[color:var(--chakra-colors-textMain)]">
                                         Replying to{" "}
                                         <NextLink
                                             href={`/@${post.parentAuthorUsername}`}
                                             passHref
                                         >
-                                            <ChakraLink
-                                                fontWeight="semibold"
-                                                color="var(--chakra-colors-accent-500)"
-                                            >
+                                            <a className="text-[color:var(--chakra-colors-accent-500)] font-semibold hover:underline">
                                                 @{post.parentAuthorUsername}
-                                            </ChakraLink>
+                                            </a>
                                         </NextLink>
                                     </p>
-                                </GridItem>
+                                </div>
                             ) : null}
-                            <GridItem colStart={1} colEnd={4}>
+                            <div className="col-start-1 col-end-4">
                                 <p className="text-xl [overflow-wrap:anywhere] whitespace-pre-line">
                                     {HTMLToJSX(post.content, parsingOptions)}
                                 </p>
-                            </GridItem>
+                            </div>
                             {post.attachments ? (
-                                <GridItem colStart={1} colEnd={4}>
+                                <div className="col-start-1 col-end-4">
                                     <Attachments attachments={post.attachments} />
-                                </GridItem>
+                                </div>
                             ) : null}
-                            <GridItem colStart={1} colEnd={4}>
+                            <div className="col-start-1 col-end-4">
                                 <FullDate ISODate={post.createdAt} />
-                            </GridItem>
-                        </Grid>
+                            </div>
+                        </div>
                     </div>
                     <Divider my={4} height="1px" bgColor="bgSecondary" />
                     <CommentBox cb={cb} parentPostId={post.id} ref={initialFocusRef} />

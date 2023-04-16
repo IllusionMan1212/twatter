@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { Divider, Flex, VStack, Text, HStack } from "@chakra-ui/react";
+import { Divider } from "@chakra-ui/react";
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import BellSimple from "@phosphor-icons/react/dist/icons/BellSimple";
@@ -95,35 +95,19 @@ export default function Settings(): ReactElement {
     }, [router.query.setting]);
 
     return (
-        <Flex gap="10" position="relative">
-            <Flex
-                gap={4}
-                direction="column"
-                height={{
-                    base: "calc(100vh - var(--chakra-headerHeight-mobile) - var(--chakra-navBarHeight))",
-                    lg: "calc(100vh - var(--chakra-headerHeight-desktop) - 2.5rem)"
-                }}
-                align="center"
-                flex="4"
+        <div className="flex gap-10 relative">
+            <div
+                className="flex gap-4 flex-col items-center flex-[4] h-[calc(100vh_-_var(--chakra-headerHeight-mobile)_-_var(--chakra-navBarHeight))] lg:calc(100vh_-_var(--chakra-headerHeight-desktop)_-_2.5rem)"
             >
-                <VStack
-                    display={{ base: "none", lg: "initial" }}
-                    align="start"
-                    width="full"
-                >
-                    <HStack width="full" justify="space-between">
-                        <Text fontSize="xl" fontWeight="semibold">
+                <div className="lg:flex flex-col items-start w-full gap-2 hidden">
+                    <div className="flex w-full justify-between">
+                        <p className="text-xl font-semibold">
                             Settings
-                        </Text>
-                    </HStack>
+                        </p>
+                    </div>
                     <Divider height="1px" bgColor="bgSecondary" />
-                </VStack>
-                <VStack
-                    width="full"
-                    overflowY="scroll"
-                    spacing={{ base: 0, md: 1 }}
-                    align="start"
-                >
+                </div>
+                <div className="flex flex-col w-full items-start md:gap-1 overflow-y-scroll">
                     {settings.map((setting) => (
                         <SettingsItem
                             key={setting.id}
@@ -138,17 +122,11 @@ export default function Settings(): ReactElement {
                             }}
                         />
                     ))}
-                </VStack>
-            </Flex>
-            <VStack
-                display={{
-                    base: activeSetting ? "initial" : "none",
-                    lg: "initial",
-                }}
-                flex="7"
-            >
+                </div>
+            </div>
+            <div className={`flex-col flex-[7] ${activeSetting ? "flex" : "hidden"} lg:flex gap-2 items-center`}>
                 {activeSetting && <SettingArea settingItem={activeSetting} />}
-            </VStack>
-        </Flex>
+            </div>
+        </div>
     );
 }

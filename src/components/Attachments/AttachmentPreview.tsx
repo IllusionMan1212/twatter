@@ -1,4 +1,4 @@
-import { Flex, Icon, IconButton, Image } from "@chakra-ui/react";
+import { Icon, IconButton, Image } from "@chakra-ui/react";
 import { XIcon } from "@heroicons/react/outline";
 import { ReactElement } from "react";
 
@@ -21,10 +21,10 @@ export default function AttachmentPreview({
                     "absolute top-0 right-0 rounded-md w-[100%] h-[100%] bg-black/30"
                 }
             />
-            <Flex
-                as={IconButton}
+            <IconButton
                 icon={<Icon as={XIcon} w={6} h={6} />}
                 size="sm"
+                aria-label="Remove"
                 justifyContent="center"
                 alignItems="center"
                 colorScheme="red"

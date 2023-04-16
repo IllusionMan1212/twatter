@@ -1,4 +1,4 @@
-import { Box, Button, Flex, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+import { Button, Flex, useColorModeValue } from "@chakra-ui/react";
 import { MouseEventHandler, ReactElement, useState } from "react";
 import RelativeTime from "src/components/Post/RelativeTime";
 import Avatar from "src/components/User/Avatar";
@@ -20,7 +20,7 @@ const parsingOptions = {
     replace: (domNode: unknown) => {
         if (domNode instanceof Element && domNode.name === "a") {
             return (
-                <p>{domToReact(domNode.children)}</p>
+                <>{domToReact(domNode.children)}</>
             );
         }
     },
@@ -54,18 +54,9 @@ export default function Conversation(props: ConversationProps): ReactElement {
             onMouseOver={() => setHovering(true)}
             onMouseOut={() => setHovering(false)}
         >
-            <Box
-                display={props.isActive ? "initial" : "none"}
-                position="absolute"
-                top={0}
-                left={0}
-                height="full"
-                width="6px"
-                bgColor="accent.500"
-                rounded="4px 0 0 4px"
-            />
-            <Flex gap={3} width="full" minWidth={0} direction="column">
-                <HStack minWidth={0}>
+            <div className={`${props.isActive ? "block" : "hidden"} absolute top-0 left-0 h-full w-[6px] rounded-[4px_0_0_4px] bg-[color:var(--chakra-colors-accent-500)]`} />
+            <div className="flex flex-col gap-3 w-full min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
                     <div className="relative">
                         <Avatar
                             src={props.recipientAvatarURL}
@@ -76,34 +67,17 @@ export default function Conversation(props: ConversationProps): ReactElement {
                         />
                         <UnreadIndicator position="-bottom-1 -right-1" count={props.unreadMessages} />
                     </div>
-                    <Text
-                        color="text"
-                        fontWeight={props.isActive ? "bold" : "semibold"}
-                        className="truncate max-w-full"
-                    >
+                    <p className={`${props.isActive ? "font-bold" : "font-semibold"} truncate max-w-full text-[color:var(--chakra-colors-text)]`}>
                         {props.recipientName}
-                    </Text>
-                </HStack>
-                <Text
-                    color={"textMain"}
-                    wordBreak="break-all"
-                    whiteSpace="normal"
-                    fontWeight="400"
-                    fontSize="xs"
-                    noOfLines={1}
-                >
+                    </p>
+                </div>
+                <p className="truncate max-w-full text-xs break-all text-[color:var(--chakra-colors-textMain)] font-normal">
                     {parse(props.lastMessage, parsingOptions)}
-                </Text>
-            </Flex>
-            <Text
-                top={3}
-                right={3}
-                color={"textSecondary"}
-                fontWeight="semibold"
-                fontSize="xs"
-            >
+                </p>
+            </div>
+            <p className="top-[3] right-[3] text-xs font-semibold text-[color:var(--chakra-colors-textSecondary)]">
                 <RelativeTime date={props.updatedAt} type="conversation" />
-            </Text>
+            </p>
         </Flex>
     );
 }

@@ -1,4 +1,3 @@
-import { HStack, VStack, Text } from "@chakra-ui/react";
 import { ReactElement } from "react";
 import toast from "react-hot-toast";
 import Switch from "src/components/Controls/Switch";
@@ -63,26 +62,26 @@ export default function PrivacySettings(): ReactElement {
     };
 
     return (
-        <VStack align="start" width="full" p={2} spacing={6}>
-            <Text fontSize="xl" fontWeight="bold">
+        <div className="flex flex-col gap-6 p-2 items-start w-full">
+            <p className="text-xl font-bold">
                 Messaging
-            </Text>
-            <VStack width="full" align="start" spacing={4}>
-                <HStack width="full" justify="space-between">
-                    <Text fontSize="lg">Allow Anyone to Message You</Text>
+            </p>
+            <div className="flex flex-col gap-4 items-start w-full">
+                <div className="flex gap-2 items-center w-full justify-between">
+                    <p className="text-lg">Allow Anyone to Message You</p>
                     <Switch
                         isChecked={user?.settings?.allowAllDMs}
                         onChange={toggleAllowAllDMs}
                     />
-                </HStack>
-                <HStack width="full" justify="space-between">
-                    <Text fontSize="lg">Read receipts</Text>
+                </div>
+                <div className="flex gap-2 items-center w-full justify-between">
+                    <p className="text-lg">Read receipts</p>
                     <Switch
                         isChecked={user?.settings?.readReceipts}
                         onChange={toggleReadReceipts}
                     />
-                </HStack>
-            </VStack>
-        </VStack>
+                </div>
+            </div>
+        </div>
     );
 }
