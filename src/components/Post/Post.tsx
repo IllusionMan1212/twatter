@@ -26,6 +26,8 @@ import Link from "next/link";
 import BigNumber from "src/components/BigNumber";
 import IconButton from "src/components/IconButton";
 import { axiosInstance } from "src/utils/axios";
+import Embed from "react-embed";
+import { Metadata } from "metascraper";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -48,6 +50,7 @@ function LikeIcon({ liked }: LikeIconProps) {
 export interface PostProps {
     id: string;
     content: string;
+    ogData: Metadata[] | null;
     author: IPostAuthor;
     createdAt: string;
     attachments: IAttachment[] | null;
@@ -256,6 +259,7 @@ export default function Post(props: PostProps): ReactElement {
                                     <Attachments attachments={props.attachments} />
                                 </div>
                             ) : null}
+                            <Embed url={props.ogData?.[0]?.url ?? ""} />
                         </div>
                     </div>
                     <div className="flex w-full justify-between items-end">

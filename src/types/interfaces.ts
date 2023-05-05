@@ -1,4 +1,5 @@
 import { MessageAttachment, ReportResolveReason } from "@prisma/client";
+import { Metadata } from "metascraper";
 import { ComponentType } from "react";
 
 interface IUserSettings {
@@ -82,6 +83,7 @@ export interface IAttachment {
 export interface IPost {
     id: string;
     content: string;
+    ogData: Metadata[] | null;
     authorId: string;
     authorName: string;
     authorUsername: string;

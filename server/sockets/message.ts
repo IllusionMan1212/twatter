@@ -72,7 +72,7 @@ export const handleMessage = (
             return;
         }
 
-        message = linkUrls(htmlEscape(message));
+        message = (await linkUrls(htmlEscape(message))).val;
 
         const newMessage = await createMessage(message, attachment, data.conversationId, socket.userId, data.recipientId);
 

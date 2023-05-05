@@ -35,6 +35,7 @@ import HTMLToJSX from "html-react-parser";
 import BigNumber from "src/components/BigNumber";
 import useSWR from "swr";
 import { axiosInstance, fetcher } from "src/utils/axios";
+import Embed from "react-embed";
 
 function ChatIcon() {
     return <Chat weight="bold" size="20" color="grey" />;
@@ -198,6 +199,7 @@ function ParentsThreads({ originalPostId }: ParentsThreadsProps): ReactElement {
                             displayName: parent.authorName,
                             avatarURL: parent.authorAvatarURL,
                         }}
+                        ogData={parent.ogData}
                         isScrolling={false}
                         attachments={parent.attachments}
                         createdAt={parent.createdAt}
@@ -341,6 +343,7 @@ function OriginalPost({ post, commentBoxRef }: OriginalPostProps): ReactElement 
                                 <Attachments attachments={post.attachments} />
                             </Box>
                         ) : null}
+                        <Embed url={post.ogData?.[0].url ?? ""} />
                         <HStack width="full" justifyContent="space-between">
                             <PostDate postDate={post.createdAt} />
                             <ButtonGroup variant="ghost" justifyContent="end" spacing={2}>
@@ -473,6 +476,7 @@ function Comments({ swr }: CommentsProps): ReactElement {
                                 displayName: comment.authorName,
                                 avatarURL: comment.authorAvatarURL,
                             }}
+                            ogData={comment.ogData}
                             isScrolling={isScrolling}
                             attachments={comment.attachments}
                             createdAt={comment.createdAt}
@@ -516,6 +520,8 @@ export default function PostPage({ post }: Props): ReactElement {
     const cb = async () => {
         await swr.mutate();
     };
+
+    console.log(post);
 
     return (
         <Flex gap="10">

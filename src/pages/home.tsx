@@ -113,6 +113,7 @@ function Posts({ swr }: PostsProps): ReactElement {
                         displayName: post.authorName,
                         avatarURL: post.authorAvatarURL,
                     }}
+                    ogData={post.ogData}
                     isScrolling={isScrolling}
                     attachments={post.attachments}
                     createdAt={post.createdAt}

@@ -56,7 +56,7 @@ export async function addEvent(req: Request, res: Response) {
         imagePath = `${dir}/${fileName}.${ext}`;
     }
 
-    const error = await addEventDB(id.toString(), data.data.title, data.data.description, data.data.location, data.data.time, imageURL);
+    const error = await addEventDB(id.toString(), data.data.title, data.data.description.val, data.data.location, data.data.time, imageURL);
 
     if (error === DatabaseError.UNKNOWN) {
         if (imagePath) {

@@ -2,12 +2,13 @@ import { Post, PostAttachment, Prisma, ReportReason } from "@prisma/client";
 import { Attachment } from "../controllers/utils/posts";
 import { prisma } from "./client";
 import { DatabaseError } from "./utils";
+import { Metadata } from "metascraper";
 
 export const queryUserPosts = async (sessionUserId: string | undefined, userId: string, page: number): Promise<Post[]> => {
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${sessionUserId}) as liked` : Prisma.sql`false as liked`;
 
     return await prisma.$queryRaw`
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
@@ -33,7 +34,7 @@ export const queryUserPosts = async (sessionUserId: string | undefined, userId: 
 
 export const queryPosts = async (userId: string, page: number): Promise<Post[]> => {
     return await prisma.$queryRaw`
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
@@ -69,7 +70,7 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
         WHERE p.deleted = false AND (p."authorId" = ${userId} OR p."authorId" = f."followingId")
         ORDER BY "createdAt" ASC
     )
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     JSON_AGG(JSON_BUILD_OBJECT('url', p.url, 'thumbUrl', p."thumbUrl", 'bgColor', p."bgColor")) FILTER (WHERE p.url IS NOT NULL) as attachments,
@@ -84,7 +85,7 @@ export const queryFeed = async (userId: string, page: number): Promise<Post[]> =
     ON parent."authorId" = parent_author.id
     INNER JOIN "User" u
     ON u.id = p."authorId"
-    GROUP BY p.id, u.id, parent_author.username, p.content, p."createdAt"
+    GROUP BY p.id, u.id, parent_author.username, p.content, p."createdAt", p."ogData"
     ORDER BY p."createdAt" DESC
     LIMIT 30 OFFSET ${page * 30}
     ;`;
@@ -94,7 +95,7 @@ export const queryPost = async (userId: string | undefined, postId: string): Pro
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
 
     return await prisma.$queryRaw`
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
@@ -121,7 +122,7 @@ export const queryThread = async (userId: string | undefined, postId: string): P
 
     return await prisma.$queryRaw`
     WITH RECURSIVE posts AS (
-      SELECT op.id, op.content, op."createdAt", op."authorId", op.deleted, op."parentId"
+      SELECT op.id, op.content, op."createdAt", op."authorId", op.deleted, op."parentId", op."ogData"
       FROM "Post" op
       WHERE op.id = ${postId}
       UNION
@@ -134,7 +135,7 @@ export const queryThread = async (userId: string | undefined, postId: string): P
         FROM "Post" parent
         INNER JOIN posts p ON p."parentId" = parent.id
     )
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL", u."displayName" as "authorName",
     CASE WHEN p.deleted = FALSE THEN JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) ELSE NULL END as attachments,
     CASE WHEN p.deleted = FALSE THEN (SELECT COUNT("postId")::INTEGER FROM "PostLike" l WHERE l."postId" = p.id) ELSE 0 END as likes,
@@ -160,7 +161,7 @@ export const queryComments = async (userId: string | undefined, postId: string, 
     const liked = userId != undefined ? Prisma.sql`EXISTS (SELECT "userId" FROM "PostLike" l WHERE l."postId" = p.id AND l."userId" = ${userId}) as liked` : Prisma.sql`false as liked`;
 
     return await prisma.$queryRaw`
-    SELECT p.id, p.content, p."createdAt",
+    SELECT p.id, p.content, p."createdAt", p."ogData",
     u.id as "authorId", u.username as "authorUsername", u."avatarURL" as "authorAvatarURL",
     u."displayName" as "authorName",
     JSON_AGG(JSON_BUILD_OBJECT('url', a.url, 'thumbUrl', a."thumbUrl", 'bgColor', a."bgColor")) FILTER (WHERE a.url IS NOT NULL) as attachments,
@@ -187,7 +188,7 @@ export const queryComments = async (userId: string | undefined, postId: string, 
 export const createPostDB = async (
     id: string,
     userId: string,
-    content: string | undefined,
+    content: { val: string | undefined, og: Metadata[] },
     attachments: Attachment[],
     parentId: string | undefined
 ): Promise<[DatabaseError, Partial<Post & { attachments: Partial<PostAttachment>[], parent: Partial<Post> | null } | null>]> => {
@@ -211,7 +212,8 @@ export const createPostDB = async (
             post = await tx.post.create({
                 data: {
                     id,
-                    content,
+                    content: content.val,
+                    ogData: content.og as unknown as Prisma.JsonArray,
                     authorId: userId,
                     parentId,
                     attachments: {

@@ -2,6 +2,13 @@ import { POST_MAX_CHARS } from "../../src/utils/constants";
 import z from "zod";
 import { GetPagedData } from "./general";
 import { htmlEscape, extractMentions, extractUrlsWithIndices, extractHashtags } from "twitter-text";
+import metascraper, { Metadata } from "metascraper";
+import metascraperUrl from "metascraper-url";
+import metascraperTitle from "metascraper-title";
+import metascraperImage from "metascraper-image";
+import metascraperDescription from "metascraper-description";
+import metascraperYoutube from "metascraper-youtube";
+import metascraperSpotify from "metascraper-spotify";
 
 export enum ReportReasons {
     NudityOrSex = "nudity-sex",
@@ -23,13 +30,14 @@ export const GetPostData = z.object({
 });
 
 export const linkAllTransformer = (schema: z.ZodSchema) => {
-    return schema.transform((content) => {
+    return schema.transform(async (content) => {
         const escaped = htmlEscape(content);
         let linkedContent = linkUsernames(escaped);
         linkedContent = linkHashtags(linkedContent);
-        linkedContent = linkUrls(linkedContent);
+        const { val, og } = await linkUrls(linkedContent);
+        linkedContent = val;
 
-        return linkedContent;
+        return { val: linkedContent, og };
     });
 };
 
@@ -52,6 +60,19 @@ function linkHashtags(val: string): string {
     }
 
     return val;
+}
+
+async function scrapeOG(url: string): Promise<Metadata> {
+    const response = await fetch(url);
+    const html = await response.text();
+    return await metascraper([
+        metascraperUrl(),
+        metascraperTitle(),
+        metascraperImage(),
+        metascraperDescription(),
+        metascraperYoutube(),
+        metascraperSpotify(),
+    ])({ html, url });
 }
 
 function linkUsernames(val: string): string {
@@ -79,11 +100,13 @@ function replaceAfter(str: string, searchVal: string, replacement: string, from:
     return str.slice(0, from) + str.slice(from).replace(searchVal, replacement);
 }
 
-export function linkUrls(val: string): string {
+export async function linkUrls(val: string): Promise<{ val: string, og: Metadata[] }> {
     const urls = extractUrlsWithIndices(val, { extractUrlsWithoutProtocol: true });
+    const og = [];
 
     let searchIdx = 0;
     for (let i = 0; i < urls.length; i++) {
+        og.push(await scrapeOG(urls[i].url));
         const idxOfUrl = val.indexOf(urls[i].url, searchIdx);
         searchIdx = idxOfUrl;
         const anchorTag = `<a href="${urls[i].url.startsWith("http") ? urls[i].url : `https://${urls[i].url}`}" class="link" target="_blank">${urls[i].url}</a>`;
@@ -91,7 +114,12 @@ export function linkUrls(val: string): string {
         searchIdx += anchorTag.length;
     }
 
-    return val;
+    console.log(og);
+
+    return {
+        val,
+        og
+    };
 }
 
 export const CreatePostData = z.object({

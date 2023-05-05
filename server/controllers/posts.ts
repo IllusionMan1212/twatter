@@ -117,7 +117,7 @@ export async function getComments(req: Request, res: Response) {
 }
 
 export async function createPost(req: Request, res: Response) {
-    const data = CreatePostData.safeParse(req.body);
+    const data = await CreatePostData.safeParseAsync(req.body);
 
     if (!data.success) {
         return res.status(400).json({ message: data.error.errors[0].message });
@@ -130,6 +130,8 @@ export async function createPost(req: Request, res: Response) {
     if (!data.data.content && !attachmentFiles.length) {
         return res.status(400).json({ message: "Cannot submit an empty post" });
     }
+
+    console.log(data.data.content);
 
     const attachments = await processAttachments(id, attachmentFiles, req.headers.host);
 

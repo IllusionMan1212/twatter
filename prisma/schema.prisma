@@ -52,6 +52,7 @@ model Post {
   createdAt DateTime @default(now())
   parentId  String?
   deleted   Boolean  @default(false)
+  ogData    Json?
 
   author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parent      Post?            @relation(name: "comment", fields: [parentId], references: [id])

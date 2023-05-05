@@ -225,6 +225,7 @@ function Posts({ user }: Props): ReactElement {
                         username: user.username,
                         avatarURL: user.avatarURL,
                     }}
+                    ogData={post.ogData}
                     isScrolling={isScrolling}
                     attachments={post.attachments}
                     createdAt={post.createdAt}
