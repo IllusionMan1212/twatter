@@ -582,6 +582,12 @@ export async function getServerSideProps(
     try {
         const res = await axios.get<GetPostRes>(
             `posts/get-post/${context.params?.postId}`,
+            {
+                withCredentials: true,
+                headers: {
+                    Cookie: `a_token=${context.req.cookies.a_token};r_token=${context.req.cookies.r_token}`,
+                },
+            }
         );
         post = res.data.post ?? null;
     } catch (e) {
